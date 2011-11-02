@@ -830,6 +830,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                     }
                     case DATA_SPINESTALKER:
                     {
+                        if (data == 254)
+                        {
+                            if (Creature* spinestalk = instance->GetCreature(SpinestalkerGUID))
+                                spinestalk->AI()->DoAction(ACTION_START_FROSTWYRM);
+                            return;
+                        }
+                        
                         if (SpinestalkerTrashCount == 255)
                             return;
 
@@ -855,6 +862,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                     }
                     case DATA_RIMEFANG:
                     {
+                        if (data == 254)
+                        {
+                            if (Creature* rime = instance->GetCreature(RimefangGUID))
+                                rime->AI()->DoAction(ACTION_START_FROSTWYRM);
+                            return;
+                        }
+                        
                         if (RimefangTrashCount == 255)
                             return;
 

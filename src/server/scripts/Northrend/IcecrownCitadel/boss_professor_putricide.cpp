@@ -64,6 +64,7 @@ enum Spells
     SPELL_MALLEABLE_GOO                 = 70852,
     SPELL_UNSTABLE_EXPERIMENT           = 70351,
     SPELL_TEAR_GAS                      = 71617,    // phase transition
+    SPELL_TEAR_GAS_AURA                 = 71618,    
     SPELL_CREATE_CONCOCTION             = 71621,
     SPELL_GUZZLE_POTIONS                = 71893,
     SPELL_OOZE_TANK_PROTECTION          = 71770,    // protects the tank
@@ -195,7 +196,7 @@ class boss_professor_putricide : public CreatureScript
 
                 if (instance->GetBossState(DATA_ROTFACE) == DONE && instance->GetBossState(DATA_FESTERGUT) == DONE)
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-				me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_TEAR_GAS, true);
+                me->ApplySpellImmune(SPELL_TEAR_GAS_AURA, IMMUNITY_ID, SPELL_TEAR_GAS_AURA, true);
             }
 
             void EnterCombat(Unit* who)
@@ -222,7 +223,7 @@ class boss_professor_putricide : public CreatureScript
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_OOZE_TANK_PROTECTION, true);
                 DoZoneInCombat(me);
-				me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_TEAR_GAS, true);
+                me->ApplySpellImmune(SPELL_TEAR_GAS_AURA, IMMUNITY_ID, SPELL_TEAR_GAS_AURA, true);
 
                 instance->SetBossState(DATA_PROFESSOR_PUTRICIDE, IN_PROGRESS);
             }
@@ -571,7 +572,7 @@ class boss_professor_putricide : public CreatureScript
                             AttackStart(me->getVictim());
                             // remove Tear Gas
                             instance->DoRemoveAurasDueToSpellOnPlayers(71615);
-                            instance->DoRemoveAurasDueToSpellOnPlayers(71618);
+                            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TEAR_GAS_AURA);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GAS_VARIABLE);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OOZE_VARIABLE);
                             break;

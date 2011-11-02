@@ -286,7 +286,7 @@ class boss_sindragosa : public CreatureScript
                         break;
                     case POINT_AIR_PHASE:
                         me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), NULL);
-                        events.ScheduleEvent(EVENT_FROST_BOMB, 8000);
+                        events.ScheduleEvent(EVENT_FROST_BOMB, 9000);
                         break;
                     case POINT_LAND:
                         me->SetFlying(false);
@@ -464,7 +464,7 @@ class boss_sindragosa : public CreatureScript
                                 DoCast(summ, SPELL_FROST_BOMB_TRIGGER);
                                 //me->CastSpell(destX, destY, destZ, SPELL_FROST_BOMB_TRIGGER, false);
                             }
-                            events.ScheduleEvent(EVENT_FROST_BOMB, urand(5000, 10000));
+                            events.ScheduleEvent(EVENT_FROST_BOMB, 8000);
                             break;
                         }
                         case EVENT_LAND:
@@ -523,7 +523,7 @@ class npc_ice_tomb : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void SetGUID(uint64 guid, int32 type/* = 0 */)
+            void SetGUID(uint64 const guid, int32 type/* = 0 */)
             {
                 if (type == DATA_TRAPPED_PLAYER)
                 {
@@ -623,12 +623,11 @@ class npc_spinestalker : public CreatureScript
 
             void DoAction(int32 const action)
             {
-                if (action == ACTION_START_FROSTWYRM)
+                if (action == ACTION_START_FROSTWYRM && _instance->GetData(DATA_SPINESTALKER) != 255)
                 {
                     _instance->SetData(DATA_SPINESTALKER, 255);
                     if (me->isDead())
                         return;
-
                     me->setActive(true);
                     me->SetSpeed(MOVE_FLIGHT, 2.0f);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -738,12 +737,11 @@ class npc_rimefang : public CreatureScript
 
             void DoAction(int32 const action)
             {
-                if (action == ACTION_START_FROSTWYRM)
+                if (action == ACTION_START_FROSTWYRM && _instance->GetData(DATA_RIMEFANG) != 255)
                 {
                     _instance->SetData(DATA_RIMEFANG, 255);
                     if (me->isDead())
                         return;
-
                     me->setActive(true);
                     me->SetSpeed(MOVE_FLIGHT, 2.0f);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
@@ -884,6 +882,11 @@ class npc_sindragosa_trash : public CreatureScript
             {
                 // Decrease add count
                 _instance->SetData(_frostwyrmId, 0);
+
+                // Call Wyrm directly
+                // (workaround because sometimes the server seems to miscalculate the amount of left trash monsters)
+                if (me->GetEntry() == NPC_FROSTWARDEN_HANDLER)
+                    _instance->SetData(_frostwyrmId, 254);
             }
 
             void SetData(uint32 type, uint32 data)
@@ -918,6 +921,7 @@ class npc_sindragosa_trash : public CreatureScript
                         case EVENT_FROSTWARDEN_ORDER_WHELP:
                             DoCast(me, SPELL_ORDER_WHELP);
                             _events.ScheduleEvent(EVENT_FROSTWARDEN_ORDER_WHELP, 3000);
+                                
                             break;
                         case EVENT_CONCUSSIVE_SHOCK:
                             DoCast(me, SPELL_CONCUSSIVE_SHOCK);
@@ -1020,7 +1024,7 @@ class spell_sindragosa_unchained_magic : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if (UnchainedMagicTargetSelector());
+                unitList.remove_if(UnchainedMagicTargetSelector());
                 uint32 maxSize = uint32(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 5 : 2);
                 if (unitList.size() > maxSize)
                     Trinity::RandomResizeList(unitList, maxSize);
@@ -1214,7 +1218,7 @@ class spell_sindragosa_collision_filter : public SpellScriptLoader
             {
                 std::list<Creature*> tombs;
                 GetCreatureListWithEntryInGrid(tombs, GetCaster(), NPC_ICE_TOMB, 200.0f);
-                unitList.remove_if (FrostBombTargetSelector(GetCaster(), tombs));
+                unitList.remove_if(FrostBombTargetSelector(GetCaster(), tombs));
             }
 
             void Register()
@@ -1341,7 +1345,9 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
                         ++itr;
                 }
 
-                Unit* target = SelectRandomContainerElement(unitList);
+                std::list<Unit*>::iterator itr = unitList.begin();
+                std::advance(itr, urand(0, unitList.size()-1));
+                Unit* target = *itr;
                 unitList.clear();
                 unitList.push_back(target);
             }
@@ -1353,9 +1359,11 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
                 std::list<Creature*> unitList;
                 GetCreatureListWithEntryInGrid(unitList, GetCaster(), NPC_FROSTWING_WHELP, 150.0f);
                 if (Creature* creature = GetCaster()->ToCreature())
-                    unitList.remove_if (OrderWhelpTargetSelector(creature));
+                    unitList.remove_if(OrderWhelpTargetSelector(creature));
 
-                SelectRandomContainerElement(unitList)->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+                std::list<Creature*>::iterator itr = unitList.begin();
+                std::advance(itr, urand(0, unitList.size()-1));
+                (*itr)->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
             }
 
             void Register()

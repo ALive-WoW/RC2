@@ -105,7 +105,7 @@ enum Spells
 
 #define EMERALD_VIGOR DIFFICULTY<uint32>(SPELL_EMERALD_VIGOR, SPELL_EMERALD_VIGOR, \
                                         SPELL_TWISTED_NIGHTMARE, SPELL_TWISTED_NIGHTMARE)
-										
+                                        
 enum Events
 {
     // Valithria Dreamwalker
@@ -150,6 +150,10 @@ enum Actions
 };
 
 Position const ValithriaSpawnPos = {4210.813f, 2484.443f, 364.9558f, 0.01745329f};
+Position const ValithriaSpawnFrontRight = {4243.304199f, 2571.607910f, 364.868011f, 0.01745329f};
+Position const ValithriaSpawnFrontLeft  = {4241.145020f, 2401.896484f, 364.867981f, 0.01745329f};
+Position const ValithriaSpawnBackRight  = {4166.388672f, 2571.607910f, 364.867981f, 0.01745329f};
+Position const ValithriaSpawnBackLeft   = {4166.388672f, 2401.896484f, 364.867981f, 0.01745329f};
 
 class RisenArchmageCheck
 {
@@ -595,19 +599,19 @@ class npc_the_lich_king_controller : public CreatureScript
             void Reset()
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_GLUTTONOUS_ABOMINATION_SUMMONER, 20000);
-                _events.ScheduleEvent(EVENT_SUPPRESSER_SUMMONER, 30000);
-                _events.ScheduleEvent(EVENT_BLISTERING_ZOMBIE_SUMMONER, 40000);
-                _events.ScheduleEvent(EVENT_RISEN_ARCHMAGE_SUMMONER, 60000);
-                _events.ScheduleEvent(EVENT_BLAZING_SKELETON_SUMMONER, 50000);
+                _events.ScheduleEvent(EVENT_GLUTTONOUS_ABOMINATION_SUMMONER, 5000);
+                _events.ScheduleEvent(EVENT_SUPPRESSER_SUMMONER, 10000);
+                _events.ScheduleEvent(EVENT_BLISTERING_ZOMBIE_SUMMONER, 15000);
+                _events.ScheduleEvent(EVENT_RISEN_ARCHMAGE_SUMMONER, 20000);
+                _events.ScheduleEvent(EVENT_BLAZING_SKELETON_SUMMONER, 30000);
                 
                 me->SetReactState(REACT_PASSIVE);
                 _timerGluttonousAbomination = 60000;
-                _timerSuppressor = 45000;
-                _timerBlisteringZombie = 45000;
-                _timerRisenArchmage = 45000;
-                _timerBlazingSkeleton = 45000;
-				
+                _timerSuppressor = 60000;
+                _timerBlisteringZombie = 30000;
+                _timerRisenArchmage = 60000;
+                _timerBlazingSkeleton = 60000;
+                
             }
 
             void JustReachedHome()
@@ -653,120 +657,120 @@ class npc_the_lich_king_controller : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_GLUTTONOUS_ABOMINATION_SUMMONER:
-						{
+                        {
                             //DoCast(me, SPELL_TIMER_GLUTTONOUS_ABOMINATION);
-							switch (rand)
-							{
-								case 1:
-									me->SummonCreature(NPC_GLUTTONOUS_ABOMINATION, 4243.304199f, 2571.607910f, 364.868011f);
-									break;
-								case 2:
-									me->SummonCreature(NPC_GLUTTONOUS_ABOMINATION, 4241.145020f,2401.896484f,364.867981f);
-									break;
-								case 3:
-									me->SummonCreature(NPC_GLUTTONOUS_ABOMINATION, 4166.388672f, 2571.607910f, 364.867981f);
-									break;
-								case 4:
-									me->SummonCreature(NPC_GLUTTONOUS_ABOMINATION, 4166.388672f, 2401.896484f, 364.867981f);
-									break;
-							}
+                            switch (rand)
+                            {
+                                case 1:
+                                    me->SummonCreature(NPC_GLUTTONOUS_ABOMINATION, ValithriaSpawnFrontRight);
+                                    break;
+                                case 2:
+                                    me->SummonCreature(NPC_GLUTTONOUS_ABOMINATION, ValithriaSpawnFrontLeft);
+                                    break;
+                                case 3:
+                                    me->SummonCreature(NPC_GLUTTONOUS_ABOMINATION, ValithriaSpawnBackRight);
+                                    break;
+                                case 4:
+                                    me->SummonCreature(NPC_GLUTTONOUS_ABOMINATION, ValithriaSpawnBackLeft);
+                                    break;
+                            }
                             _events.ScheduleEvent(EVENT_GLUTTONOUS_ABOMINATION_SUMMONER, _timerGluttonousAbomination);
                             if(_timerGluttonousAbomination > 5000)
-                                _timerGluttonousAbomination -= 5000;
-							break;
-						}
+                                _timerGluttonousAbomination -= 4000;
+                            break;
+                        }
                         case EVENT_SUPPRESSER_SUMMONER:
-						{
+                        {
                             //DoCast(me, SPELL_TIMER_SUPPRESSER);
-							switch (rand)
-							{
-								case 1:
-									me->SummonCreature(NPC_SUPPRESSER, 4243.304199f, 2571.607910f, 364.868011f);
-									break;
-								case 2:
-									me->SummonCreature(NPC_SUPPRESSER, 4241.145020f,2401.896484f,364.867981f);
-									break;
-								case 3:
-									me->SummonCreature(NPC_SUPPRESSER, 4166.388672f, 2571.607910f, 364.867981f);
-									break;
-								case 4:
-									me->SummonCreature(NPC_SUPPRESSER, 4166.388672f, 2401.896484f, 364.867981f);
-									break;
-							}
-							_events.ScheduleEvent(EVENT_SUPPRESSER_SUMMONER, _timerSuppressor);
+                            switch (rand)
+                            {
+                                case 1:
+                                    me->SummonCreature(NPC_SUPPRESSER, ValithriaSpawnFrontRight);
+                                    break;
+                                case 2:
+                                    me->SummonCreature(NPC_SUPPRESSER, ValithriaSpawnFrontLeft);
+                                    break;
+                                case 3:
+                                    me->SummonCreature(NPC_SUPPRESSER, ValithriaSpawnBackRight);
+                                    break;
+                                case 4:
+                                    me->SummonCreature(NPC_SUPPRESSER, ValithriaSpawnBackLeft);
+                                    break;
+                            }
+                            _events.ScheduleEvent(EVENT_SUPPRESSER_SUMMONER, _timerSuppressor);
                             if(_timerSuppressor > 5000)
-                                _timerSuppressor -= 5000;
-							break;
-						}
+                                _timerSuppressor -= 3000;
+                            break;
+                        }
                         case EVENT_BLISTERING_ZOMBIE_SUMMONER:
-						{
+                        {
                             //DoCast(me, SPELL_TIMER_BLISTERING_ZOMBIE);
-							switch (rand)
-							{
-								case 1:
-									me->SummonCreature(NPC_BLISTERING_ZOMBIE, 4243.304199f, 2571.607910f, 364.868011f);
-									break;
-								case 2:
-									me->SummonCreature(NPC_BLISTERING_ZOMBIE, 4241.145020f,2401.896484f,364.867981f);
-									break;
-								case 3:
-									me->SummonCreature(NPC_BLISTERING_ZOMBIE, 4166.388672f, 2571.607910f, 364.867981f);
-									break;
-								case 4:
-									me->SummonCreature(NPC_BLISTERING_ZOMBIE, 4166.388672f, 2401.896484f, 364.867981f);
-									break;
-							}
+                            switch (rand)
+                            {
+                                case 1:
+                                    me->SummonCreature(NPC_BLISTERING_ZOMBIE, ValithriaSpawnFrontRight);
+                                    break;
+                                case 2:
+                                    me->SummonCreature(NPC_BLISTERING_ZOMBIE, ValithriaSpawnFrontLeft);
+                                    break;
+                                case 3:
+                                    me->SummonCreature(NPC_BLISTERING_ZOMBIE, ValithriaSpawnBackRight);
+                                    break;
+                                case 4:
+                                    me->SummonCreature(NPC_BLISTERING_ZOMBIE, ValithriaSpawnBackLeft);
+                                    break;
+                            }
                             _events.ScheduleEvent(EVENT_BLISTERING_ZOMBIE_SUMMONER, _timerBlisteringZombie);
                             if(_timerBlisteringZombie > 5000)
-                                _timerBlisteringZombie -= 1000;
-							break;
-						}
+                                _timerBlisteringZombie -= 500;
+                            break;
+                        }
                         case EVENT_RISEN_ARCHMAGE_SUMMONER:
-						{
+                        {
                             //DoCast(me, SPELL_TIMER_RISEN_ARCHMAGE);
-							switch (rand)
-							{
-								case 1:
-									me->SummonCreature(NPC_RISEN_ARCHMAGE, 4243.304199f, 2571.607910f, 364.868011f);
-									break;
-								case 2:
-									me->SummonCreature(NPC_RISEN_ARCHMAGE, 4241.145020f,2401.896484f,364.867981f);
-									break;
-								case 3:
-									me->SummonCreature(NPC_RISEN_ARCHMAGE, 4166.388672f, 2571.607910f, 364.867981f);
-									break;
-								case 4:
-									me->SummonCreature(NPC_RISEN_ARCHMAGE, 4166.388672f, 2401.896484f, 364.867981f);
-									break;
-							}
+                            switch (rand)
+                            {
+                                case 1:
+                                    me->SummonCreature(NPC_RISEN_ARCHMAGE, ValithriaSpawnFrontRight);
+                                    break;
+                                case 2:
+                                    me->SummonCreature(NPC_RISEN_ARCHMAGE, ValithriaSpawnFrontLeft);
+                                    break;
+                                case 3:
+                                    me->SummonCreature(NPC_RISEN_ARCHMAGE, ValithriaSpawnBackRight);
+                                    break;
+                                case 4:
+                                    me->SummonCreature(NPC_RISEN_ARCHMAGE, ValithriaSpawnBackLeft);
+                                    break;
+                            }
                             _events.ScheduleEvent(EVENT_RISEN_ARCHMAGE_SUMMONER, _timerRisenArchmage);
                             if(_timerRisenArchmage > 5000)
-                                _timerRisenArchmage -= 2000;
-							break;
-						}
+                                _timerRisenArchmage -= 1000;
+                            break;
+                        }
                         case EVENT_BLAZING_SKELETON_SUMMONER:
-						{
+                        {
                             //DoCast(me, SPELL_TIMER_BLAZING_SKELETON);
-							switch (rand)
-							{
-								case 1:
-									me->SummonCreature(NPC_BLAZING_SKELETON, 4243.304199f, 2571.607910f, 364.868011f);
-									break;
-								case 2:
-									me->SummonCreature(NPC_BLAZING_SKELETON, 4241.145020f, 2401.896484f,364.867981f);
-									break;
-								case 3:
-									me->SummonCreature(NPC_BLAZING_SKELETON, 4166.388672f, 2571.607910f, 364.867981f);
-									break;
-								case 4:
-									me->SummonCreature(NPC_BLAZING_SKELETON, 4166.388672f, 2401.896484f, 364.867981f);
-									break;
-							}
+                            switch (rand)
+                            {
+                                case 1:
+                                    me->SummonCreature(NPC_BLAZING_SKELETON, ValithriaSpawnFrontRight);
+                                    break;
+                                case 2:
+                                    me->SummonCreature(NPC_BLAZING_SKELETON, ValithriaSpawnFrontLeft);
+                                    break;
+                                case 3:
+                                    me->SummonCreature(NPC_BLAZING_SKELETON, ValithriaSpawnBackRight);
+                                    break;
+                                case 4:
+                                    me->SummonCreature(NPC_BLAZING_SKELETON, ValithriaSpawnBackLeft);
+                                    break;
+                            }
                             _events.ScheduleEvent(EVENT_BLAZING_SKELETON_SUMMONER, _timerBlazingSkeleton);
                             if(_timerBlazingSkeleton > 5000)
-                                _timerBlazingSkeleton -= DIFFICULTY(1000, 5000, 1000, 5000);
-							break;
-						}
+                                _timerBlazingSkeleton -= 1000;
+                            break;
+                        }
                         default:
                             break;
                     }
