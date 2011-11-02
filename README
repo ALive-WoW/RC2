@@ -1,0 +1,36 @@
+= ALiveCore -- General information =
+
+Copyright (C) ALiveCore (http://wow-alive.de/)
+
+  ALiveCore is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License and asking the
+  Admin of the ALive Projekt.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
+
+  In addition, as a special exception, the ALiveCore project
+  gives permission to link the code of its release of ALiveCore with
+  the OpenSSL project's "OpenSSL" library (or with modified versions of
+  it that use the same license as the "OpenSSL" library), and distribute
+  the linked executables.  You must obey the GNU General Public License
+  in all respects for all of the code used other than "OpenSSL".  If you
+  modify this file, you may extend this exception to your version of the
+  file, but you are not obligated to do so.  If you do not wish to do
+  so, delete this exception statement from your version.
+
+  But befor Forking oder Copying, Ask the Devs of this Repo, do not Fork/Copy
+  This Repo without asking for permissions!
+
+ALiveCore is a World of Warcraft game server emulator like Trinity COre
+and is based on the code of that project.
+
+ALiveCore is The Core of the WoW-ALive Projekt.
+Only ALive Devs an Admins have the right to Clone this Repo.
+Do not Fork without asking.
