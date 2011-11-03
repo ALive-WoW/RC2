@@ -251,6 +251,8 @@ class boss_deathbringer_saurfang : public CreatureScript
                 _fallenChampionCastCount = 0;
             }
 
+	     uint32 cpower;
+
             void Reset()
             {
                 _Reset();
@@ -265,6 +267,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 DoCast(me, SPELL_RUNE_OF_BLOOD_S, true);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
                 me->RemoveAurasDueToSpell(SPELL_FRENZY);
+		  cpower = 0;
             }
 
             void EnterCombat(Unit* who)
@@ -372,10 +375,10 @@ class boss_deathbringer_saurfang : public CreatureScript
 					}
 
                 if (IsHeroic())
-					summon->AddAura(SPELL_SCENT_OF_BLOOD, summon);
+					summon->AI()->DoCast(summon, SPELL_SCENT_OF_BLOOD, true);
 
-                summon->AddAura(SPELL_BLOOD_LINK_BEAST, summon);
-                summon->AddAura(SPELL_RESISTANT_SKIN, summon);
+                summon->AI()->DoCast(summon, SPELL_BLOOD_LINK_BEAST, true);
+                summon->AI()->DoCast(summon, SPELL_RESISTANT_SKIN, true);
                 summons.Summon(summon);
                 DoZoneInCombat(summon);
             }
@@ -431,62 +434,99 @@ class boss_deathbringer_saurfang : public CreatureScript
 					}
 					else if (power >= 90 && power < 100)
 					{
-						me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.90f);
-						me->CastSpell(me, SPELL_DAMAGE_BUFF);
-						me->CastSpell(me, SPELL_DAMAGE_BUFF);
+						if (cpower == 8)
+						{
+							me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.90f);
+							me->CastSpell(me, SPELL_DAMAGE_BUFF);
+							me->CastSpell(me, SPELL_DAMAGE_BUFF);
+							++cpower;
+						}
 					}
 					else if (power >= 80 && power < 90)
 					{
-						me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.80f);
-						me->CastSpell(me, SPELL_DAMAGE_BUFF);
-						me->CastSpell(me, SPELL_DAMAGE_BUFF);
+						if (cpower == 7)
+						{
+							me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.80f);
+							me->CastSpell(me, SPELL_DAMAGE_BUFF);
+							me->CastSpell(me, SPELL_DAMAGE_BUFF);
+							++cpower;
+						}
 					}
 					else if (power >= 70 && power < 80)
 					{
-						me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.70f);
-						me->CastSpell(me, SPELL_DAMAGE_BUFF);
-						me->CastSpell(me, SPELL_DAMAGE_BUFF);
+						if (cpower == 6)
+						{
+							me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.70f);
+							me->CastSpell(me, SPELL_DAMAGE_BUFF);
+							me->CastSpell(me, SPELL_DAMAGE_BUFF);
+							++cpower;
+						}
 					}
 					else if (power >= 60 && power < 70)
 					{
-						me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.60f);
-						me->CastSpell(me, SPELL_DAMAGE_BUFF);
-						me->CastSpell(me, SPELL_DAMAGE_BUFF);
+						if (cpower == 5)
+						{
+							me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.60f);
+							me->CastSpell(me, SPELL_DAMAGE_BUFF);
+							me->CastSpell(me, SPELL_DAMAGE_BUFF);
+							++cpower;
+						}
 					}
 					else if (power >= 50 && power < 60)
 					{
-						me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.50f);
-						me->CastSpell(me, SPELL_DAMAGE_BUFF);
-						me->CastSpell(me, SPELL_DAMAGE_BUFF);
+						if (cpower == 4)
+						{
+							me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.50f);
+							me->CastSpell(me, SPELL_DAMAGE_BUFF);
+							me->CastSpell(me, SPELL_DAMAGE_BUFF);
+							++cpower;
+						}
 					}
 					else if (power >= 40 && power < 50)
 					{
-						me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.40f);
-						me->CastSpell(me, SPELL_DAMAGE_BUFF);
-						me->CastSpell(me, SPELL_DAMAGE_BUFF);
+						if (cpower == 3)
+						{
+							me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.40f);
+							me->CastSpell(me, SPELL_DAMAGE_BUFF);
+							me->CastSpell(me, SPELL_DAMAGE_BUFF);
+							++cpower;
+						}
 					}
 					else if (power >= 30 && power < 40)
 					{
-						me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.30f);
-						me->CastSpell(me, SPELL_DAMAGE_BUFF);
-						me->CastSpell(me, SPELL_DAMAGE_BUFF);
+						if (cpower == 2)
+						{
+							me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.30f);
+							me->CastSpell(me, SPELL_DAMAGE_BUFF);
+							me->CastSpell(me, SPELL_DAMAGE_BUFF);
+							++cpower;
+						}
 					}
 					else if (power >= 20 && power < 30)
 					{
-						me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.20f);
-						me->CastSpell(me, SPELL_DAMAGE_BUFF);
-						me->CastSpell(me, SPELL_DAMAGE_BUFF);
+						if (cpower == 1)
+						{
+							me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.20f);
+							me->CastSpell(me, SPELL_DAMAGE_BUFF);
+							me->CastSpell(me, SPELL_DAMAGE_BUFF);
+							++cpower;
+						}
 					}
 					else if (power >= 10 && power < 20)
 					{
-						me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.10f);
-						me->CastSpell(me, SPELL_DAMAGE_BUFF);
-						me->CastSpell(me, SPELL_DAMAGE_BUFF);
+						if (cpower == 0)
+						{
+							me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.10f);
+							me->CastSpell(me, SPELL_DAMAGE_BUFF);
+							me->CastSpell(me, SPELL_DAMAGE_BUFF);
+							++cpower;
+						}
 					}
 					else if (power >= 0 && power < 10)
 					{
 						me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.00f);
 						me->RemoveAura(SPELL_DAMAGE_BUFF);
+						cpower = 0;
 					}
 
                     switch (eventId)
@@ -608,14 +648,16 @@ class boss_deathbringer_saurfang : public CreatureScript
                     }
                     case ACTION_MARK_OF_THE_FALLEN_CHAMPION:
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION))
-                        {
-                            ++_fallenChampionCastCount;
-                            DoCast(target, SPELL_MARK_OF_THE_FALLEN_CHAMPION);
-                            me->SetPower(POWER_ENERGY, 0);
-                            if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
-                                bloodPower->RecalculateAmountOfEffects();
-                        }
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+							if (target->isPet() || target->isTotem())
+								if (!target->HasAura(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
+								{
+									++_fallenChampionCastCount;
+									DoCast(target, SPELL_MARK_OF_THE_FALLEN_CHAMPION);
+									me->SetPower(POWER_ENERGY, 0);
+									if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
+										bloodPower->RecalculateAmountOfEffects();
+								}
                         break;
                     }
                     default:
@@ -1097,6 +1139,8 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
                 PreventDefaultAction();
                 if (GetUnitOwner()->getPowerType() == POWER_ENERGY && GetUnitOwner()->GetPower(POWER_ENERGY) == GetUnitOwner()->GetMaxPower(POWER_ENERGY))
                     if (Creature* saurfang = GetUnitOwner()->ToCreature())
+					{
+					}
                       //  saurfang->AI()->DoAction(ACTION_MARK_OF_THE_FALLEN_CHAMPION);
             }
 
