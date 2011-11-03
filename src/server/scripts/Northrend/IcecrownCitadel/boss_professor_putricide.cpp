@@ -64,7 +64,8 @@ enum Spells
     SPELL_MALLEABLE_GOO                 = 70852,
     SPELL_UNSTABLE_EXPERIMENT           = 70351,
     SPELL_TEAR_GAS                      = 71617,    // phase transition
-    SPELL_TEAR_GAS_AURA                 = 71618,    
+    SPELL_TEAR_GAS_AURA                 = 71618,
+    SPELL_TEAR_GAS_EFFECT               = 71615,
     SPELL_CREATE_CONCOCTION             = 71621,
     SPELL_GUZZLE_POTIONS                = 71893,
     SPELL_OOZE_TANK_PROTECTION          = 71770,    // protects the tank
@@ -196,7 +197,8 @@ class boss_professor_putricide : public CreatureScript
 
                 if (instance->GetBossState(DATA_ROTFACE) == DONE && instance->GetBossState(DATA_FESTERGUT) == DONE)
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                me->ApplySpellImmune(SPELL_TEAR_GAS_AURA, IMMUNITY_ID, SPELL_TEAR_GAS_AURA, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_TEAR_GAS_AURA, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_TEAR_GAS_EFFECT, true);
             }
 
             void EnterCombat(Unit* who)
@@ -223,7 +225,8 @@ class boss_professor_putricide : public CreatureScript
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_OOZE_TANK_PROTECTION, true);
                 DoZoneInCombat(me);
-                me->ApplySpellImmune(SPELL_TEAR_GAS_AURA, IMMUNITY_ID, SPELL_TEAR_GAS_AURA, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_TEAR_GAS_AURA, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_TEAR_GAS_EFFECT, true);
 
                 instance->SetBossState(DATA_PROFESSOR_PUTRICIDE, IN_PROGRESS);
             }

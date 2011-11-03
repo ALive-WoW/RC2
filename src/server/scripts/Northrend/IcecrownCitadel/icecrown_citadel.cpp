@@ -1880,11 +1880,11 @@ public:
             events.Reset();
         }
 
-        void SetGUID(uint64 const guid, int32 type/* = 0 */)
+        void DoAction(int32 const action, uint64 const data)
         {
-            if (type == DATA_CLONED_PLAYER)
+            if (action == DATA_CLONED_PLAYER)
             {
-                clonedPlayerGUID = guid;
+                clonedPlayerGUID = data;
             }
         }
 
