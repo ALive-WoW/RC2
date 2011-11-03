@@ -377,7 +377,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 if (IsHeroic())
 					summon->AI()->DoCast(summon, SPELL_SCENT_OF_BLOOD, true);
 
-                summon->AI()->DoCast(summon, SPELL_BLOOD_LINK_BEAST, true);
+                summon->AI()->DoCast(summon, SPELL_BLOOD_LINK, true);
                 summon->AI()->DoCast(summon, SPELL_RESISTANT_SKIN, true);
                 summons.Summon(summon);
                 DoZoneInCombat(summon);
@@ -428,7 +428,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 while (uint32 eventId = events.ExecuteEvent())
                 {
 					uint32 power = me->GetPower(POWER_ENERGY);
-					if (power == 100)
+					if (power >= 100)
 					{
 						DoAction(ACTION_MARK_OF_THE_FALLEN_CHAMPION);
 					}
@@ -1080,6 +1080,33 @@ class npc_saurfang_event : public CreatureScript
         }
 };
 
+class npc_bloodbeast : public CreatureScript
+{
+    public:
+        npc_bloodbeast() : CreatureScript("npc_bloodbeast") { }
+
+        struct npc_bloodbeastAI : public ScriptedAI
+        {
+  		 npc_bloodbeastAI(Creature* creature) : ScriptedAI(creature) {}
+
+   		void UpdateAI(uint32 const diff)
+   		{
+    			if (!UpdateVictim())
+     				return;
+
+    			if (!me->HasAura(SPELL_BLOOD_LINK_BEAST))
+     			DoCast(me, SPELL_BLOOD_LINK_BEAST, true);
+
+    			DoMeleeAttackIfReady();
+   		}
+  	};
+
+  	CreatureAI* GetAI(Creature* creature) const
+  	{
+  		return GetIcecrownCitadelAI<npc_bloodbeastAI>(creature);
+  	}
+};
+
 class spell_deathbringer_blood_link : public SpellScriptLoader
 {
     public:
@@ -1403,6 +1430,7 @@ void AddSC_boss_deathbringer_saurfang()
     new npc_high_overlord_saurfang_icc();
     new npc_muradin_bronzebeard_icc();
     new npc_saurfang_event();
+    new npc_bloodbeast();
     new spell_deathbringer_blood_link();
     new spell_deathbringer_blood_link_aura();
     new spell_deathbringer_blood_power();

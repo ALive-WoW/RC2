@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `ScriptName` = 'npc_bloodbeast' WHERE `entry` = '38508';
