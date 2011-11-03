@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * Copyright (C) 2005-2012 ALiveCore <http://www.wow-alive.de/>
