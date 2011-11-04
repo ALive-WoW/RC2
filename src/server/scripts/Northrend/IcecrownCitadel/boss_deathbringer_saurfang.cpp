@@ -1,5 +1,7 @@
-/*
+/* 
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ *
+ * Copyright (C) 2005-2012 ALiveCore <http://www.wow-alive.de/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -103,6 +105,7 @@ enum Spells
     SPELL_MARK_OF_THE_FALLEN_CHAMPION   = 72293,
     SPELL_BOILING_BLOOD                 = 72385,
     SPELL_RUNE_OF_BLOOD                 = 72410,
+	SPELL_DAMAGE_BUFF					= 64036, // Buff adds 5% more DMG
 
     // Blood Beast
     SPELL_BLOOD_LINK_BEAST              = 72176,
@@ -248,6 +251,8 @@ class boss_deathbringer_saurfang : public CreatureScript
                 _fallenChampionCastCount = 0;
             }
 
+	     uint32 cpower;
+
             void Reset()
             {
                 _Reset();
@@ -262,6 +267,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 DoCast(me, SPELL_RUNE_OF_BLOOD_S, true);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
                 me->RemoveAurasDueToSpell(SPELL_FRENZY);
+		  cpower = 0;
             }
 
             void EnterCombat(Unit* who)
@@ -338,6 +344,15 @@ class boss_deathbringer_saurfang : public CreatureScript
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_KILL);
+				/* // Doesn't try if Mark do healt on Saurfang
+				if (victim->HasAura(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
+				{
+					if (me->GetMap()->GetDifficulty() == 0 || me->GetMap()->GetDifficulty() == 1)
+						victim->CastSpell(me, 72260, true);	// Heal the Boss 5%
+					if (me->GetMap()->GetDifficulty() == 2 || me->GetMap()->GetDifficulty() == 3)
+						victim->CastSpell(me, 72279, true);	// Heal the Boss 20%
+				}
+				*/
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
@@ -353,12 +368,16 @@ class boss_deathbringer_saurfang : public CreatureScript
             void JustSummoned(Creature* summon)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
-                    summon->AI()->AttackStart(target);
+					if(target->isTotem() || target->isPet())
+					{
+						target = target->GetOwner();
+						summon->Attack(target, true);
+					}
 
                 if (IsHeroic())
-                    DoCast(summon, SPELL_SCENT_OF_BLOOD);
+					summon->AI()->DoCast(summon, SPELL_SCENT_OF_BLOOD, true);
 
-                summon->AI()->DoCast(summon, SPELL_BLOOD_LINK_BEAST, true);
+                summon->AI()->DoCast(summon, SPELL_BLOOD_LINK, true);
                 summon->AI()->DoCast(summon, SPELL_RESISTANT_SKIN, true);
                 summons.Summon(summon);
                 DoZoneInCombat(summon);
@@ -406,8 +425,107 @@ class boss_deathbringer_saurfang : public CreatureScript
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
+				uint32 power = me->GetPower(POWER_ENERGY);
+				if (power >= 100)
+				{
+					//Mal einfügen
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 20);																											
+					DoAction(ACTION_MARK_OF_THE_FALLEN_CHAMPION);
+				}
+				else if (power >= 95 && power < 100)
+				{
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 19);
+				}
+				else if (power >= 90 && power < 95)
+				{
+					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.90f);
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 18);
+				}	
+				else if (power >= 85 && power < 90)
+				{
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 17);
+				}
+				else if (power >= 80 && power < 85)
+				{
+					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.80f);
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 16);
+				}
+				else if (power >= 75 && power < 80)
+				{
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 15);
+				}
+				else if (power >= 70 && power < 75)
+				{
+					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.70f);
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 14);
+				}
+
+				else if (power >= 65 && power < 70)
+				{
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 13);
+				}
+				else if (power >= 60 && power < 65)
+				{
+					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.60f);
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 12);
+				}
+				else if (power >= 55 && power < 60)
+				{
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 11);
+				}
+				else if (power >= 50 && power < 55)
+				{
+					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.50f);
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 10);
+				}
+				else if (power >= 45 && power < 50)
+				{
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 9);
+				}
+				else if (power >= 40 && power < 45)
+				{
+					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.40f);
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 8);
+				}
+				else if (power >= 35 && power < 40)
+				{
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 7);
+				}
+				else if (power >= 30 && power < 35)
+				{
+					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.30f);
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 6);
+				}
+				else if (power >= 25 && power < 30)
+				{
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 5);
+				}
+				else if (power >= 20 && power < 25)
+				{
+					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.20f);
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 4);
+				}
+				else if (power >= 15 && power < 20)
+				{
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 3);
+				}
+				else if (power >= 10 && power < 15)
+				{
+					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.10f);
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 2);
+				}
+				else if (power >= 5 && power < 10)
+				{
+					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 1);
+				}
+				else if (power >= 0 && power < 5)
+				{
+					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.00f);
+					me->RemoveAurasDueToSpell(SPELL_DAMAGE_BUFF);
+				}
+
                 while (uint32 eventId = events.ExecuteEvent())
-                {
+                {					
                     switch (eventId)
                     {
                         case EVENT_INTRO_ALLIANCE_2:
@@ -527,14 +645,19 @@ class boss_deathbringer_saurfang : public CreatureScript
                     }
                     case ACTION_MARK_OF_THE_FALLEN_CHAMPION:
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION))
-                        {
-                            ++_fallenChampionCastCount;
-                            DoCast(target, SPELL_MARK_OF_THE_FALLEN_CHAMPION);
-                            me->SetPower(POWER_ENERGY, 0);
-                            if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
-                                bloodPower->RecalculateAmountOfEffects();
-                        }
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+						{
+							if (target->isPet() || target->isTotem())
+								target = target->GetOwner();
+							if (!target->HasAura(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
+							{
+								++_fallenChampionCastCount;
+								DoCast(target, SPELL_MARK_OF_THE_FALLEN_CHAMPION);
+								me->SetPower(POWER_ENERGY, 0);
+								if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
+									bloodPower->RecalculateAmountOfEffects();
+							}
+						}
                         break;
                     }
                     default:
@@ -957,6 +1080,33 @@ class npc_saurfang_event : public CreatureScript
         }
 };
 
+class npc_bloodbeast : public CreatureScript
+{
+    public:
+        npc_bloodbeast() : CreatureScript("npc_bloodbeast") { }
+
+        struct npc_bloodbeastAI : public ScriptedAI
+        {
+  		 npc_bloodbeastAI(Creature* creature) : ScriptedAI(creature) {}
+
+   		void UpdateAI(uint32 const diff)
+   		{
+    			if (!UpdateVictim())
+     				return;
+
+    			if (!me->HasAura(SPELL_BLOOD_LINK_BEAST))
+     			DoCast(me, SPELL_BLOOD_LINK_BEAST, true);
+
+    			DoMeleeAttackIfReady();
+   		}
+  	};
+
+  	CreatureAI* GetAI(Creature* creature) const
+  	{
+  		return GetIcecrownCitadelAI<npc_bloodbeastAI>(creature);
+  	}
+};
+
 class spell_deathbringer_blood_link : public SpellScriptLoader
 {
     public:
@@ -1016,7 +1166,9 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
                 PreventDefaultAction();
                 if (GetUnitOwner()->getPowerType() == POWER_ENERGY && GetUnitOwner()->GetPower(POWER_ENERGY) == GetUnitOwner()->GetMaxPower(POWER_ENERGY))
                     if (Creature* saurfang = GetUnitOwner()->ToCreature())
-                        saurfang->AI()->DoAction(ACTION_MARK_OF_THE_FALLEN_CHAMPION);
+					{
+					}
+                      //  saurfang->AI()->DoAction(ACTION_MARK_OF_THE_FALLEN_CHAMPION);
             }
 
             void Register()
@@ -1278,6 +1430,7 @@ void AddSC_boss_deathbringer_saurfang()
     new npc_high_overlord_saurfang_icc();
     new npc_muradin_bronzebeard_icc();
     new npc_saurfang_event();
+    new npc_bloodbeast();
     new spell_deathbringer_blood_link();
     new spell_deathbringer_blood_link_aura();
     new spell_deathbringer_blood_power();

@@ -21,6 +21,7 @@
 #include "SpellAuras.h"
 #include "icecrown_citadel.h"
 
+
 enum ScriptTexts
 {
     SAY_STINKY_DEAD             = 0,
@@ -45,6 +46,7 @@ enum Spells
     SPELL_GAS_SPORE             = 69278,
     SPELL_VILE_GAS              = 69240,
     SPELL_INOCULATED            = 69291,
+	//SPELL_ORANGE_BLIGHT_RESIDUE	= 72144, // debuff for quest
 
     // Stinky
     SPELL_MORTAL_WOUND          = 71127,
@@ -125,6 +127,7 @@ class boss_festergut : public CreatureScript
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_FESTERGUT_COMBAT);
                 DoZoneInCombat();
+				instance->DoCastSpellOnPlayers(SPELL_ORANGE_BLIGHT_RESIDUE);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -291,10 +294,6 @@ class npc_stinky_icc : public CreatureScript
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
                 _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
-            }
-
-            void EnterCombat(Unit* /*target*/)
-            {
                 DoCast(me, SPELL_PLAGUE_STENCH);
             }
 

@@ -23,6 +23,7 @@
 #include "GridNotifiers.h"
 #include "icecrown_citadel.h"
 
+
 enum Texts
 {
     SAY_AGGRO                   = 0,

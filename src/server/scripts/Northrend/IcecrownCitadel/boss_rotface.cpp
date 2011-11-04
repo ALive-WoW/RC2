@@ -22,6 +22,7 @@
 #include "GridNotifiers.h"
 #include "icecrown_citadel.h"
 
+
 // KNOWN BUGS:
 // ~ No Slime Spray animation directly at target spot
 
@@ -46,6 +47,7 @@ enum Spells
     // Rotface
     SPELL_SLIME_SPRAY                       = 69508,    // every 20 seconds
     SPELL_MUTATED_INFECTION                 = 69674,    // hastens every 1:30
+	//SPELL_GREEN_BLIGHT_RESIDUE				= 72145,	// debuff for quest
 
     // Oozes
     SPELL_LITTLE_OOZE_COMBINE               = 69537,    // combine 2 Small Oozes
@@ -120,6 +122,7 @@ class boss_rotface : public CreatureScript
                 if (Creature* professor = Unit::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_ROTFACE_COMBAT);
                 DoZoneInCombat();
+				instance->DoCastSpellOnPlayers(SPELL_GREEN_BLIGHT_RESIDUE);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -727,7 +730,7 @@ class spell_rotface_unstable_ooze_explosion : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHit += SpellEffectFn(spell_rotface_unstable_ooze_explosion_SpellScript::CheckTarget, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
+                OnEffectHitTarget += SpellEffectFn(spell_rotface_unstable_ooze_explosion_SpellScript::CheckTarget, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
             }
         };
 

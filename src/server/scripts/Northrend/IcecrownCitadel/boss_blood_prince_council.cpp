@@ -23,6 +23,7 @@
 
 enum Texts
 {
+
     // Blood Queen Lana'Thel
     SAY_INTRO_1                 = 0,
     SAY_INTRO_2                 = 1,
@@ -239,6 +240,25 @@ class boss_blood_council_controller : public CreatureScript
                     _invocationOrder[1] = InvocationData(instance->GetData64(DATA_PRINCE_KELESETH_GUID), SPELL_INVOCATION_OF_BLOOD_KELESETH, EMOTE_KELESETH_INVOCATION, 71080);
                     _invocationOrder[2] = InvocationData(instance->GetData64(DATA_PRINCE_TALDARAM_GUID), SPELL_INVOCATION_OF_BLOOD_TALDARAM, EMOTE_TALDARAM_INVOCATION, 71081);
                 }
+
+                if (IsHeroic())
+                {
+                    Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
+                    if (PlList.isEmpty())
+                        return;
+
+                    for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
+                    {
+                        if (Player* player = i->getSource())
+                        {
+                            if (player->isGameMaster())
+                                continue;
+
+                            if (player->isAlive())
+                                player->AddAura(SPELL_SHADOW_PRISON_DUMMY, player);
+                        }
+                    }
+                }
             }
 
             void SetData(uint32 /*type*/, uint32 data)
@@ -278,6 +298,8 @@ class boss_blood_council_controller : public CreatureScript
                         killer->Kill(prince);
                     }
                 }
+
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_PRISON_DUMMY);
             }
 
             void UpdateAI(uint32 const diff)
@@ -388,6 +410,8 @@ class boss_prince_keleseth_icc : public CreatureScript
                 me->SetHealth(_spawnHealth);
                 instance->SetData(DATA_ORB_WHISPERER_ACHIEVEMENT, uint32(true));
                 me->SetReactState(REACT_DEFENSIVE);
+                if (IsHeroic())
+                    DoCast(me, SPELL_SHADOW_PRISON);
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -398,12 +422,6 @@ class boss_prince_keleseth_icc : public CreatureScript
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
                 events.ScheduleEvent(EVENT_SHADOW_RESONANCE, urand(10000, 15000));
                 events.ScheduleEvent(EVENT_SHADOW_LANCE, 2000);
-
-                if (IsHeroic())
-                {
-                    me->AddAura(SPELL_SHADOW_PRISON, me);
-                    DoCast(me, SPELL_SHADOW_PRISON_DUMMY);
-                }
             }
 
             void JustDied(Unit* /*killer*/)
@@ -612,6 +630,8 @@ class boss_prince_taldaram_icc : public CreatureScript
                 me->SetHealth(_spawnHealth);
                 instance->SetData(DATA_ORB_WHISPERER_ACHIEVEMENT, uint32(true));
                 me->SetReactState(REACT_DEFENSIVE);
+                if (IsHeroic())
+                    DoCast(me, SPELL_SHADOW_PRISON);
             }
 
             void MoveInLineOfSight(Unit* /*who*/)
@@ -626,8 +646,6 @@ class boss_prince_taldaram_icc : public CreatureScript
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
                 events.ScheduleEvent(EVENT_GLITTERING_SPARKS, urand(12000, 15000));
                 events.ScheduleEvent(EVENT_CONJURE_FLAME, 20000);
-                if (IsHeroic())
-                    me->AddAura(SPELL_SHADOW_PRISON, me);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -835,6 +853,8 @@ class boss_prince_valanar_icc : public CreatureScript
                 me->SetHealth(me->GetMaxHealth());
                 instance->SetData(DATA_ORB_WHISPERER_ACHIEVEMENT, uint32(true));
                 me->SetReactState(REACT_DEFENSIVE);
+                if (IsHeroic())
+                    DoCast(me, SPELL_SHADOW_PRISON);
             }
 
             void MoveInLineOfSight(Unit* /*who*/)
@@ -849,8 +869,6 @@ class boss_prince_valanar_icc : public CreatureScript
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
                 events.ScheduleEvent(EVENT_KINETIC_BOMB, urand(18000, 24000));
                 events.ScheduleEvent(EVENT_SHOCK_VORTEX, urand(15000, 20000));
-                if (IsHeroic())
-                    me->AddAura(SPELL_SHADOW_PRISON, me);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -1529,7 +1547,7 @@ class spell_valanar_kinetic_bomb : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHit += SpellEffectFn(spell_valanar_kinetic_bomb_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectHitTarget += SpellEffectFn(spell_valanar_kinetic_bomb_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 

@@ -1,6 +1,8 @@
 /*
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
+ * Copyright (C) 2011-2012 ALiveCore <http://www.wow-alive.de/>
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
@@ -14,6 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 
 #ifndef ICECROWN_CITADEL_H_
 #define ICECROWN_CITADEL_H_
@@ -331,6 +334,10 @@ enum GameObjectsIds
     GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_02   = 201381,
     GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_03   = 201382,
     GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_04   = 201383,
+	GO_VALITHRIA_CACHE_10N					= 201959,
+	GO_VALITHRIA_CACHE_25N					= 202338,
+	GO_VALITHRIA_CACHE_10H					= 202339,
+	GO_VALITHRIA_CACHE_25H					= 202340,
 
     // Sindragosa
     GO_SINDRAGOSA_ENTRANCE_DOOR             = 201373,

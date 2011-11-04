@@ -22,6 +22,7 @@
 #include "MapManager.h"
 #include "icecrown_citadel.h"
 
+
 enum ScriptTexts
 {
     SAY_ENTER_ZONE              = 0,
