@@ -118,7 +118,7 @@ class boss_ignis : public CreatureScript
 
         struct boss_ignis_AI : public BossAI
         {
-            boss_ignis_AI(Creature* creature) : BossAI(creature, TYPE_IGNIS), _vehicle(me->GetVehicleKit())
+            boss_ignis_AI(Creature* creature) : BossAI(creature, BOSS_IGNIS), _vehicle(me->GetVehicleKit())
             {
                 ASSERT(_vehicle);
             }
@@ -215,21 +215,16 @@ class boss_ignis : public CreatureScript
                             events.ScheduleEvent(EVENT_JET, urand(35000, 40000));
                             break;
                         case EVENT_SLAG_POT:
-							if (Unit* targetold = me->getVictim())
-								if (Creature* summon = me->FindNearestCreature(NPC_IRON_CONSTRUCT, 500, true))
-									if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-										if (target != summon->getVictim() && target != targetold)
-										{
-											DoScriptText(SAY_SLAG_POT, me);
-											_slagPotGUID = target->GetGUID();
-											DoCast(target, SPELL_GRAB);
-											events.DelayEvents(3000);
-											events.ScheduleEvent(EVENT_GRAB_POT, 500);
-											events.ScheduleEvent(EVENT_SLAG_POT, RAID_MODE(30000, 15000));
-											break;
-										}
-										else
-											break;
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            {
+                                DoScriptText(SAY_SLAG_POT, me);
+                                _slagPotGUID = target->GetGUID();
+                                DoCast(target, SPELL_GRAB);
+                                events.DelayEvents(3000);
+                                events.ScheduleEvent(EVENT_GRAB_POT, 500);
+                            }
+                            events.ScheduleEvent(EVENT_SLAG_POT, RAID_MODE(30000, 15000));
+                            break;
                         case EVENT_GRAB_POT:
                             if (Unit* slagPotTarget = ObjectAccessor::GetUnit(*me, _slagPotGUID))
                             {
@@ -278,6 +273,8 @@ class boss_ignis : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
+
+                EnterEvadeIfOutOfCombatArea(diff);
             }
 
         private:
@@ -290,7 +287,7 @@ class boss_ignis : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_ignis_AI(creature);
+            return GetUlduarAI<boss_ignis_AI>(creature);
         }
 };
 
@@ -316,7 +313,7 @@ class npc_iron_construct : public CreatureScript
                 if (me->HasAura(SPELL_BRITTLE) && damage >= 5000)
                 {
                     DoCast(SPELL_SHATTER);
-                    if (Creature* ignis = ObjectAccessor::GetCreature(*me, _instance->GetData64(TYPE_IGNIS)))
+                    if (Creature* ignis = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_IGNIS)))
                         if (ignis->AI())
                             ignis->AI()->DoAction(ACTION_REMOVE_BUFF);
 
@@ -357,7 +354,7 @@ class npc_iron_construct : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_iron_constructAI(creature);
+            return GetUlduarAI<npc_iron_constructAI>(creature);
         }
 };
 
@@ -401,9 +398,9 @@ class npc_scorch_ground : public CreatureScript
             {
                 if (_heat)
                 {
-                    if(_heatTimer <= uiDiff)
+                    if (_heatTimer <= uiDiff)
                     {
-                        Creature* construct = me->GetCreature(*me , _constructGUID);
+                        Creature* construct = me->GetCreature(*me, _constructGUID);
                         if (construct && !construct->HasAura(SPELL_MOLTEN))
                         {
                             me->AddAura(SPELL_HEAT, construct);
@@ -423,7 +420,7 @@ class npc_scorch_ground : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_scorch_groundAI(creature);
+            return GetUlduarAI<npc_scorch_groundAI>(creature);
         }
 };
 
@@ -436,11 +433,11 @@ class spell_ignis_slag_pot : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ignis_slag_pot_AuraScript);
 
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_SLAG_POT_DAMAGE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_SLAG_POT_DAMAGE))
                     return false;
-                if (!sSpellStore.LookupEntry(SPELL_SLAG_IMBUED))
+                if (!sSpellMgr->GetSpellInfo(SPELL_SLAG_IMBUED))
                     return false;
                 return true;
             }

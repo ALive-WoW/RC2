@@ -1,5 +1,4 @@
 /*
- * Copyright (C) 2010-2011 ALiveCore <http://www.wow-alive.de/>
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -157,7 +156,7 @@ namespace Trinity
             return baseGain;
         }
 
-        inline uint32 Gain(Player *pl, Unit *u)
+        inline uint32 Gain(Player* pl, Unit* u)
         {
             uint32 gain;
 

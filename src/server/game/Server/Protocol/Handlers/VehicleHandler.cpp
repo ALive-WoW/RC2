@@ -26,7 +26,6 @@
 void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_DISMISS_CONTROLLED_VEHICLE");
-    recv_data.hexlike();
 
     uint64 vehicleGUID = _player->GetCharmGUID();
 
@@ -52,7 +51,6 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
 void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE");
-    recv_data.hexlike();
 
     Unit* vehicle_base = GetPlayer()->GetVehicleBase();
     if (!vehicle_base)
@@ -96,9 +94,9 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
 
             if (!accessory)
                 GetPlayer()->ChangeSeat(-1, seatId > 0); // prev/next
-            else if (Unit *vehUnit = Unit::GetUnit(*GetPlayer(), accessory))
+            else if (Unit* vehUnit = Unit::GetUnit(*GetPlayer(), accessory))
             {
-                if (Vehicle *vehicle = vehUnit->GetVehicleKit())
+                if (Vehicle* vehicle = vehUnit->GetVehicleKit())
                     if (vehicle->HasEmptySeat(seatId))
                         vehUnit->HandleSpellClick(GetPlayer(), seatId);
             }
@@ -114,8 +112,8 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
 
             if (vehicle_base->GetGUID() == guid)
                 GetPlayer()->ChangeSeat(seatId);
-            else if (Unit *vehUnit = Unit::GetUnit(*GetPlayer(), guid))
-                if (Vehicle *vehicle = vehUnit->GetVehicleKit())
+            else if (Unit* vehUnit = Unit::GetUnit(*GetPlayer(), guid))
+                if (Vehicle* vehicle = vehUnit->GetVehicleKit())
                     if (vehicle->HasEmptySeat(seatId))
                         vehUnit->HandleSpellClick(GetPlayer(), seatId);
             break;
@@ -159,7 +157,7 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
 
     if (IS_PLAYER_GUID(guid))
     {
-        Player *plr = ObjectAccessor::FindPlayer(guid);
+        Player* plr = ObjectAccessor::FindPlayer(guid);
         if (!plr)
         {
             sLog->outError("Player %u tried to eject player %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
@@ -182,7 +180,7 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
 
     else if (IS_CREATURE_GUID(guid))
     {
-        Unit *unit = ObjectAccessor::GetUnit(*_player, guid);
+        Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
         if (!unit) // creatures can be ejected too from player mounts
         {
             sLog->outError("Player %u tried to eject creature guid %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
@@ -209,10 +207,9 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
         sLog->outError("HandleEjectPassenger: Player %u tried to eject invalid GUID "UI64FMTD, GetPlayer()->GetGUIDLow(), guid);
 }
 
-void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
+void WorldSession::HandleRequestVehicleExit(WorldPacket& /*recv_data*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_REQUEST_VEHICLE_EXIT");
-    recv_data.hexlike();
 
     if (Vehicle* vehicle = GetPlayer()->GetVehicle())
     {

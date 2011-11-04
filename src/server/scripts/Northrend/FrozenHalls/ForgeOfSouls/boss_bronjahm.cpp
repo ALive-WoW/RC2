@@ -143,7 +143,7 @@ class boss_bronjahm : public CreatureScript
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                         case EVENT_MAGIC_BANE:
                             DoCastVictim(SPELL_MAGIC_S_BANE);
@@ -181,7 +181,7 @@ class boss_bronjahm : public CreatureScript
             }
         };
 
-        CreatureAI *GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_bronjahmAI(creature);
         }
@@ -204,12 +204,11 @@ class mob_corrupted_soul_fragment : public CreatureScript
                 if (type != TARGETED_MOTION_TYPE)
                     return;
 
-                uint64 BronjahmGUID = 0;
                 if (instance)
                 {
                     if (TempSummon* summ = me->ToTempSummon())
                     {
-                        BronjahmGUID = instance->GetData64(DATA_BRONJAHM);
+                        uint64 BronjahmGUID = instance->GetData64(DATA_BRONJAHM);
                         if (GUID_LOPART(BronjahmGUID) != id)
                             return;
 
@@ -226,7 +225,7 @@ class mob_corrupted_soul_fragment : public CreatureScript
             InstanceScript* instance;
         };
 
-        CreatureAI *GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new mob_corrupted_soul_fragmentAI(creature);
         }
@@ -283,7 +282,7 @@ class spell_bronjahm_consume_soul : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_bronjahm_consume_soul_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_bronjahm_consume_soul_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -378,7 +377,7 @@ class spell_bronjahm_soulstorm_targeting : public SpellScriptLoader
 
             void FilterTargetsInitial(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(DistanceCheck(GetCaster()));
+                unitList.remove_if (DistanceCheck(GetCaster()));
                 sharedUnitList = unitList;
             }
 

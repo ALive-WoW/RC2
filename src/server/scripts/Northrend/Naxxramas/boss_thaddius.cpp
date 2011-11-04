@@ -137,14 +137,6 @@ public:
         bool checkFeugenAlive;
         uint32 uiAddsTimer;
 
-		void Reset()
-		{
-			me->SummonCreature(15929, 3450.449951f, -2931.419922f, 312.091003f); // Stalagg
-			me->SummonCreature(15930, 3508.139893f, -2988.649902f, 312.092010f); // Feugen
-			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
-            me->SetReactState(REACT_PASSIVE);
-		}
-
         void KilledUnit(Unit* /*victim*/)
         {
             if (!(rand()%5))
@@ -159,7 +151,7 @@ public:
 
         void DoAction(const int32 action)
         {
-            switch(action)
+            switch (action)
             {
                 case ACTION_FEUGEN_RESET:
                     checkFeugenAlive = true;
@@ -237,7 +229,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_SHIFT:
                         DoCastAOE(SPELL_POLARITY_SHIFT);
@@ -276,18 +268,18 @@ public:
     {
         mob_stalaggAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 powerSurgeTimer;
         uint32 magneticPullTimer;
 
         void Reset()
         {
-            if (pInstance)
-                if (Creature* pThaddius = me->GetCreature(*me, pInstance->GetData64(DATA_THADDIUS)))
+            if (instance)
+                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_STALAGG_RESET);
             powerSurgeTimer = urand(20000, 25000);
@@ -301,8 +293,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                if (Creature* pThaddius = me->GetCreature(*me, pInstance->GetData64(DATA_THADDIUS)))
+            if (instance)
+                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_STALAGG_DIED);
         }
@@ -314,7 +306,7 @@ public:
 
             if (magneticPullTimer <= uiDiff)
             {
-                if (Creature* pFeugen = me->GetCreature(*me, pInstance->GetData64(DATA_FEUGEN)))
+                if (Creature* pFeugen = me->GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
                 {
                     Unit* pStalaggVictim = me->getVictim();
                     Unit* pFeugenVictim = pFeugen->getVictim();
@@ -362,17 +354,17 @@ public:
     {
         mob_feugenAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 staticFieldTimer;
 
         void Reset()
         {
-            if (pInstance)
-                if (Creature* pThaddius = me->GetCreature(*me, pInstance->GetData64(DATA_THADDIUS)))
+            if (instance)
+                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_FEUGEN_RESET);
             staticFieldTimer = 5000;
@@ -385,8 +377,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                if (Creature* pThaddius = me->GetCreature(*me, pInstance->GetData64(DATA_THADDIUS)))
+            if (instance)
+                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_FEUGEN_DIED);
         }

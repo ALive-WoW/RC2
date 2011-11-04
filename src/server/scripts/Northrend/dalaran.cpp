@@ -32,9 +32,7 @@ Script Data End */
 enum Spells
 {
     SPELL_TRESPASSER_A = 54028,
-    SPELL_TRESPASSER_H = 54029,
-	SPELL_DISGUISE_A = 70973,		// Spell an alliance player gets
-	SPELL_DISGUISE_H = 70971,		// Spell a horde player gets
+    SPELL_TRESPASSER_H = 54029
 };
 
 enum NPCs // All outdoor guards are within 35.0f of these NPCs
@@ -72,8 +70,9 @@ public:
                 return;
 
             Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
-
-            if (!player || player->isGameMaster() || player->IsBeingTeleported())
+            
+            // If player has Disguise aura for quest A Meeting With The Magister or An Audience With The Arcanist, do not teleport it away but let it pass
+            if (!player || player->isGameMaster() || player->IsBeingTeleported() || player->HasAura(70973) || player->HasAura(70971))
                 return;
 
             switch (me->GetEntry())
@@ -81,28 +80,26 @@ public:
                 case 29254:
                     if (player->GetTeam() == HORDE)              // Horde unit found in Alliance area
                     {
-						if (!player->HasAura(SPELL_DISGUISE_H))			// Check if Unit has disguise spell
-							if (GetClosestCreatureWithEntry(me, NPC_APPLEBOUGH_A, 32.0f))
-							{
-								if (me->isInBackInMap(who, 12.0f))   // In my line of sight, "outdoors", and behind me
-									DoCast(who, SPELL_TRESPASSER_A); // Teleport the Horde unit out
-							}
-							else                                      // In my line of sight, and "indoors"
-								DoCast(who, SPELL_TRESPASSER_A);     // Teleport the Horde unit out
+                        if (GetClosestCreatureWithEntry(me, NPC_APPLEBOUGH_A, 32.0f))
+                        {
+                            if (me->isInBackInMap(who, 12.0f))   // In my line of sight, "outdoors", and behind me
+                                DoCast(who, SPELL_TRESPASSER_A); // Teleport the Horde unit out
+                        }
+                        else                                      // In my line of sight, and "indoors"
+                            DoCast(who, SPELL_TRESPASSER_A);     // Teleport the Horde unit out
                     }
                     break;
                 case 29255:
                     if (player->GetTeam() == ALLIANCE)           // Alliance unit found in Horde area
                     {
-						if (!player->HasAura(SPELL_DISGUISE_A))		// Check if unit has disguise spell
-							if (GetClosestCreatureWithEntry(me, NPC_SWEETBERRY_H, 32.0f))
-							{
-								if (me->isInBackInMap(who, 12.0f))   // In my line of sight, "outdoors", and behind me
-									DoCast(who, SPELL_TRESPASSER_H); // Teleport the Alliance unit out
-							}
-							else                                      // In my line of sight, and "indoors"
-								DoCast(who, SPELL_TRESPASSER_H);     // Teleport the Alliance unit out
-					}
+                        if (GetClosestCreatureWithEntry(me, NPC_SWEETBERRY_H, 32.0f))
+                        {
+                            if (me->isInBackInMap(who, 12.0f))   // In my line of sight, "outdoors", and behind me
+                                DoCast(who, SPELL_TRESPASSER_H); // Teleport the Alliance unit out
+                        }
+                        else                                      // In my line of sight, and "indoors"
+                            DoCast(who, SPELL_TRESPASSER_H);     // Teleport the Alliance unit out
+                    }
                     break;
             }
             me->SetOrientation(me->GetHomePosition().GetOrientation());
@@ -112,7 +109,7 @@ public:
         void UpdateAI(const uint32 /*diff*/){}
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_mageguard_dalaranAI(creature);
     }

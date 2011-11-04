@@ -1,6 +1,5 @@
 /*
 * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2008-2011 ALiveCore <http://www.wow-alive.de/>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -219,7 +218,7 @@ class boss_razorscale_controller : public CreatureScript
 
             void DoAction(int32 const action)
             {
-                if (instance->GetBossState(TYPE_RAZORSCALE) != IN_PROGRESS)
+                if (instance->GetBossState(BOSS_RAZORSCALE) != IN_PROGRESS)
                     return;
 
                 switch (action)
@@ -301,8 +300,8 @@ class go_razorscale_harpoon : public GameObjectScript
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
             InstanceScript* instance = go->GetInstanceScript();
-            if (ObjectAccessor::GetCreature(*go, instance ? instance->GetData64(TYPE_RAZORSCALE) : 0))
-                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+            if (ObjectAccessor::GetCreature(*go, instance ? instance->GetData64(BOSS_RAZORSCALE) : 0))
+                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
             return false;
         }
 };
@@ -314,7 +313,7 @@ class boss_razorscale : public CreatureScript
 
         struct boss_razorscaleAI : public BossAI
         {
-            boss_razorscaleAI(Creature* creature) : BossAI(creature, TYPE_RAZORSCALE)
+            boss_razorscaleAI(Creature* creature) : BossAI(creature, BOSS_RAZORSCALE)
             {
                 // Do not let Razorscale be affected by Battle Shout buff
                 me->ApplySpellImmune(0, IMMUNITY_ID, (SPELL_BATTLE_SHOUT), true);
@@ -336,7 +335,7 @@ class boss_razorscale : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 PermaGround = false;
                 HarpoonCounter = 0;
-                if (Creature* commander = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_EXP_COMMANDER) : 0))
+                if (Creature* commander = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_EXPEDITION_COMMANDER) : 0))
                     commander->AI()->DoAction(ACTION_COMMANDER_RESET);
             }
 
@@ -434,7 +433,7 @@ class boss_razorscale : public CreatureScript
                                 me->SetFlying(false);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
-                                if (Creature* commander = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_EXP_COMMANDER) : 0))
+                                if (Creature* commander = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_EXPEDITION_COMMANDER) : 0))
                                     commander->AI()->DoAction(ACTION_GROUND_PHASE);
                                 events.ScheduleEvent(EVENT_BREATH, 30000, 0, PHASE_GROUND);
                                 events.ScheduleEvent(EVENT_BUFFET, 33000, 0, PHASE_GROUND);
@@ -562,7 +561,7 @@ class boss_razorscale : public CreatureScript
                     case ACTION_EVENT_START:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        DoZoneInCombat();
+                        DoZoneInCombat(me, 150.0f);
                         break;
                 }
             }
@@ -570,7 +569,7 @@ class boss_razorscale : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_razorscaleAI(creature);
+            return GetUlduarAI<boss_razorscaleAI>(creature);
         }
 };
 
@@ -639,7 +638,7 @@ class npc_expedition_commander : public CreatureScript
                     switch (Phase)
                     {
                         case 1:
-                            instance->SetBossState(TYPE_RAZORSCALE, IN_PROGRESS);
+                            instance->SetBossState(BOSS_RAZORSCALE, IN_PROGRESS);
                             summons.clear();
                             AttackStartTimer = 1000;
                             Phase = 2;
@@ -677,7 +676,7 @@ class npc_expedition_commander : public CreatureScript
                             Phase = 5;
                             break;
                         case 5:
-                            if (Creature* Razorscale = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(TYPE_RAZORSCALE) : 0))
+                            if (Creature* Razorscale = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_RAZORSCALE) : 0))
                             {
                                 Razorscale->AI()->DoAction(ACTION_EVENT_START);
                                 me->SetInCombatWith(Razorscale);
@@ -708,7 +707,7 @@ class npc_expedition_commander : public CreatureScript
         bool OnGossipHello(Player* player, Creature* creature)
         {
             InstanceScript* instance = creature->GetInstanceScript();
-            if (instance && instance->GetBossState(TYPE_RAZORSCALE) == NOT_STARTED)
+            if (instance && instance->GetBossState(BOSS_RAZORSCALE) == NOT_STARTED)
             {
                 player->PrepareGossipMenu(creature);
 
@@ -1016,7 +1015,7 @@ class spell_razorscale_devouring_flame : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_razorscale_devouring_flame_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectHit += SpellEffectFn(spell_razorscale_devouring_flame_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 

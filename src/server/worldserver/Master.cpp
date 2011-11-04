@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2010-2011 ALiveCore <http://www.wow-alive.de/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -124,19 +123,18 @@ int Master::Run()
     BigNumber seed1;
     seed1.SetRand(16 * 8);
 
-    sLog->outString("ALiveCore2 WorldServer for World of Warcraft 3.3.5.12340");
+    sLog->outString("%s (worldserver-daemon)", _FULLVERSION);
+    sLog->outString("<Ctrl-C> to stop.\n");
 
-    sLog->outString("    _    _     _           ");
-    sLog->outString("   / \\  | |   (_)_   _____ ");
-    sLog->outString("  / _ \\ | |   | \\ \\ / / _ \\");
-    sLog->outString(" / ___ \\| |___| |\\ V /  __/");
-    sLog->outString("/_/   \\_\\_____|_| \\_/ \\___|");
-    sLog->outString("C O R E");
-    sLog->outString(" ");
-    sLog->outString("  ALiveCore 2011(c) World of Warcraft Server Emulation");
-    sLog->outString(" ");
-    sLog->outString("http://wow-alive.de/");
-    sLog->outString(" ");
+    sLog->outString(" ______                       __");
+    sLog->outString("/\\__  _\\       __          __/\\ \\__");
+    sLog->outString("\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\, _\\  __  __");
+    sLog->outString("   \\ \\ \\/\\`'__\\/\\ \\ /' _ `\\/\\ \\ \\ \\/ /\\ \\/\\ \\");
+    sLog->outString("    \\ \\ \\ \\ \\/ \\ \\ \\/\\ \\/\\ \\ \\ \\ \\ \\_\\ \\ \\_\\ \\");
+    sLog->outString("     \\ \\_\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\ \\__\\\\/`____ \\");
+    sLog->outString("      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
+    sLog->outString("                                 C O R E  /\\___/");
+    sLog->outString("http://TrinityCore.org                    \\/__/\n");
 
 #ifdef USE_SFMT_FOR_RNG
     sLog->outString("\n");
@@ -146,7 +144,7 @@ int Master::Run()
 #endif //USE_SFMT_FOR_RNG
 
     /// worldserver PID file creation
-    std::string pidfile = sConfig->GetStringDefault("PidFile", "");
+    std::string pidfile = ConfigMgr::GetStringDefault("PidFile", "");
     if (!pidfile.empty())
     {
         uint32 pid = CreatePIDFile(pidfile);
@@ -156,50 +154,12 @@ int Master::Run()
             return 1;
         }
 
-        sLog->outString("WorldServer Proces ID: %u\n", pid);
+        sLog->outString("Daemon PID: %u\n", pid);
     }
 
     ///- Start the databases
     if (!_StartDB())
         return 1;
-
-	bool nametrue = false;
-	bool adresstrue = false;
-
-	PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_REALMLIST);
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
-    if (result)
-    {
-        do
-        {
-			std::string alive[2];
-			// Not needet yet !!
-			alive[0] = "Norganon PVE/P";
-			alive[1] = "178.63.89.20";
-
-            Field *fields = result->Fetch();
-            const std::string& name = fields[1].GetCString();
-            const std::string& address = fields[2].GetCString();
-
-			sLog->outString(" ");
-            sLog->outString("Testing Realm: %s", name);
-			sLog->outString(" ");
-
-			if (name == alive[0] && address == alive[1])
-			{
-				nametrue = true;
-				adresstrue = true;
-				break;
-			}
-		}
-		while (result->NextRow());
-    }
-
-	if (!nametrue || !adresstrue)
-	{
-		sLog->outString("No authorized ALive Realm found!\n");
-		exit(0);
-	}
 
     // set server offline (not connectable)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET color = (color & ~%u) | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, REALM_FLAG_INVALID, realmID);
@@ -228,9 +188,9 @@ int Master::Run()
     ACE_Based::Thread* cliThread = NULL;
 
 #ifdef _WIN32
-    if (sConfig->GetBoolDefault("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
+    if (ConfigMgr::GetBoolDefault("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
 #else
-    if (sConfig->GetBoolDefault("Console.Enable", true))
+    if (ConfigMgr::GetBoolDefault("Console.Enable", true))
 #endif
     {
         ///- Launch CliRunnable thread
@@ -244,7 +204,7 @@ int Master::Run()
     {
         HANDLE hProcess = GetCurrentProcess();
 
-        uint32 Aff = sConfig->GetIntDefault("UseProcessors", 0);
+        uint32 Aff = ConfigMgr::GetIntDefault("UseProcessors", 0);
         if (Aff > 0)
         {
             ULONG_PTR appAff;
@@ -269,15 +229,15 @@ int Master::Run()
             sLog->outString("");
         }
 
-        bool Prio = sConfig->GetBoolDefault("ProcessPriority", false);
+        bool Prio = ConfigMgr::GetBoolDefault("ProcessPriority", false);
 
         //if (Prio && (m_ServiceStatus == -1)  /* need set to default process priority class in service mode*/)
         if (Prio)
         {
             if (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS))
-                sLog->outString("AliveCore2 WorldServer process priority class set to HIGH");
+                sLog->outString("worldserver process priority class set to HIGH");
             else
-                sLog->outError("Can't set AliveCore2 WorldServer process priority class.");
+                sLog->outError("Can't set worldserver process priority class.");
             sLog->outString("");
         }
     }
@@ -285,37 +245,37 @@ int Master::Run()
     //Start soap serving thread
     ACE_Based::Thread* soap_thread = NULL;
 
-    if (sConfig->GetBoolDefault("SOAP.Enabled", false))
+    if (ConfigMgr::GetBoolDefault("SOAP.Enabled", false))
     {
-        TCSoapRunnable *runnable = new TCSoapRunnable();
-        runnable->setListenArguments(sConfig->GetStringDefault("SOAP.IP", "127.0.0.1"), sConfig->GetIntDefault("SOAP.Port", 7878));
+        TCSoapRunnable* runnable = new TCSoapRunnable();
+        runnable->setListenArguments(ConfigMgr::GetStringDefault("SOAP.IP", "127.0.0.1"), ConfigMgr::GetIntDefault("SOAP.Port", 7878));
         soap_thread = new ACE_Based::Thread(runnable);
     }
 
     ///- Start up freeze catcher thread
-    if (uint32 freeze_delay = sConfig->GetIntDefault("MaxCoreStuckTime", 0))
+    if (uint32 freeze_delay = ConfigMgr::GetIntDefault("MaxCoreStuckTime", 0))
     {
-        FreezeDetectorRunnable *fdr = new FreezeDetectorRunnable();
+        FreezeDetectorRunnable* fdr = new FreezeDetectorRunnable();
         fdr->SetDelayTime(freeze_delay*1000);
         ACE_Based::Thread freeze_thread(fdr);
         freeze_thread.setPriority(ACE_Based::Highest);
     }
 
-	///- Launch the world listener socket
-	uint16 wsport = sWorld->getIntConfig(CONFIG_PORT_WORLD);
-	std::string bind_ip = sConfig->GetStringDefault("BindIP", "0.0.0.0");
+    ///- Launch the world listener socket
+    uint16 wsport = sWorld->getIntConfig(CONFIG_PORT_WORLD);
+    std::string bind_ip = ConfigMgr::GetStringDefault("BindIP", "0.0.0.0");
 
-	if (sWorldSocketMgr->StartNetwork(wsport, bind_ip.c_str ()) == -1)
-	{
-		sLog->outError("Failed to start network");
-		World::StopNow(ERROR_EXIT_CODE);
-		// go down and shutdown the server
-	}
+    if (sWorldSocketMgr->StartNetwork(wsport, bind_ip.c_str ()) == -1)
+    {
+        sLog->outError("Failed to start network");
+        World::StopNow(ERROR_EXIT_CODE);
+        // go down and shutdown the server
+    }
 
     // set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET color = color & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
 
-    sLog->outString("AliveCore2 WorldServer ready...");
+    sLog->outString("%s (worldserver-daemon) ready...", _FULLVERSION);
     sWorldSocketMgr->Wait();
 
     if (soap_thread)
@@ -407,14 +367,14 @@ bool Master::_StartDB()
     std::string dbstring;
     uint8 async_threads, synch_threads;
 
-    dbstring = sConfig->GetStringDefault("WorldDatabaseInfo", "");
+    dbstring = ConfigMgr::GetStringDefault("WorldDatabaseInfo", "");
     if (dbstring.empty())
     {
         sLog->outError("World database not specified in configuration file");
         return false;
     }
 
-    async_threads = sConfig->GetIntDefault("WorldDatabase.WorkerThreads", 1);
+    async_threads = ConfigMgr::GetIntDefault("WorldDatabase.WorkerThreads", 1);
     if (async_threads < 1 || async_threads > 32)
     {
         sLog->outError("World database: invalid number of worker threads specified. "
@@ -422,7 +382,7 @@ bool Master::_StartDB()
         return false;
     }
 
-    synch_threads = sConfig->GetIntDefault("WorldDatabase.SynchThreads", 1);
+    synch_threads = ConfigMgr::GetIntDefault("WorldDatabase.SynchThreads", 1);
     ///- Initialise the world database
     if (!WorldDatabase.Open(dbstring, async_threads, synch_threads))
     {
@@ -431,14 +391,14 @@ bool Master::_StartDB()
     }
 
     ///- Get character database info from configuration file
-    dbstring = sConfig->GetStringDefault("CharacterDatabaseInfo", "");
+    dbstring = ConfigMgr::GetStringDefault("CharacterDatabaseInfo", "");
     if (dbstring.empty())
     {
         sLog->outError("Character database not specified in configuration file");
         return false;
     }
 
-    async_threads = sConfig->GetIntDefault("CharacterDatabase.WorkerThreads", 1);
+    async_threads = ConfigMgr::GetIntDefault("CharacterDatabase.WorkerThreads", 1);
     if (async_threads < 1 || async_threads > 32)
     {
         sLog->outError("Character database: invalid number of worker threads specified. "
@@ -446,7 +406,7 @@ bool Master::_StartDB()
         return false;
     }
 
-    synch_threads = sConfig->GetIntDefault("CharacterDatabase.SynchThreads", 2);
+    synch_threads = ConfigMgr::GetIntDefault("CharacterDatabase.SynchThreads", 2);
 
     ///- Initialise the Character database
     if (!CharacterDatabase.Open(dbstring, async_threads, synch_threads))
@@ -456,14 +416,14 @@ bool Master::_StartDB()
     }
 
     ///- Get login database info from configuration file
-    dbstring = sConfig->GetStringDefault("LoginDatabaseInfo", "");
+    dbstring = ConfigMgr::GetStringDefault("LoginDatabaseInfo", "");
     if (dbstring.empty())
     {
         sLog->outError("Login database not specified in configuration file");
         return false;
     }
 
-    async_threads = sConfig->GetIntDefault("LoginDatabase.WorkerThreads", 1);
+    async_threads = ConfigMgr::GetIntDefault("LoginDatabase.WorkerThreads", 1);
     if (async_threads < 1 || async_threads > 32)
     {
         sLog->outError("Login database: invalid number of worker threads specified. "
@@ -471,7 +431,7 @@ bool Master::_StartDB()
         return false;
     }
 
-    synch_threads = sConfig->GetIntDefault("LoginDatabase.SynchThreads", 1);
+    synch_threads = ConfigMgr::GetIntDefault("LoginDatabase.SynchThreads", 1);
     ///- Initialise the login database
     if (!LoginDatabase.Open(dbstring, async_threads, synch_threads))
     {
@@ -480,7 +440,7 @@ bool Master::_StartDB()
     }
 
     ///- Get the realm Id from the configuration file
-    realmID = sConfig->GetIntDefault("RealmID", 0);
+    realmID = ConfigMgr::GetIntDefault("RealmID", 0);
     if (!realmID)
     {
         sLog->outError("Realm ID not defined in configuration file");
@@ -489,7 +449,7 @@ bool Master::_StartDB()
     sLog->outString("Realm running as realm ID %d", realmID);
 
     ///- Initialize the DB logging system
-    sLog->SetLogDBLater(sConfig->GetBoolDefault("EnableLogDB", false)); // set var to enable DB logging once startup finished.
+    sLog->SetLogDBLater(ConfigMgr::GetBoolDefault("EnableLogDB", false)); // set var to enable DB logging once startup finished.
     sLog->SetLogDB(false);
     sLog->SetRealmID(realmID);
 
@@ -502,7 +462,6 @@ bool Master::_StartDB()
     sWorld->LoadDBVersion();
 
     sLog->outString("Using World DB: %s", sWorld->GetDBVersion());
-    sLog->outString("Using creature EventAI: %s", sWorld->GetCreatureEventAIVersion());
     return true;
 }
 

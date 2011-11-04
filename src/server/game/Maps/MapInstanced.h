@@ -27,7 +27,7 @@ class MapInstanced : public Map
 {
     friend class MapManager;
     public:
-        typedef UNORDERED_MAP< uint32, Map* > InstancedMaps;
+        typedef UNORDERED_MAP< uint32, Map*> InstancedMaps;
 
         MapInstanced(uint32 id, time_t expiry);
         ~MapInstanced() {}
@@ -43,17 +43,17 @@ class MapInstanced : public Map
         Map* FindMap(uint32 InstanceId) const { return _FindMap(InstanceId); }
         bool DestroyInstance(InstancedMaps::iterator &itr);
 
-        void AddGridMapReference(const GridPair &p)
+        void AddGridMapReference(const GridCoord &p)
         {
             ++GridMapReference[p.x_coord][p.y_coord];
-            SetUnloadReferenceLock(GridPair(63-p.x_coord, 63-p.y_coord), true);
+            SetUnloadReferenceLock(GridCoord(63-p.x_coord, 63-p.y_coord), true);
         }
 
-        void RemoveGridMapReference(GridPair const& p)
+        void RemoveGridMapReference(GridCoord const& p)
         {
             --GridMapReference[p.x_coord][p.y_coord];
             if (!GridMapReference[p.x_coord][p.y_coord])
-                SetUnloadReferenceLock(GridPair(63-p.x_coord, 63-p.y_coord), false);
+                SetUnloadReferenceLock(GridCoord(63-p.x_coord, 63-p.y_coord), false);
         }
 
         InstancedMaps &GetInstancedMaps() { return m_InstancedMaps; }
@@ -61,7 +61,7 @@ class MapInstanced : public Map
 
     private:
 
-        InstanceMap* CreateInstance(uint32 InstanceId, InstanceSave *save, Difficulty difficulty);
+        InstanceMap* CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty);
         BattlegroundMap* CreateBattleground(uint32 InstanceId, Battleground* bg);
 
         InstancedMaps m_InstancedMaps;

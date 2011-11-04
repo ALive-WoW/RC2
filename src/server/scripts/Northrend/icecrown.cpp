@@ -78,7 +78,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
@@ -269,7 +269,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_argent_valiantAI(creature);
     }
@@ -311,7 +311,7 @@ public:
             uiCast = true;
             Creature* target = NULL;
 
-            switch(me->GetEntry())
+            switch (me->GetEntry())
             {
                 case NPC_PRIESTESS_ALORAH:
                     target = me->FindNearestCreature(NPC_EYDIS_DARKBANE, 10.0f);
@@ -328,7 +328,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_alorah_and_grimminAI(creature);
     }
@@ -375,9 +375,54 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_guardian_pavilionAI(creature);
+    }
+};
+
+/*######
+## npc_vereth_the_cunning
+######*/
+
+enum eVerethTheCunning
+{
+    NPC_GEIST_RETURN_BUNNY_KC   = 31049,
+    NPC_LITHE_STALKER           = 30894,
+    SPELL_SUBDUED_LITHE_STALKER = 58151,
+};
+
+class npc_vereth_the_cunning : public CreatureScript
+{
+public:
+    npc_vereth_the_cunning() : CreatureScript("npc_vereth_the_cunning") { }
+
+    struct npc_vereth_the_cunningAI : public ScriptedAI
+    {
+        npc_vereth_the_cunningAI(Creature* creature) : ScriptedAI(creature) {}
+
+        void MoveInLineOfSight(Unit* who)
+        {
+            ScriptedAI::MoveInLineOfSight(who);
+
+            if (who->GetEntry() == NPC_LITHE_STALKER && me->IsWithinDistInMap(who, 10.0f))
+            {
+                if (Unit* owner = who->GetCharmer())
+                {
+                    if (who->HasAura(SPELL_SUBDUED_LITHE_STALKER))
+                        {
+                            owner->ToPlayer()->KilledMonsterCredit(NPC_GEIST_RETURN_BUNNY_KC, 0);
+                            who->ToCreature()->DisappearAndDie();
+
+                    }
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_vereth_the_cunningAI(creature);
     }
 };
 
@@ -389,4 +434,5 @@ void AddSC_icecrown()
     new npc_argent_valiant;
     new npc_alorah_and_grimmin;
     new npc_guardian_pavilion;
+    new npc_vereth_the_cunning;
 }

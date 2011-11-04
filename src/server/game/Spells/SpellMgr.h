@@ -24,6 +24,7 @@
 #include <ace/Singleton.h>
 #include "Common.h"
 #include "SharedDefines.h"
+#include "Unit.h"
 
 class SpellInfo;
 class Player;
@@ -143,10 +144,10 @@ enum ProcFlags
     PROC_FLAG_DEATH                           = 0x01000000,    // 24 Died in any way
 
     // flag masks
-    AUTO_ATTACK_PROC_FLAG_MASK                = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK 
+    AUTO_ATTACK_PROC_FLAG_MASK                = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK
                                                 | PROC_FLAG_DONE_RANGED_AUTO_ATTACK | PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK,
 
-    MELEE_PROC_FLAG_MASK                      = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK 
+    MELEE_PROC_FLAG_MASK                      = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK
                                                 | PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS | PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS
                                                 | PROC_FLAG_DONE_MAINHAND_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK,
 
@@ -318,11 +319,10 @@ struct SpellBonusEntry
 };
 
 typedef UNORDERED_MAP<uint32, SpellBonusEntry>     SpellBonusMap;
-bool IsPassiveSpell(uint32 spellId);
-bool IsPassiveSpell(SpellEntry const* spellInfo);
 
 enum SpellGroup
 {
+    SPELL_GROUP_NONE = 0,
     SPELL_GROUP_ELIXIR_BATTLE = 1,
     SPELL_GROUP_ELIXIR_GUARDIAN = 2,
     SPELL_GROUP_ELIXIR_UNSTABLE = 3,
@@ -345,12 +345,20 @@ enum SpellGroupStackRule
     SPELL_GROUP_STACK_RULE_DEFAULT = 0,
     SPELL_GROUP_STACK_RULE_EXCLUSIVE = 1,
     SPELL_GROUP_STACK_RULE_EXCLUSIVE_FROM_SAME_CASTER = 2,
+    SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT = 3,
 };
-#define SPELL_GROUP_STACK_RULE_MAX 3
+#define SPELL_GROUP_STACK_RULE_MAX 4
 
 typedef std::map<SpellGroup, SpellGroupStackRule> SpellGroupStackMap;
 
-typedef std::map<uint32, uint16> SpellThreatMap;
+struct SpellThreatEntry
+{
+    int32       flatMod;                                    // flat threat-value for this Spell  - default: 0
+    float       pctMod;                                     // threat-multiplier for this Spell  - default: 1.0f
+    float       apPctMod;                                   // Pct of AP that is added as Threat - default: 0.0f
+};
+
+typedef std::map<uint32, SpellThreatEntry> SpellThreatMap;
 
 // Spell script target related declarations (accessed using SpellMgr functions)
 enum SpellScriptTargetType
@@ -371,6 +379,68 @@ struct SpellTargetPosition
     float  target_Y;
     float  target_Z;
     float  target_Orientation;
+};
+
+// Enum with EffectRadiusIndex and their actual radius
+enum EffectRadiusIndex
+{
+    EFFECT_RADIUS_2_YARDS       = 7,
+    EFFECT_RADIUS_5_YARDS       = 8,
+    EFFECT_RADIUS_20_YARDS      = 9,
+    EFFECT_RADIUS_30_YARDS      = 10,
+    EFFECT_RADIUS_45_YARDS      = 11,
+    EFFECT_RADIUS_100_YARDS     = 12,
+    EFFECT_RADIUS_10_YARDS      = 13,
+    EFFECT_RADIUS_8_YARDS       = 14,
+    EFFECT_RADIUS_3_YARDS       = 15,
+    EFFECT_RADIUS_1_YARD        = 16,
+    EFFECT_RADIUS_13_YARDS      = 17,
+    EFFECT_RADIUS_15_YARDS      = 18,
+    EFFECT_RADIUS_18_YARDS      = 19,
+    EFFECT_RADIUS_25_YARDS      = 20,
+    EFFECT_RADIUS_35_YARDS      = 21,
+    EFFECT_RADIUS_200_YARDS     = 22,
+    EFFECT_RADIUS_40_YARDS      = 23,
+    EFFECT_RADIUS_65_YARDS      = 24,
+    EFFECT_RADIUS_70_YARDS      = 25,
+    EFFECT_RADIUS_4_YARDS       = 26,
+    EFFECT_RADIUS_50_YARDS      = 27,
+    EFFECT_RADIUS_50000_YARDS   = 28,
+    EFFECT_RADIUS_6_YARDS       = 29,
+    EFFECT_RADIUS_500_YARDS     = 30,
+    EFFECT_RADIUS_80_YARDS      = 31,
+    EFFECT_RADIUS_12_YARDS      = 32,
+    EFFECT_RADIUS_99_YARDS      = 33,
+    EFFECT_RADIUS_55_YARDS      = 35,
+    EFFECT_RADIUS_0_YARDS       = 36,
+    EFFECT_RADIUS_7_YARDS       = 37,
+    EFFECT_RADIUS_21_YARDS      = 38,
+    EFFECT_RADIUS_34_YARDS      = 39,
+    EFFECT_RADIUS_9_YARDS       = 40,
+    EFFECT_RADIUS_150_YARDS     = 41,
+    EFFECT_RADIUS_11_YARDS      = 42,
+    EFFECT_RADIUS_16_YARDS      = 43,
+    EFFECT_RADIUS_0_5_YARDS     = 44,   // 0.5 yards
+    EFFECT_RADIUS_10_YARDS_2    = 45,
+    EFFECT_RADIUS_5_YARDS_2     = 46,
+    EFFECT_RADIUS_15_YARDS_2    = 47,
+    EFFECT_RADIUS_60_YARDS      = 48,
+    EFFECT_RADIUS_90_YARDS      = 49,
+    EFFECT_RADIUS_15_YARDS_3    = 50,
+    EFFECT_RADIUS_60_YARDS_2    = 51,
+    EFFECT_RADIUS_5_YARDS_3     = 52,
+    EFFECT_RADIUS_60_YARDS_3    = 53,
+    EFFECT_RADIUS_50000_YARDS_2 = 54,
+    EFFECT_RADIUS_130_YARDS     = 55,
+    EFFECT_RADIUS_38_YARDS      = 56,
+    EFFECT_RADIUS_45_YARDS_2    = 57,
+    EFFECT_RADIUS_32_YARDS      = 59,
+    EFFECT_RADIUS_44_YARDS      = 60,
+    EFFECT_RADIUS_14_YARDS      = 61,
+    EFFECT_RADIUS_47_YARDS      = 62,
+    EFFECT_RADIUS_23_YARDS      = 63,
+    EFFECT_RADIUS_3_5_YARDS     = 64,   // 3.5 yards
+    EFFECT_RADIUS_80_YARDS_2    = 65
 };
 
 typedef UNORDERED_MAP<uint32, SpellTargetPosition> SpellTargetPositionMap;
@@ -517,11 +587,6 @@ typedef std::map<int32, std::vector<int32> > SpellLinkedMap;
 
 bool IsPrimaryProfessionSkill(uint32 skill);
 
-inline bool IsMultiSlotAura(SpellEntry const* spellProto)
-{
-    return IsPassiveSpell(spellProto) || spellProto->Id == 44413;
-}
-
 inline bool IsProfessionSkill(uint32 skill)
 {
     return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING || skill == SKILL_FIRST_AID;
@@ -554,20 +619,11 @@ class SpellMgr
         // Spell correctess for client using
         static bool IsSpellValid(SpellInfo const* spellInfo, Player* pl = NULL, bool msg = true);
 
-		uint32 GetSpellCustomAttr(uint32 spell_id) const
-        {
-            if (spell_id >= mSpellCustomAttr.size())
-                return 0;
-            else
-                return mSpellCustomAttr[spell_id];
-        }
-
         // Spell difficulty
         uint32 GetSpellDifficultyId(uint32 spellId) const;
         void SetSpellDifficultyId(uint32 spellId, uint32 id);
-        uint32 GetSpellIdForDifficulty(uint32 spellId, Unit* caster) const;
-        SpellInfo const* GetSpellForDifficultyFromSpell(SpellInfo const* spell, Unit* caster) const;
-		SpellEntry const* GetSpellForDifficultyFromSpell(SpellEntry const* spell, Unit* caster) const;
+        uint32 GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) const;
+        SpellInfo const* GetSpellForDifficultyFromSpell(SpellInfo const* spell, Unit const* caster) const;
 
         // Spell Ranks table
         SpellChainNode const* GetSpellChainNode(uint32 spell_id) const;
@@ -604,6 +660,7 @@ class SpellMgr
         void GetSetOfSpellsInSpellGroup(SpellGroup group_id, std::set<uint32>& foundSpells, std::set<SpellGroup>& usedGroups) const;
 
         // Spell Group Stack Rules table
+        bool AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, int32 amount, std::map<SpellGroup, int32>& groups) const;
         SpellGroupStackRule CheckSpellGroupStackRules(SpellInfo const* spellInfo1, SpellInfo const* spellInfo2) const;
 
         // Spell proc event table
@@ -618,7 +675,7 @@ class SpellMgr
         SpellBonusEntry const* GetSpellBonusData(uint32 spellId) const;
 
         // Spell threat table
-        uint16 GetSpellThreat(uint32 spellid) const;
+        SpellThreatEntry const* GetSpellThreatEntry(uint32 spellID) const;
 
         SkillLineAbilityMapBounds GetSkillLineAbilityMapBounds(uint32 spell_id) const;
 
@@ -673,7 +730,6 @@ class SpellMgr
         void LoadDbcDataCorrections();
 
     private:
-	    SpellCustomAttribute       mSpellCustomAttr;
         SpellDifficultySearcherMap mSpellDifficultySearcherMap;
         SpellChainMap              mSpellChains;
         SpellsRequiringSpellMap    mSpellsReqSpell;
@@ -705,8 +761,5 @@ class SpellMgr
 };
 
 #define sSpellMgr ACE_Singleton<SpellMgr, ACE_Null_Mutex>::instance()
-
-int32 GetSpellDuration(SpellEntry const *spellInfo);
-int32 GetSpellMaxDuration(SpellEntry const *spellInfo);
 
 #endif

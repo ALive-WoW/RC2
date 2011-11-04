@@ -138,14 +138,14 @@ enum HodirActions
     ACTION_CHEESE_THE_FREEZE                     = 2,
 };
 
-#define ACHIEVEMENT_CHEESE_THE_FREEZE            RAID_MODE(2961, 2962)
-#define ACHIEVEMENT_GETTING_COLD_IN_HERE         RAID_MODE(2967, 2968)
-#define ACHIEVEMENT_THIS_CACHE_WAS_RARE          RAID_MODE(3182, 3184)
-#define ACHIEVEMENT_COOLEST_FRIENDS              RAID_MODE(2963, 2965)
-#define FRIENDS_COUNT                            RAID_MODE(4, 8)
+#define ACHIEVEMENT_CHEESE_THE_FREEZE            RAID_MODE<uint8>(2961, 2962)
+#define ACHIEVEMENT_GETTING_COLD_IN_HERE         RAID_MODE<uint8>(2967, 2968)
+#define ACHIEVEMENT_THIS_CACHE_WAS_RARE          RAID_MODE<uint8>(3182, 3184)
+#define ACHIEVEMENT_COOLEST_FRIENDS              RAID_MODE<uint8>(2963, 2965)
+#define FRIENDS_COUNT                            RAID_MODE<uint8>(4, 8)
 #define DATA_GETTING_COLD_IN_HERE                29672968 // 2967, 2968 are achievement IDs
 
-const Position SummonPositions[8] =
+Position const SummonPositions[8] =
 {
     { 1983.75f, -243.36f, 432.767f, 1.57f }, // Field Medic Penny    &&  Battle-Priest Eliza
     { 1999.90f, -230.49f, 432.767f, 1.57f }, // Eivi Nightfeather    &&  Tor Greycloud
@@ -157,9 +157,16 @@ const Position SummonPositions[8] =
     { 1976.60f, -233.53f, 432.767f, 1.57f }, // Sissy Flamecuffs     &&  Veesha Blazeweaver
 };
 
-uint32 Entry[8] =
+uint32 const Entry[8] =
 {
-    32897, 33325, 33328, 32893, 33326, 32901, 32900, 33327,
+    NPC_FIELD_MEDIC_PENNY,
+    NPC_EIVI_NIGHTFEATHER,
+    NPC_ELEMENTALIST_MAHFUUN,
+    NPC_MISSY_FLAMECUFFS,
+    NPC_FIELD_MEDIC_JESSI,
+    NPC_ELLIE_NIGHTFEATHER,
+    NPC_ELEMENTALIST_AVUUN,
+    NPC_SISSY_FLAMECUFFS,
 };
 
 class npc_flash_freeze : public CreatureScript
@@ -192,7 +199,7 @@ class npc_flash_freeze : public CreatureScript
                 if (!UpdateVictim() || me->getVictim()->HasAura(SPELL_BLOCK_OF_ICE) || me->getVictim()->HasAura(SPELL_FLASH_FREEZE_HELPER))
                     return;
 
-                if (me->getVictim()->GetGUID() != targetGUID || instance->GetBossState(TYPE_HODIR) != IN_PROGRESS)
+                if (me->getVictim()->GetGUID() != targetGUID || instance->GetBossState(BOSS_HODIR) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
 
                 if (checkDespawnTimer <= diff)
@@ -217,7 +224,7 @@ class npc_flash_freeze : public CreatureScript
                     // Prevents to have Ice Block on other place than target is
                     me->NearTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
                     if (target->GetTypeId() == TYPEID_PLAYER)
-                        if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(TYPE_HODIR) : 0))
+                        if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
                             Hodir->AI()->DoAction(ACTION_CHEESE_THE_FREEZE);
                 }
             }
@@ -269,7 +276,7 @@ class npc_ice_block : public CreatureScript
                 {
                     Helper->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
 
-                    if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(TYPE_HODIR) : 0))
+                    if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
                     {
                         if (!Hodir->isInCombat())
                         {
@@ -297,7 +304,7 @@ class boss_hodir : public CreatureScript
 
         struct boss_hodirAI : public BossAI
         {
-            boss_hodirAI(Creature* creature) : BossAI(creature, TYPE_HODIR)
+            boss_hodirAI(Creature* creature) : BossAI(creature, BOSS_HODIR)
             {
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -352,9 +359,8 @@ class boss_hodir : public CreatureScript
                     damage = 0;
                     DoScriptText(SAY_DEATH, me);
                     if (iCouldSayThatThisCacheWasRare)
-					{
-                        instance->SetData(DATA_HODIR_RARE_CHEST, 1);
-					}
+                        instance->SetData(DATA_HODIR_RARE_CACHE, 1);
+
                     me->RemoveAllAuras();
                     me->RemoveAllAttackers();
                     me->AttackStop();
@@ -426,6 +432,7 @@ class boss_hodir : public CreatureScript
                         case EVENT_RARE_CACHE:
                             DoScriptText(SAY_HARD_MODE_FAILED, me);
                             iCouldSayThatThisCacheWasRare = false;
+                            instance->SetData(DATA_HODIR_RARE_CACHE, 0);
                             events.CancelEvent(EVENT_RARE_CACHE);
                             break;
                         case EVENT_BERSERK:
@@ -452,7 +459,7 @@ class boss_hodir : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 const action)
             {
                 switch (action)
                 {
@@ -492,7 +499,7 @@ class boss_hodir : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_hodirAI(creature);
+            return GetUlduarAI<boss_hodirAI>(creature);
         };
 };
 
@@ -540,7 +547,7 @@ class npc_icicle : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_icicleAI(creature);
+            return GetUlduarAI<npc_icicleAI>(creature);
         };
 };
 
@@ -553,7 +560,7 @@ class npc_snowpacked_icicle : public CreatureScript
         {
             npc_snowpacked_icicleAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->SetDisplayId(me->GetCreatureInfo()->Modelid1);		//Use modelid1 because id2 is invisible model SHIRO
+                me->SetDisplayId(me->GetCreatureInfo()->Modelid2);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -580,7 +587,7 @@ class npc_snowpacked_icicle : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_snowpacked_icicleAI(creature);
+            return GetUlduarAI<npc_snowpacked_icicleAI>(creature);
         };
 };
 
@@ -646,7 +653,7 @@ class npc_hodir_priest : public CreatureScript
 
             void JustDied(Unit* /*who*/)
              {
-                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(TYPE_HODIR) : 0))
+                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
               }
 
@@ -657,7 +664,7 @@ class npc_hodir_priest : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_hodir_priestAI(creature);
+            return GetUlduarAI<npc_hodir_priestAI>(creature);
         };
 };
 
@@ -708,7 +715,7 @@ class npc_hodir_shaman : public CreatureScript
 
             void JustDied(Unit* /*who*/)
              {
-                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(TYPE_HODIR) : 0))
+                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
               }
 
@@ -719,7 +726,7 @@ class npc_hodir_shaman : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_hodir_shamanAI(creature);
+            return GetUlduarAI<npc_hodir_shamanAI>(creature);
         };
 };
 
@@ -769,7 +776,7 @@ class npc_hodir_druid : public CreatureScript
 
             void JustDied(Unit* /*who*/)
              {
-                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(TYPE_HODIR) : 0))
+                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
               }
 
@@ -780,7 +787,7 @@ class npc_hodir_druid : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_hodir_druidAI(creature);
+            return GetUlduarAI<npc_hodir_druidAI>(creature);
         };
 };
 
@@ -849,7 +856,7 @@ class npc_hodir_mage : public CreatureScript
 
             void JustDied(Unit* /*who*/)
              {
-                  if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(TYPE_HODIR) : 0))
+                  if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
               }
 
@@ -861,7 +868,7 @@ class npc_hodir_mage : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_hodir_mageAI(creature);
+            return GetUlduarAI<npc_hodir_mageAI>(creature);
         };
 };
 
@@ -882,7 +889,7 @@ class npc_toasty_fire : public CreatureScript
                 DoCast(me, SPELL_SINGED, true);
             }
 
-            void SpellHit(Unit* /*who*/, const SpellEntry* spell)
+            void SpellHit(Unit* /*who*/, const SpellInfo* spell)
             {
                 if (spell->Id == SPELL_BLOCK_OF_ICE || spell->Id == SPELL_ICE_SHARD || spell->Id == SPELL_ICE_SHARD_HIT)
                 {
@@ -895,7 +902,7 @@ class npc_toasty_fire : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_toasty_fireAI(creature);
+            return GetUlduarAI<npc_toasty_fireAI>(creature);
         };
 };
 

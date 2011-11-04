@@ -107,14 +107,14 @@ class instance_naxxramas : public InstanceMapScript
 public:
     instance_naxxramas() : InstanceMapScript("instance_naxxramas", 533) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_naxxramas_InstanceMapScript(pMap);
+        return new instance_naxxramas_InstanceMapScript(map);
     }
 
     struct instance_naxxramas_InstanceMapScript : public InstanceScript
     {
-        instance_naxxramas_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
+        instance_naxxramas_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetBossNumber(MAX_BOSS_NUMBER);
             LoadDoorData(doorData);
@@ -140,14 +140,36 @@ public:
         uint64 uiKelthuzadTrigger;
         uint64 uiPortals[4];
 
+        uint32 AbominationCount;
+
         GOState gothikDoorState;
 
         time_t minHorsemenDiedTime;
         time_t maxHorsemenDiedTime;
 
+        void Initialize()
+        {
+            GothikGateGUID      = 0;
+            HorsemenChestGUID   = 0;
+            SapphironGUID       = 0;
+            uiFaerlina          = 0;
+            uiThane             = 0;
+            uiLady              = 0;
+            uiBaron             = 0;
+            uiSir               = 0;
+            uiThaddius          = 0;
+            uiHeigan            = 0;
+            uiFeugen            = 0;
+            uiStalagg           = 0;
+            uiKelthuzad         = 0;
+            uiKelthuzadTrigger  = 0;
+
+            memset(uiPortals, 0, sizeof(uiPortals));
+        }
+
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case 15989: SapphironGUID = creature->GetGUID(); return;
                 case 15953: uiFaerlina = creature->GetGUID(); return;
@@ -243,7 +265,7 @@ public:
 
         void SetData(uint32 id, uint32 value)
         {
-            switch(id)
+            switch (id)
             {
                 case DATA_HEIGAN_ERUPT:
                     HeiganErupt(value);
@@ -273,12 +295,28 @@ public:
                         maxHorsemenDiedTime = now;
                     }
                     break;
+                case DATA_ABOMINATION_KILLED:
+                    AbominationCount = value;
+                    break;
             }
+        }
+
+        uint32 GetData(uint32 id)
+        {
+            switch (id)
+            {
+                case DATA_ABOMINATION_KILLED:
+                    return AbominationCount;
+                default:
+                    break;
+            }
+
+            return 0;
         }
 
         uint64 GetData64(uint32 id)
         {
-            switch(id)
+            switch (id)
             {
             case DATA_FAERLINA:
                 return uiFaerlina;
@@ -348,7 +386,7 @@ public:
 
         bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target = NULL*/, uint32 /*miscvalue1 = 0*/)
         {
-            switch(criteria_id)
+            switch (criteria_id)
             {
                 case 7600:  // Criteria for achievement 2176: And They Would All Go Down Together 15sec of each other 10-man
                     if (Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_10MAN_NORMAL && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)

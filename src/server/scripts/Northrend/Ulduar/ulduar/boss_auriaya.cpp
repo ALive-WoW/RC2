@@ -105,7 +105,7 @@ class boss_auriaya : public CreatureScript
 
         struct boss_auriayaAI : public BossAI
         {
-            boss_auriayaAI(Creature* creature) : BossAI(creature, TYPE_AURIAYA)
+            boss_auriayaAI(Creature* creature) : BossAI(creature, BOSS_AURIAYA)
             {
             }
 
@@ -121,11 +121,11 @@ class boss_auriaya : public CreatureScript
             void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
-                DoScriptText(SAY_AGGRO,me);
+                DoScriptText(SAY_AGGRO, me);
 
                 events.ScheduleEvent(EVENT_SCREECH, urand(45000, 65000));
-                events.ScheduleEvent(EVENT_BLAST, 35500);
-                events.ScheduleEvent(EVENT_TERRIFYING, 35000);
+                events.ScheduleEvent(EVENT_BLAST, urand(20000, 25000));
+                events.ScheduleEvent(EVENT_TERRIFYING, urand(20000, 30000));
                 events.ScheduleEvent(EVENT_DEFENDER, urand(40000, 55000));
                 events.ScheduleEvent(EVENT_SUMMON, urand(45000, 55000));
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
@@ -231,11 +231,11 @@ class boss_auriaya : public CreatureScript
                         case EVENT_TERRIFYING:
                             DoScriptText(EMOTE_FEAR, me);
                             DoCast(SPELL_TERRIFYING_SCREECH);
-                            events.ScheduleEvent(EVENT_TERRIFYING, 35000);
+                            events.ScheduleEvent(EVENT_TERRIFYING, urand(20000, 30000));
                             break;
                         case EVENT_BLAST:
                             DoCastAOE(SPELL_SENTINEL_BLAST);
-                            events.ScheduleEvent(EVENT_BLAST, 35000);
+                            events.ScheduleEvent(EVENT_BLAST, urand(25000, 35000));
                             break;
                         case EVENT_DEFENDER:
                             DoScriptText(EMOTE_DEFENDER, me);
@@ -280,7 +280,7 @@ class boss_auriaya : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_auriayaAI(creature);
+            return GetUlduarAI<boss_auriayaAI>(creature);
         }
 };
 
@@ -304,7 +304,7 @@ class npc_auriaya_seeping_trigger : public CreatureScript
 
         void UpdateAI(uint32 const /*diff*/)
         {
-            if (instance->GetBossState(TYPE_AURIAYA) != IN_PROGRESS)
+            if (instance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
                 me->ForcedDespawn();
         }
 
@@ -332,8 +332,8 @@ class npc_sanctum_sentry : public CreatureScript
 
             void Reset()
             {
-                events.ScheduleEvent(EVENT_RIP, urand(4000,8000));
-                events.ScheduleEvent(EVENT_POUNCE, urand(12000,15000));
+                events.ScheduleEvent(EVENT_RIP, urand(4000, 8000));
+                events.ScheduleEvent(EVENT_POUNCE, urand(12000, 15000));
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -366,7 +366,7 @@ class npc_sanctum_sentry : public CreatureScript
                                 me->AI()->AttackStart(target);
                                 DoCast(target, SPELL_SAVAGE_POUNCE);
                             }
-                            events.ScheduleEvent(EVENT_POUNCE, urand(12000,17000));
+                            events.ScheduleEvent(EVENT_POUNCE, urand(12000, 17000));
                             break;
                         default:
                             break;
@@ -378,7 +378,7 @@ class npc_sanctum_sentry : public CreatureScript
 
             void JustDied(Unit* /*who*/)
             {
-                if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetData64(TYPE_AURIAYA)))
+                if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_AURIAYA)))
                     Auriaya->AI()->DoAction(ACTION_CRAZY_CAT_LADY);
             }
 
@@ -454,7 +454,7 @@ class npc_feral_defender : public CreatureScript
             void JustDied(Unit* /*who*/)
             {
                 DoCast(me, SPELL_SUMMON_ESSENCE);
-                if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetData64(TYPE_AURIAYA)))
+                if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_AURIAYA)))
                     Auriaya->AI()->DoAction(ACTION_RESPAWN_DEFENDER);
             }
 
@@ -492,12 +492,12 @@ class spell_auriaya_strenght_of_the_pack : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(SanctumSentryCheck());
+                unitList.remove_if (SanctumSentryCheck());
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_auriaya_strenght_of_the_pack_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ALLY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_auriaya_strenght_of_the_pack_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
             }
         };
 
@@ -518,13 +518,13 @@ class spell_auriaya_sentinel_blast : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(PlayerOrPetCheck());
+                unitList.remove_if (PlayerOrPetCheck());
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_auriaya_sentinel_blast_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_auriaya_sentinel_blast_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_auriaya_sentinel_blast_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_auriaya_sentinel_blast_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 

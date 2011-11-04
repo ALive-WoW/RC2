@@ -159,7 +159,7 @@ void Vehicle::ApplyAllImmunities()
         _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_UNATTACKABLE, true);
         _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_SCHOOL_ABSORB, true);
         _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SHIELD, true);
-        _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_IMMUNE_SHIELD , true);
+        _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_IMMUNE_SHIELD, true);
 
         // ... Resistance, Split damage, Change stats ...
         _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_DAMAGE_SHIELD, true);
@@ -445,7 +445,7 @@ void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
             float pz = z + passenger->m_movementInfo.t_pos.m_positionZ;
             float po = ang + passenger->m_movementInfo.t_pos.m_orientation;
 
-            passenger->SetPosition(px, py, pz, po);
+            passenger->UpdatePosition(px, py, pz, po);
         }
 }
 
@@ -503,30 +503,4 @@ uint8 Vehicle::GetAvailableSeatCount() const
             ++ret;
 
     return ret;
-}
-
-void Vehicle::Relocate(Position pos)
-{
-    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Relocate %u", _me->GetEntry());
-
-    std::set<Unit*> vehiclePlayers;
-    for (int8 i = 0; i < 8; i++)
-        vehiclePlayers.insert(GetPassenger(i));
-
-    // passengers should be removed or they will have movement stuck
-    RemoveAllPassengers();
-
-    for (std::set<Unit*>::const_iterator itr = vehiclePlayers.begin(); itr != vehiclePlayers.end(); ++itr)
-    {
-        if (Unit* plr = (*itr))
-        {
-            // relocate/setposition doesn't work for player
-            plr->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
-            //plr->TeleportTo(pPlayer->GetMapId(), triggerPos.GetPositionX(), triggerPos.GetPositionY(), triggerPos.GetPositionZ(), triggerPos.GetOrientation(), TELE_TO_NOT_LEAVE_COMBAT);
-        }
-    }
-
-    _me->SetPosition(pos, true);
-    // problems, and impossible to do delayed enter
-    //pPlayer->EnterVehicle(veh);
 }

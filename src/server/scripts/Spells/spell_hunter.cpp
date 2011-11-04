@@ -23,6 +23,7 @@
 
 #include "ScriptPCH.h"
 #include "SpellAuraEffects.h"
+#include "GridNotifiers.h"
 
 enum HunterSpells
 {
@@ -38,7 +39,7 @@ enum HunterSpells
     HUNTER_SPELL_CHIMERA_SHOT_SERPENT            = 53353,
     HUNTER_SPELL_CHIMERA_SHOT_VIPER              = 53358,
     HUNTER_SPELL_CHIMERA_SHOT_SCORPID            = 53359,
-	HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET         = 61669,
+    HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET         = 61669,
 };
 
 // 13161 Aspect of the Beast
@@ -75,7 +76,7 @@ public:
 
             Unit* caster = GetCaster();
             if (caster->ToPlayer())
-                if (Pet* pet = caster->ToPlayer()->GetPet())
+                if (caster->ToPlayer()->GetPet())
                     caster->CastSpell(caster, HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET, true);
         }
 
@@ -83,10 +84,10 @@ public:
         {
             AfterEffectApply += AuraEffectApplyFn(spell_hun_aspect_of_the_beast_AuraScript::OnApply, EFFECT_0, SPELL_AURA_UNTRACKABLE, AURA_EFFECT_HANDLE_REAL);
             AfterEffectRemove += AuraEffectRemoveFn(spell_hun_aspect_of_the_beast_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_UNTRACKABLE, AURA_EFFECT_HANDLE_REAL);
-       }
+        }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_hun_aspect_of_the_beast_AuraScript();
     }
@@ -178,7 +179,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_hun_chimera_shot_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHitTarget += SpellEffectFn(spell_hun_chimera_shot_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -214,7 +215,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_hun_invigoration_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHitTarget += SpellEffectFn(spell_hun_invigoration_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -249,7 +250,7 @@ public:
         void Register()
         {
             // add dummy effect spell handler to pet's Last Stand
-            OnEffect += SpellEffectFn(spell_hun_last_stand_pet_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_hun_last_stand_pet_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -299,7 +300,7 @@ class spell_hun_masters_call : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_hun_masters_call_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_hun_masters_call_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -327,7 +328,7 @@ public:
             const SpellCooldowns& cm = caster->ToPlayer()->GetSpellCooldownMap();
             for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
             {
-                SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
 
                 ///! If spellId in cooldown map isn't valid, the above will return a null pointer.
                 if (spellInfo &&
@@ -344,7 +345,7 @@ public:
         void Register()
         {
             // add dummy effect spell handler to Readiness
-            OnEffect += SpellEffectFn(spell_hun_readiness_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_hun_readiness_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -377,7 +378,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_hun_scatter_shot_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_hun_scatter_shot_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -427,12 +428,12 @@ public:
             if (!target->HasAura(spellId))
             {
                 SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(spellId);
-                Unit* triggerCaster = triggeredSpellInfo->IsRequiringSelectedTarget() ? caster : target;
+                Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? caster : target;
                 triggerCaster->CastSpell(target, triggeredSpellInfo, true, 0, aurEff);
             }
         }
 
-        void HandleUpdatePeriodic(AuraEffect * aurEff)
+        void HandleUpdatePeriodic(AuraEffect* aurEff)
         {
             Unit* target = GetUnitOwner();
             if (Player* playerTarget = target->ToPlayer())
@@ -452,7 +453,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_hun_sniper_training_AuraScript();
     }
@@ -488,7 +489,7 @@ public:
         void Register()
         {
             // add dummy effect spell handler to pet's Last Stand
-            OnEffect += SpellEffectFn(spell_hun_pet_heart_of_the_phoenix_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHitTarget += SpellEffectFn(spell_hun_pet_heart_of_the_phoenix_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
 
         bool Load()
@@ -520,10 +521,22 @@ public:
             return true;
         }
 
+        SpellCastResult CheckIfCorpseNear()
+        {
+            Unit* caster = GetCaster();
+            float max_range = GetSpellInfo()->GetMaxRange(false);
+            WorldObject* result = NULL;
+            // search for nearby enemy corpse in range
+            Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_SELECT_CHECK_ENEMY);
+            Trinity::WorldObjectSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
+            caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
+            if (!result)
+                return SPELL_FAILED_NO_EDIBLE_CORPSES;
+            return SPELL_CAST_OK;
+        }
+
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (!GetHitUnit())
-                return;
             Unit* caster = GetCaster();
             caster->CastSpell(caster, HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED, false);
         }
@@ -531,7 +544,8 @@ public:
         void Register()
         {
             // add dummy effect spell handler to pet's Last Stand
-            OnEffect += SpellEffectFn(spell_hun_pet_carrion_feeder_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHit += SpellEffectFn(spell_hun_pet_carrion_feeder_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnCheckCast += SpellCheckCastFn(spell_hun_pet_carrion_feeder_SpellScript::CheckIfCorpseNear);
         }
 
         bool Load()
@@ -550,7 +564,7 @@ public:
 
 void AddSC_hunter_spell_scripts()
 {
-	new spell_hun_aspect_of_the_beast();
+    new spell_hun_aspect_of_the_beast();
     new spell_hun_chimera_shot();
     new spell_hun_invigoration();
     new spell_hun_last_stand_pet();

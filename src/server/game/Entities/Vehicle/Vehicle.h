@@ -23,14 +23,10 @@
 #include "VehicleDefines.h"
 
 struct VehicleEntry;
-struct Position;
 class Unit;
 
 class Vehicle
 {
-    friend class Unit;
-    friend class WorldSession;
-
     public:
         explicit Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry);
         virtual ~Vehicle();
@@ -40,10 +36,11 @@ class Vehicle
         void Reset(bool evading = false);
         void InstallAllAccessories(bool evading);
         void ApplyAllImmunities();
+        void InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 type, uint32 summonTime);   //! May be called from scripts
 
         Unit* GetBase() const { return _me; }
         VehicleEntry const* GetVehicleInfo() const { return _vehicleInfo; }
-        uint32 const& GetCreatureEntry() const { return _creatureEntry; }
+        uint32 GetCreatureEntry() const { return _creatureEntry; }
 
         bool HasEmptySeat(int8 seatId) const;
         Unit* GetPassenger(int8 seatId) const;
@@ -52,29 +49,23 @@ class Vehicle
 
         bool AddPassenger(Unit* passenger, int8 seatId = -1);
         void EjectPassenger(Unit* passenger, Unit* controller);
-        void RemovePassenger(Unit *passenger);
+        void RemovePassenger(Unit* passenger);
         void RelocatePassengers(float x, float y, float z, float ang);
         void RemoveAllPassengers();
         void Dismiss();
-        void Relocate(Position pos);
         bool IsVehicleInUse() { return Seats.begin() != Seats.end(); }
 
         SeatMap Seats;
 
-		VehicleSeatEntry const* GetSeatForPassenger(Unit* passenger);
-
-    protected:
-        uint16 GetExtraMovementFlagsForBase() const;
+        VehicleSeatEntry const* GetSeatForPassenger(Unit* passenger);
 
     private:
         SeatMap::iterator GetSeatIteratorForPassenger(Unit* passenger);
         void InitMovementInfoForBase();
 
-        void InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 type, uint32 summonTime);
-
         Unit* _me;
         VehicleEntry const* _vehicleInfo;
         uint32 _usableSeatNum;         // Number of seats that match VehicleSeatEntry::UsableByPlayer, used for proper display flags
-        uint32 _creatureEntry;         // Can be different than me->GetBase()->GetEntry() in case of players 
+        uint32 _creatureEntry;         // Can be different than me->GetBase()->GetEntry() in case of players
 };
 #endif

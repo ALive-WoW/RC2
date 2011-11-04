@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2010-2011 ALiveCore <http://www.wow-alive.de/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -74,9 +73,9 @@ extern int main(int argc, char **argv)
 {
     sLog->SetLogDB(false);
     // Command line parsing to get the configuration file name
-    char const *cfg_file = _TRINITY_REALM_CONFIG;
+    char const* cfg_file = _TRINITY_REALM_CONFIG;
     int c = 1;
-    while(c < argc)
+    while (c < argc)
     {
         if (strcmp(argv[c], "-c") == 0)
         {
@@ -92,7 +91,7 @@ extern int main(int argc, char **argv)
         ++c;
     }
 
-    if (!sConfig->SetSource(cfg_file))
+    if (!ConfigMgr::Load(cfg_file))
     {
         sLog->outError("Invalid or missing configuration file : %s", cfg_file);
         sLog->outError("Verify that the file exists and has \'[authserver]\' written in the top of the file!");
@@ -100,22 +99,11 @@ extern int main(int argc, char **argv)
     }
     sLog->Initialize();
 
-	sLog->outString("ALiveCore2 LoginServer for World of Warcraft 3.3.5.12340");
-    sLog->outString("    _    _     _           ");
-    sLog->outString("   / \\  | |   (_)_   _____ ");
-    sLog->outString("  / _ \\ | |   | \\ \\ / / _ \\");
-    sLog->outString(" / ___ \\| |___| |\\ V /  __/");
-    sLog->outString("/_/   \\_\\_____|_| \\_/ \\___|");
-    sLog->outString("C O R E");
-    sLog->outString(" ");
-    sLog->outString("  ALiveCore 2011(c) World of Warcraft Server Emulation");
-    sLog->outString(" ");
-    sLog->outString("http://wow-alive.de/");
-    sLog->outString(" ");
+    sLog->outString("%s (authserver)", _FULLVERSION);
+    sLog->outString("<Ctrl-C> to stop.\n");
     sLog->outString("Using configuration file %s.", cfg_file);
-	sLog->outString(" ");
+
     sLog->outDetail("%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-	sLog->outString(" ");
 
 #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
     ACE_Reactor::instance(new ACE_Reactor(new ACE_Dev_Poll_Reactor(ACE::max_handles(), 1), 1), true);
@@ -126,7 +114,7 @@ extern int main(int argc, char **argv)
     sLog->outBasic("Max allowed open files is %d", ACE::max_handles());
 
     // authserver PID file creation
-    std::string pidfile = sConfig->GetStringDefault("PidFile", "");
+    std::string pidfile = ConfigMgr::GetStringDefault("PidFile", "");
     if (!pidfile.empty())
     {
         uint32 pid = CreatePIDFile(pidfile);
@@ -136,7 +124,7 @@ extern int main(int argc, char **argv)
             return 1;
         }
 
-        sLog->outString("LoginServer Progress ID: %u\n", pid);
+        sLog->outString("Daemon PID: %u\n", pid);
     }
 
     // Initialize the database connection
@@ -144,12 +132,12 @@ extern int main(int argc, char **argv)
         return 1;
 
     // Initialize the log database
-    sLog->SetLogDBLater(sConfig->GetBoolDefault("EnableLogDB", false)); // set var to enable DB logging once startup finished.
+    sLog->SetLogDBLater(ConfigMgr::GetBoolDefault("EnableLogDB", false)); // set var to enable DB logging once startup finished.
     sLog->SetLogDB(false);
     sLog->SetRealmID(0);                                               // ensure we've set realm to 0 (authserver realmid)
 
     // Get the list of realms for the server
-    sRealmList->Initialize(sConfig->GetIntDefault("RealmsStateUpdateDelay", 20));
+    sRealmList->Initialize(ConfigMgr::GetIntDefault("RealmsStateUpdateDelay", 20));
     if (sRealmList->size() == 0)
     {
         sLog->outError("No valid realms specified.");
@@ -159,14 +147,14 @@ extern int main(int argc, char **argv)
     // Launch the listening network socket
     RealmAcceptor acceptor;
 
-    uint16 rmport = sConfig->GetIntDefault("RealmServerPort", 3724);
-    std::string bind_ip = sConfig->GetStringDefault("BindIP", "0.0.0.0");
+    uint16 rmport = ConfigMgr::GetIntDefault("RealmServerPort", 3724);
+    std::string bind_ip = ConfigMgr::GetStringDefault("BindIP", "0.0.0.0");
 
     ACE_INET_Addr bind_addr(rmport, bind_ip.c_str());
 
     if (acceptor.open(bind_addr, ACE_Reactor::instance(), ACE_NONBLOCK) == -1)
     {
-        sLog->outError("ALiveCore2 LoginServer can not bind to %s:%d", bind_ip.c_str(), rmport);
+        sLog->outError("Auth server can not bind to %s:%d", bind_ip.c_str(), rmport);
         return 1;
     }
 
@@ -183,7 +171,7 @@ extern int main(int argc, char **argv)
     {
         HANDLE hProcess = GetCurrentProcess();
 
-        uint32 Aff = sConfig->GetIntDefault("UseProcessors", 0);
+        uint32 Aff = ConfigMgr::GetIntDefault("UseProcessors", 0);
         if (Aff > 0)
         {
             ULONG_PTR appAff;
@@ -203,21 +191,21 @@ extern int main(int argc, char **argv)
             sLog->outString();
         }
 
-        bool Prio = sConfig->GetBoolDefault("ProcessPriority", false);
+        bool Prio = ConfigMgr::GetBoolDefault("ProcessPriority", false);
 
         if (Prio)
         {
             if (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS))
-                sLog->outString("ALiveCore2 LoginServer process priority class has been set to HIGH");
+                sLog->outString("The auth server process priority class has been set to HIGH");
             else
-                sLog->outError("Can't set ALiveCore2 LoginServer process priority class.");
+                sLog->outError("Can't set auth server process priority class.");
             sLog->outString();
         }
     }
 #endif
 
     // maximum counter for next ping
-    uint32 numLoops = (sConfig->GetIntDefault("MaxPingTime", 30) * (MINUTE * 1000000 / 100000));
+    uint32 numLoops = (ConfigMgr::GetIntDefault("MaxPingTime", 30) * (MINUTE * 1000000 / 100000));
     uint32 loopCounter = 0;
 
     // possibly enable db logging; avoid massive startup spam by doing it here.
@@ -260,21 +248,21 @@ bool StartDB()
 {
     MySQL::Library_Init();
 
-    std::string dbstring = sConfig->GetStringDefault("LoginDatabaseInfo", "");
+    std::string dbstring = ConfigMgr::GetStringDefault("LoginDatabaseInfo", "");
     if (dbstring.empty())
     {
         sLog->outError("Database not specified");
         return false;
     }
 
-    uint8 worker_threads = sConfig->GetIntDefault("LoginDatabase.WorkerThreads", 1);
+    uint8 worker_threads = ConfigMgr::GetIntDefault("LoginDatabase.WorkerThreads", 1);
     if (worker_threads < 1 || worker_threads > 32)
     {
         sLog->outError("Improper value specified for LoginDatabase.WorkerThreads, defaulting to 1.");
         worker_threads = 1;
     }
 
-    uint8 synch_threads = sConfig->GetIntDefault("LoginDatabase.SynchThreads", 1);
+    uint8 synch_threads = ConfigMgr::GetIntDefault("LoginDatabase.SynchThreads", 1);
     if (synch_threads < 1 || synch_threads > 32)
     {
         sLog->outError("Improper value specified for LoginDatabase.SynchThreads, defaulting to 1.");

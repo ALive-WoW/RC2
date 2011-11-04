@@ -73,7 +73,7 @@ public:
             casterGuid = 0;
         }
 
-        void SpellHit(Unit* caster, const SpellInfo *spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (Phase)
                 return;
@@ -153,7 +153,7 @@ public:
 
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_sinkhole_kill_creditAI(creature);
     }
@@ -193,7 +193,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_khunok_the_behemothAI(creature);
     }
@@ -375,7 +375,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_nerubar_victimAI(creature);
     }
@@ -410,7 +410,7 @@ public:
 
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_scourge_prisonerAI(creature);
     }
@@ -483,7 +483,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_jennyAI (creature);
     }
@@ -527,7 +527,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_fezzix_geartwistAI(creature);
     }
@@ -596,11 +596,11 @@ public:
             if (GameObject* go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
                 go_caribou->SetLootState(GO_JUST_DEACTIVATED);
 
-            if (TempSummon *summon = me->ToTempSummon())
+            if (TempSummon* summon = me->ToTempSummon())
                 if (summon->isSummon())
-                    if (Unit* pTemp = summon->GetSummoner())
-                        if (pTemp->GetTypeId() == TYPEID_PLAYER)
-                            CAST_PLR(pTemp)->KilledMonsterCredit(me->GetEntry(), 0);
+                    if (Unit* temp = summon->GetSummoner())
+                        if (temp->GetTypeId() == TYPEID_PLAYER)
+                            CAST_PLR(temp)->KilledMonsterCredit(me->GetEntry(), 0);
 
             if (GameObject* go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
                 go_caribou->SetGoState(GO_STATE_READY);
@@ -672,7 +672,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_nesingwary_trapperAI(creature);
     }
@@ -739,7 +739,7 @@ public:
             {
                 if (IntroTimer <= diff)
                 {
-                    switch(IntroPhase)
+                    switch (IntroPhase)
                     {
                         case 1:
                             //DoScriptText(SAY_WP_1_LUR_START, me);
@@ -789,20 +789,20 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_lurgglbrAI(creature);
     }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const *pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_ESCAPE_WINTERFIN_CAVERNS)
+        if (quest->GetQuestId() == QUEST_ESCAPE_WINTERFIN_CAVERNS)
         {
-            if (GameObject* pGo = creature->FindNearestGameObject(GO_CAGE, 5.0f))
+            if (GameObject* go = creature->FindNearestGameObject(GO_CAGE, 5.0f))
             {
-                pGo->SetRespawnTime(0);
-                pGo->SetGoType(GAMEOBJECT_TYPE_BUTTON);
-                pGo->UseDoorOrButton(20);
+                go->SetRespawnTime(0);
+                go->SetGoType(GAMEOBJECT_TYPE_BUTTON);
+                go->UseDoorOrButton(20);
             }
 
             if (npc_escortAI* pEscortAI = CAST_AI(npc_lurgglbr::npc_lurgglbrAI, creature->AI()))
@@ -862,11 +862,11 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (me->canAttack(who))
+            if (me->IsValidAttackTarget(who))
                 AttackStart(who);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo *spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_DRAKE_HARPOON && caster->GetTypeId() == TYPEID_PLAYER)
             {
@@ -923,7 +923,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_nexus_drake_hatchlingAI(creature);
     }
@@ -1021,7 +1021,7 @@ public:
             if (!player)
                 return;
 
-            switch(uiPointId)
+            switch (uiPointId)
             {
                 case 3:
                     SetEscortPaused(true);
@@ -1269,7 +1269,7 @@ public:
         return true;
     }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_thassarianAI(creature);
     }
@@ -1304,7 +1304,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_image_lich_kingAI(creature);
     }
@@ -1336,7 +1336,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_general_arlosAI(creature);
     }
@@ -1454,7 +1454,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_counselor_talbotAI(creature);
     }
@@ -1579,7 +1579,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_leryssaAI(creature);
     }
@@ -1618,7 +1618,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (me->canAttack(who))
+            if (me->IsValidAttackTarget(who))
                 AttackStart(who);
         }
 
@@ -1656,7 +1656,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_beryl_sorcererAI(creature);
     }
@@ -1706,12 +1706,12 @@ public:
         {
         }
 
-        void SpellHit(Unit* pUnit, const SpellInfo* pSpell)
+        void SpellHit(Unit* unit, const SpellInfo* pSpell)
         {
-            if (pSpell->Id == SPELL_NEURAL_NEEDLE && pUnit->GetTypeId() == TYPEID_PLAYER)
+            if (pSpell->Id == SPELL_NEURAL_NEEDLE && unit->GetTypeId() == TYPEID_PLAYER)
             {
                 ++uiPhase;
-                CasterGUID = pUnit->GetGUID();
+                CasterGUID = unit->GetGUID();
             }
         }
 
@@ -1791,7 +1791,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_imprisoned_beryl_sorcererAI(creature);
     }
@@ -1832,6 +1832,7 @@ public:
                 creature->setFaction(FACTION_ESCORTEE_H);
                 break;
             }
+            creature->SetStandState(UNIT_STAND_STATE_STAND);
             DoScriptText(SAY_1, creature);
             CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
         }
@@ -1860,7 +1861,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
             case 10:
                 me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
@@ -1886,7 +1887,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_mootoo_the_youngerAI(creature);
     }
@@ -1898,8 +1899,8 @@ public:
 
 enum Bonker_Togglevolt_Entries
 {
-	NPC_BONKER_TOGGLEVOLT = 25589,
-	QUEST_GET_ME_OUTA_HERE = 11673
+    NPC_BONKER_TOGGLEVOLT = 25589,
+    QUEST_GET_ME_OUTA_HERE = 11673
 };
 enum Script_Texts_Bonker_Togglevolt
 {
@@ -1930,8 +1931,8 @@ public:
 
         void Reset()
         {
-        	Bonker_agro=0;
-        	SetDespawnAtFar(false);
+            Bonker_agro=0;
+            SetDespawnAtFar(false);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -1961,17 +1962,17 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
-            	case 29:
-                	if (player)
-                    		player->GroupEventHappens(QUEST_GET_ME_OUTA_HERE, me);
-                	break;
+                case 29:
+                    if (player)
+                        player->GroupEventHappens(QUEST_GET_ME_OUTA_HERE, me);
+                    break;
             }
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_bonker_togglevoltAI(creature);
     }
@@ -2087,7 +2088,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_trapped_mammoth_calfAI(creature);
     }
@@ -2129,7 +2130,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_magmoth_crusherAI(creature);
     }
@@ -2179,7 +2180,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_seaforium_depth_chargeAI(creature);
     }
@@ -2231,7 +2232,7 @@ public:
 
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_valiance_keep_cannoneerAI(creature);
     }
@@ -2281,7 +2282,7 @@ public:
                 std::list<Creature*> orbList;
                 GetCreatureListWithEntryInGrid(orbList, me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
 
-                switch(me->GetEntry())
+                switch (me->GetEntry())
                 {
                     case NPC_WARMAGE_HOLLISTER:
                     {
@@ -2336,7 +2337,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_warmage_coldarraAI(creature);
     }
@@ -2423,7 +2424,7 @@ public:
             uiEventPhase = 1;
         }
 
-        void SetGUID(const uint64 uiGuid, int32 /*iId*/)
+        void SetGUID(uint64 uiGuid, int32 /*iId*/)
         {
             uiPlayerGUID = uiGuid;
         }
@@ -2439,10 +2440,10 @@ public:
         {
             if (uiEventTimer && uiEventTimer <= uiDiff)
             {
-                switch(uiEventPhase)
+                switch (uiEventPhase)
                 {
                     case 1:
-                        switch(me->GetEntry())
+                        switch (me->GetEntry())
                         {
                             case NPC_SALTY_JOHN_THORPE:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
@@ -2463,7 +2464,7 @@ public:
                         }
                         break;
                     case 2:
-                        switch(me->GetEntry())
+                        switch (me->GetEntry())
                         {
                             case NPC_SALTY_JOHN_THORPE:
                                 DoScriptText(SAY_HIDDEN_CULTIST_4, me);
@@ -2509,7 +2510,7 @@ public:
         uint32 uiGossipText = 0;
         const char* charGossipItem;
 
-        switch(creature->GetEntry())
+        switch (creature->GetEntry())
         {
             case NPC_TOM_HEGGER:
                 uiGossipText = GOSSIP_TEXT_TOM_HEGGER;

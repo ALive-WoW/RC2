@@ -47,7 +47,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_agnetta_tyrsdottarAI(creature);
     }
@@ -223,7 +223,7 @@ public:
 
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_goblin_prisonerAI(creature);
     }
@@ -320,7 +320,7 @@ public:
         return true;
     }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_victorious_challengerAI(creature);
     }
@@ -446,7 +446,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_injured_goblinAI(creature);
     }
@@ -466,7 +466,7 @@ public:
         return true;
     }
 
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const *quest)
+    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_BITTER_DEPARTURE)
             DoScriptText(SAY_QUEST_ACCEPT, creature);
@@ -507,12 +507,12 @@ public:
             player->PrepareQuestMenu(creature->GetGUID());
 
         //Trainer Menu
-        if( creature->isTrainer() )
+        if ( creature->isTrainer() )
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
         //Vendor Menu
-        if( creature->isVendor() )
-            if(player->HasSpell(SPELL_MECHANO_HOG) || player->HasSpell(SPELL_MEKGINEERS_CHOPPER))
+        if ( creature->isVendor() )
+            if (player->HasSpell(SPELL_MECHANO_HOG) || player->HasSpell(SPELL_MEKGINEERS_CHOPPER))
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
@@ -522,7 +522,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(action)
+        switch (action)
         {
         case GOSSIP_ACTION_TRAIN:
             player->GetSession()->SendTrainerList(creature->GetGUID());
@@ -558,7 +558,7 @@ public:
     {
         npc_brunnhildar_prisonerAI(Creature* creature) : ScriptedAI(creature) {}
 
-        Unit* drake;
+        uint64 drakeGUID;
         uint16 enter_timer;
         bool hasEmptySeats;
 
@@ -566,14 +566,25 @@ public:
         {
             me->CastSpell(me, SPELL_ICE_PRISON, true);
             enter_timer = 0;
-            drake = NULL;
+            drakeGUID = 0;
             hasEmptySeats = false;
         }
 
         void UpdateAI(const uint32 diff)
         {
+            //TODO: not good script
+            if (!drakeGUID)
+                return;
+
+            Creature* drake = Unit::GetCreature(*me, drakeGUID);
+            if (!drake)
+            {
+                drakeGUID = 0;
+                return;
+            }
+
             // drake unsummoned, passengers dropped
-            if (drake && !me->IsOnVehicle(drake) && !hasEmptySeats)
+            if (!me->IsOnVehicle(drake) && !hasEmptySeats)
                 me->ForcedDespawn(3000);
 
             if (enter_timer <= 0)
@@ -593,8 +604,15 @@ public:
 
         void MoveInLineOfSight(Unit* unit)
         {
-            if (!unit || !drake)
+            if (!unit || !drakeGUID)
                 return;
+
+            Creature* drake = Unit::GetCreature(*me, drakeGUID);
+            if (!drake)
+            {
+                drakeGUID = 0;
+                return;
+            }
 
             if (!me->IsOnVehicle(drake) && !me->HasAura(SPELL_ICE_PRISON))
             {
@@ -651,7 +669,7 @@ public:
             enter_timer = 500;
 
             if (hitter->IsVehicle())
-                drake = hitter;
+                drakeGUID = hitter->GetGUID();
             else
                 return;
 
@@ -660,7 +678,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_brunnhildar_prisonerAI(creature);
     }
@@ -715,6 +733,54 @@ public:
     }
 };
 
+class npc_hyldsmeet_protodrake : public CreatureScript
+{
+    enum NPCs
+    {
+        NPC_HYLDSMEET_DRAKERIDER = 29694
+    };
+
+    public:
+        npc_hyldsmeet_protodrake() : CreatureScript("npc_hyldsmeet_protodrake") { }
+
+        class npc_hyldsmeet_protodrakeAI : public CreatureAI
+        {
+            public:
+                npc_hyldsmeet_protodrakeAI(Creature* c) : CreatureAI(c), _accessoryRespawnTimer(0), _vehicleKit(c->GetVehicleKit()) {}
+
+                void PassengerBoarded(Unit* who, int8 /*seat*/, bool apply)
+                {
+                    if (apply)
+                        return;
+
+                    if (who->GetEntry() == NPC_HYLDSMEET_DRAKERIDER)
+                        _accessoryRespawnTimer = 5 * MINUTE * IN_MILLISECONDS;
+                }
+
+                void UpdateAI(uint32 const diff)
+                {
+                    //! We need to manually reinstall accessories because the vehicle itself is friendly to players,
+                    //! so EnterEvadeMode is never triggered. The accessory on the other hand is hostile and killable.
+                    if (_accessoryRespawnTimer && _accessoryRespawnTimer <= diff && _vehicleKit)
+                    {
+                        _vehicleKit->InstallAllAccessories(true);
+                        _accessoryRespawnTimer = 0;
+                    }
+                    else
+                        _accessoryRespawnTimer -= diff;
+                }
+
+            private:
+                uint32 _accessoryRespawnTimer;
+                Vehicle* _vehicleKit;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_hyldsmeet_protodrakeAI (creature);
+        }
+};
+
 void AddSC_storm_peaks()
 {
     new npc_agnetta_tyrsdottar;
@@ -727,4 +793,5 @@ void AddSC_storm_peaks()
     new npc_roxi_ramrocket;
     new npc_brunnhildar_prisoner;
     new npc_icefang;
+    new npc_hyldsmeet_protodrake;
 }

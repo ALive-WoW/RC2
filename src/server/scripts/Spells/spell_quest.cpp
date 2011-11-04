@@ -22,6 +22,7 @@
  */
 
 #include "ScriptPCH.h"
+#include "Vehicle.h"
 
 class spell_generic_quest_update_entry_SpellScript : public SpellScript
 {
@@ -55,7 +56,7 @@ public:
 
     void Register()
     {
-        OnEffect += SpellEffectFn(spell_generic_quest_update_entry_SpellScript::HandleDummy, _effIndex, _spellEffect);
+        OnEffectHitTarget += SpellEffectFn(spell_generic_quest_update_entry_SpellScript::HandleDummy, _effIndex, _spellEffect);
     }
 };
 
@@ -115,7 +116,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_q5206_test_fetid_skull_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHit += SpellEffectFn(spell_q5206_test_fetid_skull_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -173,7 +174,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_q6124_6129_apply_salve_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_q6124_6129_apply_salve_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -274,7 +275,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_q11396_11399_scourging_crystal_controller_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_q11396_11399_scourging_crystal_controller_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -309,7 +310,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_q11396_11399_scourging_crystal_controller_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_q11396_11399_scourging_crystal_controller_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -381,7 +382,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_q11587_arcane_prisoner_rescue_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_q11587_arcane_prisoner_rescue_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -465,11 +466,11 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_q11730_ultrasonic_screwdriver_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_q11730_ultrasonic_screwdriver_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
-    SpellScript * GetSpellScript() const
+    SpellScript* GetSpellScript() const
     {
         return new spell_q11730_ultrasonic_screwdriver_SpellScript();
     }
@@ -516,7 +517,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_q12459_seeds_of_natures_wrath_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_q12459_seeds_of_natures_wrath_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -574,7 +575,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_q12634_despawn_fruit_tosser_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHit += SpellEffectFn(spell_q12634_despawn_fruit_tosser_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -609,7 +610,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_q12683_take_sputum_sample_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHit += SpellEffectFn(spell_q12683_take_sputum_sample_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -647,7 +648,7 @@ public:
                 Unit* target = GetTarget();
                 if (Player* player = caster->GetCharmerOrOwnerPlayerOrPlayerItself())
                 {
-                    switch(target->GetEntry())
+                    switch (target->GetEntry())
                     {
                         case NPC_FROSTWORG:
                             target->CastSpell(player, SPELL_FROSTWORG_CREDIT, true);
@@ -706,7 +707,7 @@ public:
             Unit* pCaster = GetCaster();
             if (Player* player = pCaster->ToPlayer())
             {
-                if(Creature* target = GetHitCreature())
+                if (Creature* target = GetHitCreature())
                 {
                     player->CastSpell(player, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, NULL);
                     player->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER, 0);
@@ -717,7 +718,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_q12937_relief_for_the_fallen_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_q12937_relief_for_the_fallen_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -764,7 +765,7 @@ class spell_q10041_q10040_who_are_they : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_q10041_q10040_who_are_they_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_q10041_q10040_who_are_they_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -791,7 +792,7 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Creature* target = GetTargetUnit()->ToCreature())
+            if (Creature* target = GetHitCreature())
             {
                 if (target->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
                 {
@@ -806,7 +807,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_symbol_of_life_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_symbol_of_life_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -847,7 +848,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_q12659_ahunaes_knife_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_q12659_ahunaes_knife_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -855,6 +856,174 @@ public:
     {
         return new spell_q12659_ahunaes_knife_SpellScript();
     };
+};
+
+enum StoppingTheSpread
+{
+    NPC_VILLAGER_KILL_CREDIT                     = 18240,
+    SPELL_FLAMES                                 = 39199,
+};
+
+class spell_q9874_liquid_fire : public SpellScriptLoader
+{
+    public:
+        spell_q9874_liquid_fire() : SpellScriptLoader("spell_q9874_liquid_fire")
+        {
+        }
+
+        class spell_q9874_liquid_fire_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q9874_liquid_fire_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Player* caster = GetCaster()->ToPlayer();
+                Creature* target = GetHitUnit()->ToCreature();
+                if (!caster || !target || (target && target->HasAura(SPELL_FLAMES)))
+                    return;
+
+                caster->KilledMonsterCredit(NPC_VILLAGER_KILL_CREDIT, 0);
+                target->CastSpell(target, SPELL_FLAMES, true);
+                target->DespawnOrUnsummon(60000);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q9874_liquid_fire_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q9874_liquid_fire_SpellScript();
+        };
+};
+
+enum SalvagingLifesStength
+{
+    NPC_SHARD_KILL_CREDIT                        = 29303,
+};
+
+class spell_q12805_lifeblood_dummy : public SpellScriptLoader
+{
+    public:
+        spell_q12805_lifeblood_dummy() : SpellScriptLoader("spell_q12805_lifeblood_dummy")
+        {
+        }
+
+        class spell_q12805_lifeblood_dummy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12805_lifeblood_dummy_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Player* caster = GetCaster()->ToPlayer();
+                Creature* target = GetHitUnit()->ToCreature();
+                if (!caster || !target)
+                    return;
+
+                caster->KilledMonsterCredit(NPC_SHARD_KILL_CREDIT, 0);
+                target->CastSpell(target, uint32(GetEffectValue()), true);
+                target->DespawnOrUnsummon(2000);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12805_lifeblood_dummy_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q12805_lifeblood_dummy_SpellScript();
+        };
+};
+
+/*
+ http://www.wowhead.com/quest=13283 King of the Mountain
+ http://www.wowhead.com/quest=13280 King of the Mountain
+ 59643 Plant Horde Battle Standard
+ 4338 Plant Alliance Battle Standard
+ */
+enum eBattleStandard
+{
+    NPC_KING_OF_THE_MOUNTAINT_KC                    = 31766,
+};
+
+class spell_q13280_13283_plant_battle_standard: public SpellScriptLoader
+{
+public:
+    spell_q13280_13283_plant_battle_standard() : SpellScriptLoader("spell_q13280_13283_plant_battle_standard") { }
+
+    class spell_q13280_13283_plant_battle_standard_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q13280_13283_plant_battle_standard_SpellScript)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            Unit* caster = GetCaster();
+            if (caster->IsVehicle())
+                if (Unit* player = caster->GetVehicleKit()->GetPassenger(0))
+                     player->ToPlayer()->KilledMonsterCredit(NPC_KING_OF_THE_MOUNTAINT_KC, 0);
+        }
+
+        void Register()
+        {
+            OnEffectHit += SpellEffectFn(spell_q13280_13283_plant_battle_standard_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q13280_13283_plant_battle_standard_SpellScript();
+    }
+};
+
+enum ChumTheWaterSummons
+{
+    SUMMON_ANGRY_KVALDIR = 66737,
+    SUMMON_NORTH_SEA_MAKO = 66738,
+    SUMMON_NORTH_SEA_THRESHER = 66739,
+    SUMMON_NORTH_SEA_BLUE_SHARK = 66740
+};
+
+class spell_q14112_14145_chum_the_water: public SpellScriptLoader
+{
+public:
+    spell_q14112_14145_chum_the_water() : SpellScriptLoader("spell_q14112_14145_chum_the_water") { }
+
+    class spell_q14112_14145_chum_the_water_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q14112_14145_chum_the_water_SpellScript);
+    
+        bool Validate(SpellInfo const* /*spellEntry*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SUMMON_ANGRY_KVALDIR))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SUMMON_NORTH_SEA_MAKO))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SUMMON_NORTH_SEA_THRESHER))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SUMMON_NORTH_SEA_BLUE_SHARK))
+                return false;
+            return true;
+        }
+
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+        {
+            Unit* caster = GetCaster();
+            caster->CastSpell(caster, RAND(SUMMON_ANGRY_KVALDIR, SUMMON_NORTH_SEA_MAKO, SUMMON_NORTH_SEA_THRESHER, SUMMON_NORTH_SEA_BLUE_SHARK));
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_q14112_14145_chum_the_water_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q14112_14145_chum_the_water_SpellScript();
+    }
 };
 
 void AddSC_quest_spell_scripts()
@@ -877,4 +1046,8 @@ void AddSC_quest_spell_scripts()
     new spell_q10041_q10040_who_are_they();
     new spell_symbol_of_life_dummy();
     new spell_q12659_ahunaes_knife();
+    new spell_q9874_liquid_fire();
+    new spell_q12805_lifeblood_dummy();
+    new spell_q13280_13283_plant_battle_standard();
+    new spell_q14112_14145_chum_the_water();
 }

@@ -1,1 +1,0 @@
-DELETE FROM `creature` WHERE `map` = '533' AND `id` IN ('15929', '15930');

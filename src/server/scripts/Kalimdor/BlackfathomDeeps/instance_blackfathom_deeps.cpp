@@ -56,14 +56,14 @@ class instance_blackfathom_deeps : public InstanceMapScript
 public:
     instance_blackfathom_deeps() : InstanceMapScript("instance_blackfathom_deeps", 48) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_blackfathom_deeps_InstanceMapScript(pMap);
+        return new instance_blackfathom_deeps_InstanceMapScript(map);
     }
 
     struct instance_blackfathom_deeps_InstanceMapScript : public InstanceScript
     {
-        instance_blackfathom_deeps_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_blackfathom_deeps_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint64 m_uiTwilightLordKelrisGUID;
         uint64 m_uiShrine1GUID;
@@ -109,7 +109,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case GO_FIRE_OF_AKU_MAI_1:
                     m_uiShrine1GUID = go->GetGUID();
@@ -126,12 +126,12 @@ public:
                 case GO_SHRINE_OF_GELIHAST:
                     m_uiShrineOfGelihastGUID = go->GetGUID();
                     if (m_auiEncounter[0] != DONE)
-                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 case GO_ALTAR_OF_THE_DEEPS:
                     m_uiAltarOfTheDeepsGUID = go->GetGUID();
                     if (m_auiEncounter[3] != DONE)
-                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 case GO_AKU_MAI_DOOR:
                     if (m_auiEncounter[2] == DONE)
@@ -143,20 +143,20 @@ public:
 
         void SetData(uint32 uiType, uint32 uiData)
         {
-            switch(uiType)
+            switch (uiType)
             {
                 case TYPE_GELIHAST:
                     m_auiEncounter[0] = uiData;
                     if (uiData == DONE)
                         if (GameObject* go = instance->GetGameObject(m_uiShrineOfGelihastGUID))
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 case TYPE_AKU_MAI:
                     m_auiEncounter[3] = uiData;
                     if (uiData == DONE)
                         if (GameObject* go = instance->GetGameObject(m_uiAltarOfTheDeepsGUID))
                         {
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                             go->SummonCreature(NPC_MORRIDUNE, SpawnsLocation[4], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
                         }
                     break;
@@ -213,7 +213,7 @@ public:
 
         uint32 GetData(uint32 uiType)
         {
-            switch(uiType)
+            switch (uiType)
             {
                 case TYPE_GELIHAST:
                     return m_auiEncounter[0];
@@ -234,7 +234,7 @@ public:
 
         uint64 GetData64(uint32 uiData)
         {
-            switch(uiData)
+            switch (uiData)
             {
                 case DATA_TWILIGHT_LORD_KELRIS:
                     return m_uiTwilightLordKelrisGUID;

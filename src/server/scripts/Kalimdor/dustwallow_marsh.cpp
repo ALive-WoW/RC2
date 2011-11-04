@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * Copyright (C) 2011-2012 ALiveCore <http://www.wow-alive.de/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -274,7 +273,7 @@ public:
         return true;
     }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_theramore_guardAI(creature);
     }
@@ -300,7 +299,7 @@ public:
 
             if (bYellTimer && uiYellTimer <= uiDiff)
             {
-                switch(uiStep)
+                switch (uiStep)
                 {
                     case 0:
                         DoScriptText(RAND(SAY_QUEST2, SAY_QUEST3, SAY_QUEST4, SAY_QUEST5, SAY_QUEST6), me);
@@ -432,9 +431,9 @@ class npc_private_hendel : public CreatureScript
 public:
     npc_private_hendel() : CreatureScript("npc_private_hendel") { }
 
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* /*player*/, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_MISSING_DIPLO_PT16)
+        if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT16)
             creature->setFaction(FACTION_HOSTILE);
 
         return true;
@@ -536,8 +535,8 @@ public:
             SetCombatMovement(true);
 
             if (me->isInCombat())
-                if (Unit* pUnit = me->getVictim())
-                    me->GetMotionMaster()->MoveChase(pUnit);
+                if (Unit* unit = me->getVictim())
+                    me->GetMotionMaster()->MoveChase(unit);
         }
 
         void MoveToDock()
@@ -589,9 +588,9 @@ public:
         return new npc_stinkyAI(creature);
     }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const *quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
-         if (quest->GetQuestId() == QUEST_STINKYS_ESCAPE_H || QUEST_STINKYS_ESCAPE_A)
+         if (quest->GetQuestId() == QUEST_STINKYS_ESCAPE_H || quest->GetQuestId() == QUEST_STINKYS_ESCAPE_A)
          {
              if (npc_stinkyAI* pEscortAI = CAST_AI(npc_stinky::npc_stinkyAI, creature->AI()))
              {
@@ -729,7 +728,7 @@ class spell_ooze_zap : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_ooze_zap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_ooze_zap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 OnCheckCast += SpellCheckCastFn(spell_ooze_zap_SpellScript::CheckRequirement);
             }
         };
@@ -766,7 +765,7 @@ class spell_ooze_zap_channel_end : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_ooze_zap_channel_end_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_ooze_zap_channel_end_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -812,9 +811,9 @@ class spell_energize_aoe : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_energize_aoe_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_energize_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENTRY_SRC);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_energize_aoe_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_AREA_ENTRY_SRC);
+                OnEffectHitTarget += SpellEffectFn(spell_energize_aoe_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_energize_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_energize_aoe_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
             }
         };
 

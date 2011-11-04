@@ -1,1 +1,0 @@
-UPDATE creature_template SET scriptname = 'mob_saronit_vapor' WHERE entry = 33488;

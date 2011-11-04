@@ -40,7 +40,7 @@ public:
 
     struct instance_ahnkahet_InstanceScript : public InstanceScript
     {
-        instance_ahnkahet_InstanceScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_ahnkahet_InstanceScript(Map* map) : InstanceScript(map) {}
 
         uint64 Elder_Nadox;
         uint64 Prince_Taldaram;
@@ -94,7 +94,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case 29309: Elder_Nadox = creature->GetGUID();                     break;
                 case 29308: Prince_Taldaram = creature->GetGUID();                 break;
@@ -107,7 +107,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case 193564:     Prince_TaldaramPlatform = go->GetGUID();
                     if (m_auiEncounter[1] == DONE) HandleGameObject(0, true, go); break;
@@ -115,17 +115,17 @@ public:
                     if (spheres[0] == IN_PROGRESS)
                     {
                         go->SetGoState(GO_STATE_ACTIVE);
-                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
-                    else go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                    else go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 case 193094:     Prince_TaldaramSpheres[1] = go->GetGUID();
                     if (spheres[1] == IN_PROGRESS)
                     {
                         go->SetGoState(GO_STATE_ACTIVE);
-                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
-                    else go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                    else go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 case 192236:    Prince_TaldaramGate = go->GetGUID(); // Web gate past Prince Taldaram
                     if (m_auiEncounter[1] == DONE)HandleGameObject(0, true, go);break;
@@ -134,7 +134,7 @@ public:
 
         void SetData64(uint32 idx, uint64 guid)
         {
-            switch(idx)
+            switch (idx)
             {
                 case DATA_ADD_JEDOGA_OPFER: JedogaSacrifices = guid; break;
                 case DATA_PL_JEDOGA_TARGET: JedogaTarget = guid; break;
@@ -143,7 +143,7 @@ public:
 
         uint64 GetData64(uint32 identifier)
         {
-            switch(identifier)
+            switch (identifier)
             {
                 case DATA_ELDER_NADOX:                return Elder_Nadox;
                 case DATA_PRINCE_TALDARAM:            return Prince_Taldaram;
@@ -176,7 +176,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_ELDER_NADOX_EVENT: m_auiEncounter[0] = data; break;
                 case DATA_PRINCE_TALDARAM_EVENT:
@@ -223,7 +223,7 @@ public:
 
         uint32 GetData(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_ELDER_NADOX_EVENT:            return m_auiEncounter[0];
                 case DATA_PRINCE_TALDARAM_EVENT:        return m_auiEncounter[1];
@@ -296,7 +296,7 @@ public:
         }
     };
 
-    InstanceScript* GetInstanceScript(InstanceMap *map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
        return new instance_ahnkahet_InstanceScript(map);
     }

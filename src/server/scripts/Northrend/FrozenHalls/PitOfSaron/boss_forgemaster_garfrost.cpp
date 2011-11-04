@@ -169,7 +169,7 @@ class boss_garfrost : public CreatureScript
             {
                 if (spell->Id == SPELL_PERMAFROST_HELPER)
                 {
-                    if (Aura *aura = target->GetAura(SPELL_PERMAFROST_HELPER))
+                    if (Aura* aura = target->GetAura(SPELL_PERMAFROST_HELPER))
                         _permafrostStack = std::max<uint32>(_permafrostStack, aura->GetStackAmount());
                 }
                 else if (spell->Id == SPELL_FORGE_BLADE)
@@ -270,7 +270,7 @@ class spell_garfrost_permafrost : public SpellScriptLoader
                     {
                         for (std::list<GameObject*>::const_iterator itr = blockList.begin(); itr != blockList.end(); ++itr)
                         {
-                            if ((*itr)->isVisibleForInState(target))
+                            if (!(*itr)->IsInvisibleDueToDespawn())
                             {
                                 if ((*itr)->IsInBetween(caster, target, 4.0f))
                                 {

@@ -24,9 +24,6 @@ void AddSC_example_gossip_codebox();
 void AddSC_example_misc();
 void AddSC_example_commandscript();
 
-//custom
-void AddSC_dalaran_squirrel();
-
 // spells
 void AddSC_deathknight_spell_scripts();
 void AddSC_druid_spell_scripts();
@@ -417,22 +414,19 @@ void AddSC_boss_krystallus();
 void AddSC_boss_sjonnir();
 void AddSC_instance_halls_of_stone();
 void AddSC_halls_of_stone();
-void AddSC_boss_algalon();               //Ulduar Ulduar
-void AddSC_boss_assembly_of_iron();
-void AddSC_boss_auriaya();
+void AddSC_boss_auriaya();               //Ulduar Ulduar
 void AddSC_boss_flame_leviathan();
-void AddSC_boss_freya();
-void AddSC_boss_general_vezax();
-void AddSC_boss_hodir();
 void AddSC_boss_ignis();
-void AddSC_boss_kologarn();
-void AddSC_boss_mimiron();
 void AddSC_boss_razorscale();
-void AddSC_boss_thorim();
 void AddSC_boss_xt002();
-void AddSC_boss_yoggsaron();
-void AddSC_instance_ulduar();
+void AddSC_boss_kologarn();
+void AddSC_boss_assembly_of_iron();
+void AddSC_boss_general_vezax();
 void AddSC_ulduar_teleporter();
+void AddSC_boss_mimiron();
+void AddSC_boss_hodir();
+void AddSC_boss_freya();
+void AddSC_instance_ulduar();
 void AddSC_boss_keleseth();              //Utgarde Keep
 void AddSC_boss_skarvald_dalronn();
 void AddSC_boss_ingvar_the_plunderer();
@@ -471,33 +465,29 @@ void AddSC_pit_of_saron();
 void AddSC_boss_garfrost();
 void AddSC_boss_ick();
 void AddSC_boss_tyrannus();
-
 void AddSC_instance_halls_of_reflection();   // Halls of Reflection
 void AddSC_halls_of_reflection();
 void AddSC_boss_falric();
 void AddSC_boss_marwyn();
-void AddSC_boss_lich_king_hr();
-void AddSC_boss_blood_prince_council();       // Icecrown Citadel
-void AddSC_boss_blood_queen_lana_thel();
+void AddSC_boss_lord_marrowgar();       // Icecrown Citadel
+void AddSC_boss_lady_deathwhisper();
 void AddSC_boss_deathbringer_saurfang();
 void AddSC_boss_festergut();
-void AddSC_boss_lady_deathwhisper();
-void AddSC_boss_lord_marrowgar();
-void AddSC_boss_professor_putricide();
 void AddSC_boss_rotface();
-void AddSC_boss_sindragosa();
+void AddSC_boss_professor_putricide();
+void AddSC_boss_blood_prince_council();
+void AddSC_boss_blood_queen_lana_thel();
 void AddSC_boss_valithria_dreamwalker();
-void AddSC_icecrown_citadel();
+void AddSC_boss_sindragosa();
+void AddSC_boss_the_lich_king();
 void AddSC_icecrown_citadel_teleport();
 void AddSC_instance_icecrown_citadel();
-void AddSC_boss_the_lich_king();
-void AddSC_boss_gunship_battle();
-
+void AddSC_icecrown_citadel();
 void AddSC_instance_ruby_sanctum();      // Ruby Sanctum
-void AddSC_boss_baltharus();
-void AddSC_boss_ragefire();
-void AddSC_boss_zarithrian();
-void AddSC_boss_halion();
+void AddSC_ruby_sanctum();
+void AddSC_boss_baltharus_the_warborn();
+void AddSC_boss_saviana_ragefire();
+void AddSC_boss_general_zarithrian();
 
 void AddSC_dalaran();
 void AddSC_borean_tundra();
@@ -602,8 +592,6 @@ void AddSC_outdoorpvp_na();
 void AddSC_outdoorpvp_si();
 void AddSC_outdoorpvp_tf();
 void AddSC_outdoorpvp_zm();
-void AddSC_outdoorpvp_wg();
-void AddSC_wintergrasp();
 
 // player
 void AddSC_chat_log();
@@ -666,7 +654,7 @@ void AddCommandScripts()
     AddSC_gobject_commandscript();
     AddSC_honor_commandscript();
     AddSC_learn_commandscript();
-	AddSC_misc_commandscript();
+    AddSC_misc_commandscript();
     AddSC_modify_commandscript();
     AddSC_npc_commandscript();
     AddSC_quest_commandscript();
@@ -1129,22 +1117,19 @@ void AddNorthrendScripts()
     AddSC_boss_sjonnir();
     AddSC_instance_halls_of_stone();
     AddSC_halls_of_stone();
-    AddSC_boss_algalon();               //Ulduar Ulduar
-    AddSC_boss_assembly_of_iron();
-    AddSC_boss_auriaya();
+    AddSC_boss_auriaya();               //Ulduar Ulduar
     AddSC_boss_flame_leviathan();
-    AddSC_boss_freya();
-    AddSC_boss_general_vezax();
-    AddSC_boss_hodir();
     AddSC_boss_ignis();
-    AddSC_boss_kologarn();
-    AddSC_boss_mimiron();
     AddSC_boss_razorscale();
-    AddSC_boss_thorim();
     AddSC_boss_xt002();
-    AddSC_boss_yoggsaron();
-    AddSC_instance_ulduar();
+    AddSC_boss_general_vezax();
+    AddSC_boss_assembly_of_iron();
+    AddSC_boss_kologarn();
     AddSC_ulduar_teleporter();
+    AddSC_boss_mimiron();
+    AddSC_boss_hodir();
+    AddSC_boss_freya();
+    AddSC_instance_ulduar();
     AddSC_boss_keleseth();              //Utgarde Keep
     AddSC_boss_skarvald_dalronn();
     AddSC_boss_ingvar_the_plunderer();
@@ -1187,30 +1172,25 @@ void AddNorthrendScripts()
     AddSC_halls_of_reflection();
     AddSC_boss_falric();
     AddSC_boss_marwyn();
-    AddSC_boss_lich_king_hr();
-
-    AddSC_boss_blood_prince_council();       // Icecrown Citadel
-    AddSC_boss_blood_queen_lana_thel();
+    AddSC_boss_lord_marrowgar();        // Icecrown Citadel
+    AddSC_boss_lady_deathwhisper();
     AddSC_boss_deathbringer_saurfang();
     AddSC_boss_festergut();
-    AddSC_boss_lady_deathwhisper();
-    AddSC_boss_lord_marrowgar();
-    AddSC_boss_professor_putricide();
     AddSC_boss_rotface();
-    AddSC_boss_sindragosa();
+    AddSC_boss_professor_putricide();
+    AddSC_boss_blood_prince_council();
+    AddSC_boss_blood_queen_lana_thel();
     AddSC_boss_valithria_dreamwalker();
-    AddSC_icecrown_citadel();
+    AddSC_boss_sindragosa();
+    AddSC_boss_the_lich_king();
     AddSC_icecrown_citadel_teleport();
     AddSC_instance_icecrown_citadel();
-    AddSC_boss_the_lich_king();
-;
-    AddSC_boss_gunship_battle();
-
+    AddSC_icecrown_citadel();
     AddSC_instance_ruby_sanctum();      // Ruby Sanctum
-    AddSC_boss_baltharus();
-    AddSC_boss_ragefire();
-    AddSC_boss_zarithrian();
-    AddSC_boss_halion();
+    AddSC_ruby_sanctum();
+    AddSC_boss_baltharus_the_warborn();
+    AddSC_boss_saviana_ragefire();
+    AddSC_boss_general_zarithrian();
 
     AddSC_dalaran();
     AddSC_borean_tundra();
@@ -1223,7 +1203,6 @@ void AddNorthrendScripts()
     AddSC_zuldrak();
     AddSC_crystalsong_forest();
     AddSC_isle_of_conquest();
-    AddSC_wintergrasp();
 #endif
 }
 
@@ -1236,7 +1215,6 @@ void AddOutdoorPvPScripts()
     AddSC_outdoorpvp_si();
     AddSC_outdoorpvp_tf();
     AddSC_outdoorpvp_zm();
-    AddSC_outdoorpvp_wg();
 #endif
 }
 
@@ -1248,15 +1226,13 @@ void AddBattlegroundScripts()
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
-// Events
-void AddSC_boss_nefarian_event();
+
 #endif
 
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-	AddSC_boss_nefarian_event();
-	AddSC_dalaran_squirrel();
+
 #endif
 }
