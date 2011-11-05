@@ -225,6 +225,12 @@ class boss_blood_council_controller : public CreatureScript
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ADD, valanar);
                     DoZoneInCombat(valanar);
+                    valanar->SetHealth(me->GetHealth());
+                    valanar->RemoveAurasDueToSpell(SPELL_FEIGN_DEATH);
+                    valanar->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    valanar->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                    valanar->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+                    valanar->ForceValuesUpdateAtIndex(UNIT_NPC_FLAGS);
                 }
 
                 events.ScheduleEvent(EVENT_INVOCATION_OF_BLOOD, 46500);
@@ -334,6 +340,11 @@ class boss_blood_council_controller : public CreatureScript
                             {
                                 newPrince->SetHealth(me->GetHealth());
                                 newPrince->AI()->Talk(uint8(_invocationOrder[_invocationStage].textId));
+                                newPrince->RemoveAurasDueToSpell(SPELL_FEIGN_DEATH);
+                                newPrince->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                                newPrince->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                                newPrince->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+                                newPrince->ForceValuesUpdateAtIndex(UNIT_NPC_FLAGS);   // was in sniff. don't ask why
                             }
 
                             DoCast(me, _invocationOrder[_invocationStage].spellId);
@@ -514,6 +525,10 @@ class boss_prince_keleseth_icc : public CreatureScript
                         me->m_Events.AddEvent(new StandUpEvent(*me), me->m_Events.CalculateTime(1000));
                         break;
                     case ACTION_CAST_INVOCATION:
+                        me->RemoveAurasDueToSpell(SPELL_FEIGN_DEATH);
+                        me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                         Talk(SAY_KELESETH_INVOCATION);
                         DoCast(me, SPELL_INVOCATION_VISUAL_ACTIVE, true);
                         _isEmpowered = true;
@@ -732,6 +747,10 @@ class boss_prince_taldaram_icc : public CreatureScript
                         me->m_Events.AddEvent(new StandUpEvent(*me), me->m_Events.CalculateTime(1000));
                         break;
                     case ACTION_CAST_INVOCATION:
+                        me->RemoveAurasDueToSpell(SPELL_FEIGN_DEATH);
+                        me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                         Talk(SAY_TALDARAM_INVOCATION);
                         DoCast(me, SPELL_INVOCATION_VISUAL_ACTIVE, true);
                         _isEmpowered = true;
@@ -969,6 +988,10 @@ class boss_prince_valanar_icc : public CreatureScript
                         me->m_Events.AddEvent(new StandUpEvent(*me), me->m_Events.CalculateTime(1000));
                         break;
                     case ACTION_CAST_INVOCATION:
+                        me->RemoveAurasDueToSpell(SPELL_FEIGN_DEATH);
+                        me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                         Talk(SAY_VALANAR_INVOCATION);
                         DoCast(me, SPELL_INVOCATION_VISUAL_ACTIVE, true);
                         _isEmpowered = true;
