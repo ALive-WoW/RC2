@@ -10,6 +10,8 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+  Custom/alive.h
+  Custom/dalaran_squirrel.cpp
 )
 
 message("  -> Prepared: Custom")
