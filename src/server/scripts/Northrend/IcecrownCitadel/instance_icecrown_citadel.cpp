@@ -977,7 +977,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
             {
-                if (player && AccountMgr::IsGMAccount(player->GetSession()->GetSecurity())
+                if (player && AccountMgr::IsGMAccount(player->GetSession()->GetSecurity()))
                     return true;
 
                 switch (bossId)
