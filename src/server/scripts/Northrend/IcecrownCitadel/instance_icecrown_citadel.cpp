@@ -22,6 +22,7 @@
 #include "ScriptedCreature.h"
 #include "Map.h"
 #include "PoolMgr.h"
+#include "AccountMgr.h"
 #include "icecrown_citadel.h"
 
 enum EventIds
@@ -831,6 +832,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                     }
                     case DATA_SPINESTALKER:
                     {
+                        if (data == 254)
+                        {
+                            if (Creature* spinestalk = instance->GetCreature(SpinestalkerGUID))
+                                spinestalk->AI()->DoAction(ACTION_START_FROSTWYRM);
+                            return;
+                        }
+
                         if (SpinestalkerTrashCount == 255)
                             return;
 
@@ -856,6 +864,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                     }
                     case DATA_RIMEFANG:
                     {
+                        if (data == 254)
+                        {
+                            if (Creature* rime = instance->GetCreature(RimefangGUID))
+                                rime->AI()->DoAction(ACTION_START_FROSTWYRM);
+                            return;
+                        }
+                        
                         if (RimefangTrashCount == 255)
                             return;
 
@@ -962,7 +977,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
             {
-                if (player && player->isGameMaster())
+                if (player && AccountMgr::IsGMAccount(player->GetSession()->GetSecurity())
                     return true;
 
                 switch (bossId)
