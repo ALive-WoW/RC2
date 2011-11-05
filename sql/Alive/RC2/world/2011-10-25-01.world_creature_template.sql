@@ -1,0 +1,1 @@
+﻿UPDATE `creature_template` SET `AIName` = '' WHERE `entry` IN ('37531', '37532', '37868', '36791', '37886');

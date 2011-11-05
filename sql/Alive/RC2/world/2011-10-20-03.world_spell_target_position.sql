@@ -1,0 +1,1 @@
+UPDATE `spell_target_position` SET `target_position_z` = '1042.9' WHERE `id` = '70860';
