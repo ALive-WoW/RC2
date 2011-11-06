@@ -117,24 +117,25 @@ Master::~Master()
 {
 }
 
-/// Main function
+// Main function
 int Master::Run()
 {
     BigNumber seed1;
     seed1.SetRand(16 * 8);
 
-    sLog->outString("%s (worldserver-daemon)", _FULLVERSION);
-    sLog->outString("<Ctrl-C> to stop.\n");
+    sLog->outString("ALiveCore2 WorldServer for World of Warcraft 3.3.5.12340");
 
-    sLog->outString(" ______                       __");
-    sLog->outString("/\\__  _\\       __          __/\\ \\__");
-    sLog->outString("\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\, _\\  __  __");
-    sLog->outString("   \\ \\ \\/\\`'__\\/\\ \\ /' _ `\\/\\ \\ \\ \\/ /\\ \\/\\ \\");
-    sLog->outString("    \\ \\ \\ \\ \\/ \\ \\ \\/\\ \\/\\ \\ \\ \\ \\ \\_\\ \\ \\_\\ \\");
-    sLog->outString("     \\ \\_\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\ \\__\\\\/`____ \\");
-    sLog->outString("      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
-    sLog->outString("                                 C O R E  /\\___/");
-    sLog->outString("http://TrinityCore.org                    \\/__/\n");
+    sLog->outString("    _    _     _           ");
+    sLog->outString("   / \\  | |   (_)_   _____ ");
+    sLog->outString("  / _ \\ | |   | \\ \\ / / _ \\");
+    sLog->outString(" / ___ \\| |___| |\\ V /  __/");
+    sLog->outString("/_/   \\_\\_____|_| \\_/ \\___|");
+    sLog->outString("C O R E");
+    sLog->outString(" ");
+    sLog->outString("  ALiveCore 2011(c) World of Warcraft Server Emulation");
+    sLog->outString(" ");
+    sLog->outString("http://wow-alive.de/");
+    sLog->outString(" ");
 
 #ifdef USE_SFMT_FOR_RNG
     sLog->outString("\n");
@@ -160,6 +161,43 @@ int Master::Run()
     ///- Start the databases
     if (!_StartDB())
         return 1;
+		
+	bool nametrue = false;
+	bool adresstrue = false;
+	
+	PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_REALMLIST);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
+    if (result)
+    {
+        do
+        {
+			std::string alive[2];
+			alive[0] = "Norganon PVE/P";
+			alive[1] = "178.63.89.20";
+
+            Field *fields = result->Fetch();
+            const std::string& name = fields[1].GetCString();
+            const std::string& address = fields[2].GetCString();
+
+			sLog->outString(" ");
+            sLog->outString("Running Realm: %s", fields[1].GetCString());
+			sLog->outString(" ");
+
+			if (name == alive[0] && address == alive[1])
+			{
+				nametrue = true;
+				adresstrue = true;
+				break;
+			}
+		}
+		while (result->NextRow());
+    }
+
+	if (!nametrue || !adresstrue)
+	{
+		sLog->outString("No authorized ALive Realm found!\n");
+		exit(0);
+	}
 
     // set server offline (not connectable)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET color = (color & ~%u) | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, REALM_FLAG_INVALID, realmID);
