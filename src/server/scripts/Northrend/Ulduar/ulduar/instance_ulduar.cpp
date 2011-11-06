@@ -277,8 +277,8 @@ public:
 
                 uint32 achievement = instance->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL? ACHIEVEMENT_CHAMPION_OF_ULDUAR : ACHIEVEMENT_CONQUEROR_OF_ULDUAR;
 
-//                if (!player->HasAchieved(achievement))
-//                   player->GetAchievementMgr().RemoveAchievement(achievement);
+                if (!player->HasAchieved(achievement))
+                   player->GetAchievementMgr().RemoveAchievement(achievement);
             }
         }
 
