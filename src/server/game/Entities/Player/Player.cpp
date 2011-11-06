@@ -23502,6 +23502,13 @@ void Player::CompletedAchievement(AchievementEntry const* entry)
     GetAchievementMgr().CompletedAchievement(entry);
 }
 
+bool::Player::HasAchieved(uint32 entry)
+{
+	if(AchievementEntry const *achievement = sAchievementStore.LookupEntry(entry))
+		return GetAchievementMgr().HasAchieved(achievement);
+	return false;
+}
+
 void Player::LearnTalent(uint32 talentId, uint32 talentRank)
 {
     uint32 CurTalentPoints = GetFreeTalentPoints();

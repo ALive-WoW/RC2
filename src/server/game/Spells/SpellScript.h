@@ -595,6 +595,8 @@ class AuraScript : public _SpellScript
 
         // AuraScript interface - functions which are redirecting to Aura class
 
+		// returns proto of the spell
+		SpellEntry const* GetSpellProto() const;
         // returns proto of the spell
         SpellInfo const* GetSpellInfo() const;
         // returns spellid of the spell

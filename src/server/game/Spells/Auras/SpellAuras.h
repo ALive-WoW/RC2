@@ -95,6 +95,7 @@ class Aura
         void _InitEffects(uint8 effMask, Unit* caster, int32 *baseAmount);
         virtual ~Aura();
 
+		SpellEntry const* GetSpellProto() const { return m_spellProto; }
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         uint32 GetId() const{ return GetSpellInfo()->Id; }
 
@@ -216,6 +217,7 @@ class Aura
         void _DeleteRemovedApplications();
     protected:
         SpellInfo const* const m_spellInfo;
+		SpellEntry const* const m_spellProto;
         uint64 const m_casterGuid;
         uint64 const m_castItemGuid;                        // it is NOT safe to keep a pointer to the item because it may get deleted
         time_t const m_applyTime;

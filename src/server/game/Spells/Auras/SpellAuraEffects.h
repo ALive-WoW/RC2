@@ -94,6 +94,7 @@ class AuraEffect
         Aura* const m_base;
 
         SpellInfo const* const m_spellInfo;
+		SpellEntry const* const m_spellProto;
         uint8 const m_effIndex;
         int32 const m_baseAmount;
 

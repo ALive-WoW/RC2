@@ -38,6 +38,11 @@ void _SpellScript::_Register()
     m_currentScriptState = SPELL_SCRIPT_STATE_NONE;
 }
 
+SpellEntry const* AuraScript::GetSpellProto() const
+{
+	return m_aura->GetSpellProto();
+}
+
 void _SpellScript::_Unload()
 {
     m_currentScriptState = SPELL_SCRIPT_STATE_UNLOADING;

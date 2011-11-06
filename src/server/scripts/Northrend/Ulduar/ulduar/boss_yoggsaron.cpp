@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ulduar.h"
+#include "CellImpl.h"
 
 /*
 Entwicklungsnotizen:
@@ -182,13 +183,13 @@ enum Entrys
     OBJECT_FLEE_TO_SURFACE                      = 194625,
 };
 
-//enum ModelIds
-//{
-//    SARA_NORMAL                                 = 29117,
-//    SARA_TRANSFORM                              = 29182,
-//    YOGGSARON_NORMAL                            = 28817,
-//    YOGGSARON_TRANSFORM                         = 28945
-//};
+enum ModelIds
+{
+    SARA_NORMAL                                 = 29117,
+    SARA_TRANSFORM                              = 29182,
+    YOGGSARON_NORMAL                            = 28817,
+    YOGGSARON_TRANSFORM                         = 28945
+};
 
 enum MindlessSpell
 {
@@ -352,7 +353,7 @@ enum BrainEventPhase
     PORTAL_PHASE_LICH_KING   = 2,
     PORTAL_PHASE_BRAIN_NONE = 3
 };
-/*
+
 const Position InnerBrainLocation[3] = 
 {
     {1944.87f,  37.22f, 239.7f, (0.66f*M_PI)}, //King Lliane
@@ -518,14 +519,14 @@ const EventSpeech EventNpcSpeaching[19] =
     {ENTRY_GARONA_VISION,SAY_GARONA_7_VISION_1,5000,true},
     {ENTRY_YOGG_SARON,SAY_YOGGSARON_8_VISION_1,5000,false},
 
-    {ENTRY_LICHKING_VISION,SAY_LICHKING_1_VISION_2,5000,true},/*8*/   /*
+    {ENTRY_LICHKING_VISION,SAY_LICHKING_1_VISION_2,5000,true},/*8*/
     {ENTRY_IMMOLATED_CHAMPION_VISION,SAY_CHAMP_2_VISION_2,5000,true},
     {ENTRY_IMMOLATED_CHAMPION_VISION,SAY_CHAMP_3_VISION_2,5000,true},
     {ENTRY_LICHKING_VISION,SAY_LICHKING_4_VISION_2,5000,true},
     {ENTRY_YOGG_SARON,SAY_YOGGSARON_5_VISION_2,5000,true},
     {ENTRY_YOGG_SARON,SAY_YOGGSARON_6_VISION_2,5000,false},
 
-    {ENTRY_NELTHARION_VISION,SAY_NELTHARION_1_VISION_3,5000,true},/*14*/  /*
+    {ENTRY_NELTHARION_VISION,SAY_NELTHARION_1_VISION_3,5000,true},/*14*/
     {ENTRY_YSERA_VISION,SAY_YSERA_2_VISION_3,5000,true},
     {ENTRY_NELTHARION_VISION,SAY_NELTHARION_3_VISION_3,5000,true},
     {ENTRY_MALYGOS_VISION,SAY_MALYGOS_4_VISION_3,5000,true},
@@ -553,7 +554,7 @@ public:
         {
             m_pInstance = c->GetInstanceScript();
             me->SetFlying(true);
-//           SetImmuneToPushPullEffects(true);
+           SetImmuneToPushPullEffects(true);
         }
 
         InstanceScript* m_pInstance;
@@ -638,13 +639,13 @@ public:
             // Reset Display
             me->setFaction(35);
             me->SetVisible(true);
-            //me->SetDisplayId(me->GetNativeDisplayId());
+            me->SetDisplayId(me->GetNativeDisplayId());
             me->RemoveAurasDueToSpell(SPELL_SARA_TRANSFORMATION);
             // Reset Health
             me->SetHealth(me->GetMaxHealth());
             // Remove Not Attackable Flags
-            //me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            //me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
             // Reset Phase
             m_Phase = PHASE_NONE;
@@ -679,14 +680,14 @@ public:
             if(m_pInstance)
 			{
 				uint64 AlgalonDoorGUID = m_pInstance->GetData64(GO_ALGALON_DOOR);
-				//uint64 AlgalonGUID = m_pInstance->GetData64(TYPE_ALGALON);
+				uint64 AlgalonGUID = m_pInstance->GetData64(TYPE_ALGALON);
 
-				//Creature* Algalon = Creature::GetCreature(*me, AlgalonGUID);
+				Creature* Algalon = Creature::GetCreature(*me, AlgalonGUID);
 
                 m_pInstance->SetBossState(TYPE_YOGGSARON,DONE);
 				m_pInstance->HandleGameObject(AlgalonDoorGUID, true);
-				/*if (Algalon)
-					Algalon->SetVisible(true);*/				/*
+				if (Algalon)
+					Algalon->SetVisible(true);
 
 			}
 
@@ -711,7 +712,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who* /)			
+        void EnterCombat(Unit* /*who*/)			
         {
             uiSarasHelp_Timer = urand(5000,6000);
             uiGuardianSummon_Timer = 10000;
@@ -862,21 +863,21 @@ public:
                     yogg->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
                 if(uiEnrage_Timer >= 480000)
-                    DoCast(me, RAID_MODE(ACHIEVMENT_HE_S_NOT_GETTING_ANY_OLDER_10,ACHIEVMENT_HE_S_NOT_GETTING_ANY_OLDER_25), true);
+                    m_pInstance->DoCompleteAchievement(RAID_MODE(ACHIEVMENT_HE_S_NOT_GETTING_ANY_OLDER_10,ACHIEVMENT_HE_S_NOT_GETTING_ANY_OLDER_25));
                 if(!bUsedMindcontroll)
-                    DoCast(me, RAID_MODE(ACHIEVMENT_DRIVE_ME_CRAZY_10,ACHIEVMENT_DRIVE_ME_CRAZY_25), true);
+                    m_pInstance->DoCompleteAchievement(RAID_MODE(ACHIEVMENT_DRIVE_ME_CRAZY_10,ACHIEVMENT_DRIVE_ME_CRAZY_25));
                 if(GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL && uiAmountKeeperActive == 0)
-                    DoCast(me, ACHIEVMENT_REALM_FIRST_DEATHS_DEMISE, true);
+                    m_pInstance->DoCompleteAchievement(ACHIEVMENT_REALM_FIRST_DEATHS_DEMISE);
                 switch(uiAmountKeeperActive)
                 {
                 case 0:
-                    DoCast(me, RAID_MODE(ACHIEVMENT_ALONE_IN_THE_DARKNESS_10,ACHIEVMENT_ALONE_IN_THE_DARKNESS_25), true);
+                    m_pInstance->DoCompleteAchievement(RAID_MODE(ACHIEVMENT_ALONE_IN_THE_DARKNESS_10,ACHIEVMENT_ALONE_IN_THE_DARKNESS_25));
                 case 1:
-                    DoCast(me, RAID_MODE(ACHIEVMENT_ONE_LIGHTS_IN_THE_DARKNESS_10,ACHIEVMENT_ONE_LIGHTS_IN_THE_DARKNESS_25), true);
+                    m_pInstance->DoCompleteAchievement(RAID_MODE(ACHIEVMENT_ONE_LIGHTS_IN_THE_DARKNESS_10,ACHIEVMENT_ONE_LIGHTS_IN_THE_DARKNESS_25));
                 case 2:
-                    DoCast(me, RAID_MODE(ACHIEVMENT_TWO_LIGHTS_IN_THE_DARKNESS_10,ACHIEVMENT_TWO_LIGHTS_IN_THE_DARKNESS_25), true);
+                    m_pInstance->DoCompleteAchievement(RAID_MODE(ACHIEVMENT_TWO_LIGHTS_IN_THE_DARKNESS_10,ACHIEVMENT_TWO_LIGHTS_IN_THE_DARKNESS_25));
                 case 3:
-                    DoCast(me, RAID_MODE(ACHIEVMENT_THREE_LIGHTS_IN_THE_DARKNESS_10,ACHIEVMENT_THREE_LIGHTS_IN_THE_DARKNESS_25), true);
+                    m_pInstance->DoCompleteAchievement(RAID_MODE(ACHIEVMENT_THREE_LIGHTS_IN_THE_DARKNESS_10,ACHIEVMENT_THREE_LIGHTS_IN_THE_DARKNESS_25));
                     break;
                 default: break;
                 }
@@ -927,7 +928,7 @@ public:
                 uiSpeaking_Timer = 1000;
                 IsEventSpeaking = false;
                 EventSpeakingPhase = 0;
-                //me->SetDisplayId(SARA_TRANSFORM);
+                me->SetDisplayId(SARA_TRANSFORM);
                 CloudHandling(true);
                 uiRandomYell_Timer = 35000;
                 uiBrainEvents_Count = 0;
@@ -1023,7 +1024,7 @@ public:
                 guidYogg = pSummoned->GetGUID();
                 pSummoned->SetReactState(REACT_PASSIVE);
                 pSummoned->setFaction(14);
-                //pSummoned->SetVisible(false);
+                pSummoned->SetVisible(false);
                 pSummoned->SetStandState(UNIT_STAND_STATE_SUBMERGED);
                 pSummoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 pSummoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1417,8 +1418,8 @@ public:
                             switch(SpeakingPhase)
                             {
                             case 0:
-                                //if(Creature* yogg = me->GetCreature(*me,guidYogg))
-                                //    yogg->SetVisible(true);
+                                if(Creature* yogg = me->GetCreature(*me,guidYogg))
+                                    yogg->SetVisible(true);
 
                                 DoScriptText(SAY_PHASE2_1,me);
                                 uiSpeaking_Timer = 5000;
@@ -1436,13 +1437,13 @@ public:
                                 uiSpeaking_Timer = 4000;
                                 break;
                             case 4:
-                                //me->SetDisplayId(SARA_TRANSFORM);
+                                me->SetDisplayId(SARA_TRANSFORM);
                                 me->AddAura(SPELL_SARA_TRANSFORMATION,me);
                                 DoCast(me,SPELL_SARA_SHADOWY_BARRIER,false);
                                 me->GetMotionMaster()->MovePoint(1,me->GetPositionX(),me->GetPositionY(),me->GetPositionZ()+20);
                                 if(Creature* yogg = me->GetCreature(*me,guidYogg))
                                 {
-                                    //yogg->SetDisplayId(YOGGSARON_NORMAL);
+                                    yogg->SetDisplayId(YOGGSARON_NORMAL);
                                     yogg->CastSpell(yogg,SPELL_SHADOWY_BARRIER,false);
                                     yogg->SetStandState(UNIT_STAND_STATE_STAND);
                                     yogg->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -1452,8 +1453,8 @@ public:
                                     yogg->CastSpell(yogg,SPELL_SUMMON_CURRUPTOR_TENTACLE,true);
                                 }
                                 me->setFaction(14);
-                                //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 uiSpeaking_Timer = 5000;
                                 IsSpeaking = false;
                                 break;
@@ -1692,7 +1693,7 @@ public:
     {
         npc_ominous_cloudAI(Creature *c) : ScriptedAI(c) 
         {
-//           SetImmuneToPushPullEffects(true);
+           SetImmuneToPushPullEffects(true);
             m_pInstance = c->GetInstanceScript();
         }
 
@@ -1705,7 +1706,7 @@ public:
                     TriggerGuardianSpawn();
         }
 
-        void AttackStart(Unit* /*attacker*/       /*)       {}
+        void AttackStart(Unit* /*attacker*/)       {}
 
         void DoAction(const int32 action)
         {
@@ -1735,7 +1736,7 @@ public:
             me->RemoveAurasDueToSpell(SPELL_SUMMON_GUARDIAN);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            //me->SetReactState(REACT_PASSIVE); //Prevent MoveInLineOfSight
+            me->SetReactState(REACT_PASSIVE); //Prevent MoveInLineOfSight
 
             me->GetMotionMaster()->MoveRandom(25.0f);
         }
@@ -1761,10 +1762,10 @@ public:
             m_pInstance = c->GetInstanceScript();
             me->setFaction(14);
 
-            //SpellEntry *TempSpell;
-            //TempSpell = GET_SPELL(SPELL_SHADOW_NOVA);
-            //if (TempSpell)
-            //    TempSpell->Effect[1] = 0;
+            SpellEntry *TempSpell;
+            TempSpell = GET_SPELL(SPELL_SHADOW_NOVA);
+            if (TempSpell)
+                TempSpell->Effect[1] = 0;
         }
 
         InstanceScript* m_pInstance;
@@ -1793,7 +1794,7 @@ public:
             return target;
         }
 
-        void JustDied(Unit* /*killer*/     /*)
+        void JustDied(Unit* /*killer*/)
         {
             DoCast(me,SPELL_SHADOW_NOVA,true);
             if(m_pInstance)
@@ -1883,7 +1884,7 @@ public:
                 AttackStartNoMove(target);
         }
 
-        void AttackStart(Unit* /*target*/     /*) {}
+        void AttackStart(Unit* /*target*/) {}
 
         Unit* SelectPlayerTargetInRange(float range)
         {
@@ -1894,7 +1895,7 @@ public:
             return target;
         }
 
-        void JustDied(Unit* /*killer*/   /*)
+        void JustDied(Unit* /*killer*/)
         {
             me->RemoveAurasDueToSpell(SPELL_TENTACLE_VOID_ZONE);
 
@@ -1909,7 +1910,7 @@ public:
             DoCast(me,SPELL_TENTACLE_VOID_ZONE,true);
         }
 
-        void EnterCombat(Unit* /*who*/      /*)
+        void EnterCombat(Unit* /*who*/)
         {
             DoZoneInCombat();
 
@@ -2263,7 +2264,7 @@ public:
             me->SetReactState(REACT_DEFENSIVE);
         }
 
-        void JustDied(Unit* /*killer* /)
+        void JustDied(Unit* /*killer*/)
         {
             me->RemoveAurasDueToSpell(SPELL_TENTACLE_VOID_ZONE);
         }
@@ -2333,7 +2334,7 @@ public:
             uiDrainLife_Timer = 10000;
         }
 
-        void JustDied(Unit* /*killer* /)
+        void JustDied(Unit* /*killer*/)
         {
             me->DespawnOrUnsummon(5000);
         }
@@ -2496,7 +2497,7 @@ public:
 
         void GetAliveSaronitCreatureListInGrid(std::list<Creature*>& lList, float fMaxSearchRange)
         {
-            CellPair pair(Trinity::ComputeCellPair(me->GetPositionX(), me->GetPositionY()));
+            CellCoord pair(Trinity::ComputeCellCoord(me->GetPositionX(), me->GetPositionY()));
             Cell cell(pair);
             cell.data.Part.reserved = ALL_DISTRICT;
             cell.SetNoCreate();
@@ -2505,7 +2506,7 @@ public:
             Trinity::CreatureListSearcher<AllSaronitCreaturesInRange> searcher(me, lList, check);
             TypeContainerVisitor<Trinity::CreatureListSearcher<AllSaronitCreaturesInRange>, GridTypeMapContainer> visitor(searcher);
 
-            cell.Visit(pair, visitor, *(me->GetMap()));
+            cell.Visit(pair, visitor, *(me->GetMap()), fMaxSearchRange, me->GetPositionX(), me->GetPositionY());
         }
 
         void UpdateAI(const uint32 diff)
@@ -2621,7 +2622,7 @@ public:
 
             if(uiSanityTick_Timer <= diff)
             {
-                std::list<Player*> plrList = me->GetNearestPlayersList(10);
+                std::list<Player*> plrList = me->GetNearestPlayerList(10);
                 for (std::list<Player*>::const_iterator itr = plrList.begin(); itr != plrList.end(); ++itr)
                 {
                     if((*itr))
@@ -2840,7 +2841,7 @@ class go_flee_to_surface : public GameObjectScript
 public:
     go_flee_to_surface() : GameObjectScript("go_flee_to_surface") { }
 
-    bool OnGossipHello(Player *pPlayer, GameObject * /*pGO* /)
+    bool OnGossipHello(Player *pPlayer, GameObject * /*pGO*/)
     {
         pPlayer->RemoveAurasDueToSpell(SPELL_ILLUSION_ROOM);
         pPlayer->NearTeleportTo(SaraLocation.GetPositionX(),SaraLocation.GetPositionY(),SaraLocation.GetPositionZ(),M_PI,false);
@@ -2857,7 +2858,7 @@ class spell_keeper_support_aura_targeting : public SpellScriptLoader
     class spell_keeper_support_aura_targeting_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_keeper_support_aura_targeting_AuraScript)
-        void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode* /)
+        void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
         {
             std::list<Unit*> targetList;
             aurEff->GetTargetList(targetList);
@@ -3021,7 +3022,7 @@ class spell_insane_death_effekt : public SpellScriptLoader
         {
             PrepareAuraScript(spell_insane_death_effekt_AuraScript)
 
-            void HandleEffectRemove(AuraEffect const * /*aurEff* /, AuraEffectHandleModes /*mode* /)
+            void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if(Unit * target = GetTarget())
                     if(target->ToPlayer() && target->isAlive())
@@ -3050,7 +3051,7 @@ class spell_summon_tentacle_position : public SpellScriptLoader
         {
             PrepareSpellScript(spell_summon_tentacle_position_SpellScript);
 
-            void ChangeSummonPos(SpellEffIndex /*effIndex* /)
+            void ChangeSummonPos(SpellEffIndex /*effIndex*/)
             {
                 WorldLocation summonPos = *GetTargetDest();
                 if(Unit* caster = GetCaster())
@@ -3078,7 +3079,7 @@ class spell_empowering_shadows : public SpellScriptLoader
         {
             PrepareSpellScript(spell_empowering_shadows_SpellScript)
 
-            void HandleScript(SpellEffIndex /*effIndex* /)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Unit * target = GetHitUnit())
                 {
@@ -3120,7 +3121,7 @@ public:
     {
         PrepareAuraScript(spell_hodir_protective_gaze_AuraScript);
 
-        bool Validate(SpellEntry const * /*spellEntry* /)
+        bool Validate(SpellEntry const * /*spellEntry*/)
         {
             return sSpellStore.LookupEntry(SPELL_FLASH_FREEZE_COOLDOWN);
         }
@@ -3130,7 +3131,7 @@ public:
         //    return GetOwner()->ToPlayer();
         //}
 
-        void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode* /)
+        void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
         {
             std::list<Unit*> targetList;
             aurEff->GetTargetList(targetList);
@@ -3140,13 +3141,13 @@ public:
                     (*iter)->RemoveAurasDueToSpell(GetSpellProto()->Id);
         }
 
-        void CalculateAmount(AuraEffect const * /*aurEff* /, int32 & amount, bool & /*canBeRecalculated* /)
+        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
         {
             // Set absorbtion amount to unlimited
             amount = -1;
         }
 
-        void Absorb(AuraEffect * /*aurEff* /, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
             Unit * target = GetTarget();
             if (dmgInfo.GetDamage() < target->GetHealth())
@@ -3300,7 +3301,7 @@ class item_unbound_fragments_of_valanyr : public ItemScript
 public:
     item_unbound_fragments_of_valanyr() : ItemScript("item_unbound_fragments_of_valanyr") { }
 
-    bool OnUse(Player* pPlayer, Item* pItem, SpellCastTargets const& /*targets* /)
+    bool OnUse(Player* pPlayer, Item* pItem, SpellCastTargets const& /*targets*/)
     {
 
         if(Creature* yogg = pPlayer->FindNearestCreature(ENTRY_YOGG_SARON,20))
@@ -3313,7 +3314,6 @@ public:
         return true;
     }
 };
-*/
 /*
 UPDATE creature_template SET scriptname = 'boss_sara' WHERE entry = 33134;
 UPDATE script_texts SET npc_entry = 33134 WHERE npc_entry = 33288 AND entry IN (-1603330,-1603331,-1603332,-1603333);
@@ -3473,7 +3473,7 @@ VALUES
 (33535,-1603359,'It is a weapon like no other. It must be like no other.',15610,0,0,0,'Malygos DragonSoulVision_Say'),
 (33288,-1603360,'His brood learned their lesson before too long, you shall soon learn yours!',15765,0,0,0,'YoggSaron DragonSoulVision_Say1');
 */
-/*
+
 void AddSC_boss_yoggsaron()
 {
     new boss_sara();
@@ -3503,4 +3503,3 @@ void AddSC_boss_yoggsaron()
     new spell_empowering_shadows();
     new spell_hodir_protective_gaze();
 }
-*/
