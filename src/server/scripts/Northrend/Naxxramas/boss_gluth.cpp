@@ -101,7 +101,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch (eventId)
+                switch(eventId)
                 {
                     case EVENT_WOUND:
                         DoCast(me->getVictim(), SPELL_MORTAL_WOUND);
@@ -113,10 +113,23 @@ public:
                         events.ScheduleEvent(EVENT_ENRAGE, 15000);
                         break;
                     case EVENT_DECIMATE:
+					{
                         // TODO : Add missing text
-                        DoCastAOE(SPELL_DECIMATE);
+                        //DoCastAOE(SPELL_DECIMATE);
+						me->CastSpell(me->getVictim(),SPELL_DECIMATE);
+						Map::PlayerList const &players = me->GetMap()->GetPlayers();
+						for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+						{
+						    itr->getSource()->SetHealth((itr->getSource()->GetMaxHealth() / 100) * 10);
+						}
+                        for (std::list<uint64>::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
+                        {
+							if (Creature* pTemp = Unit::GetCreature(*me, *itr))
+								pTemp->SetHealth((pTemp->GetMaxHealth() / 100) * 10);
+					    }
                         events.ScheduleEvent(EVENT_DECIMATE, 105000);
                         break;
+					}
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK);
                         events.ScheduleEvent(EVENT_BERSERK, 5*60000);

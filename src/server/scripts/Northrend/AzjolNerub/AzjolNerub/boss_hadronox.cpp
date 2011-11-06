@@ -28,6 +28,7 @@
 * Hadronox to make his way to you. When Hadronox enters the main room, she will web the doors, and no more non-elites will spawn.
 */
 
+
 #include "ScriptPCH.h"
 #include "azjol_nerub.h"
 
@@ -53,12 +54,12 @@ public:
     {
         boss_hadronoxAI(Creature* c) : ScriptedAI(c)
         {
-            instance = c->GetInstanceScript();
+            pInstance = c->GetInstanceScript();
             fMaxDistance = 50.0f;
             bFirstTime = true;
         }
 
-        InstanceScript* instance;
+        InstanceScript* pInstance;
 
         uint32 uiAcidTimer;
         uint32 uiLeechTimer;
@@ -83,8 +84,8 @@ public:
             uiDoorsTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             uiCheckDistanceTimer = 2*IN_MILLISECONDS;
 
-            if (instance && (instance->GetData(DATA_HADRONOX_EVENT) != DONE && !bFirstTime))
-                instance->SetData(DATA_HADRONOX_EVENT, FAIL);
+            if (pInstance && (pInstance->GetData(DATA_HADRONOX_EVENT) != DONE && !bFirstTime))
+                pInstance->SetData(DATA_HADRONOX_EVENT, FAIL);
 
             bFirstTime = false;
         }
@@ -101,14 +102,14 @@ public:
 
         void JustDied(Unit* /*Killer*/)
         {
-            if (instance)
-                instance->SetData(DATA_HADRONOX_EVENT, DONE);
+            if (pInstance)
+                pInstance->SetData(DATA_HADRONOX_EVENT, DONE);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (instance)
-                instance->SetData(DATA_HADRONOX_EVENT, IN_PROGRESS);
+            if (pInstance)
+                pInstance->SetData(DATA_HADRONOX_EVENT, IN_PROGRESS);
             me->SetInCombatWithZone();
         }
 
@@ -188,7 +189,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new boss_hadronoxAI(creature);
     }

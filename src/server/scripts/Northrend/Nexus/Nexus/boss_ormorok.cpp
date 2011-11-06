@@ -63,10 +63,10 @@ public:
     {
         boss_ormorokAI(Creature* c) : ScriptedAI(c)
         {
-            instance = c->GetInstanceScript();
+            pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript* instance;
+        InstanceScript* pInstance;
 
         bool bFrenzy;
         bool bCrystalSpikes;
@@ -93,24 +93,24 @@ public:
             bFrenzy = false;
             bCrystalSpikes = false;
 
-            if (instance)
-                instance->SetData(DATA_ORMOROK_EVENT, NOT_STARTED);
+            if (pInstance)
+                pInstance->SetData(DATA_ORMOROK_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (instance)
-                instance->SetData(DATA_ORMOROK_EVENT, IN_PROGRESS);
+            if (pInstance)
+                pInstance->SetData(DATA_ORMOROK_EVENT, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (instance)
-                instance->SetData(DATA_ORMOROK_EVENT, DONE);
+            if (pInstance)
+                pInstance->SetData(DATA_ORMOROK_EVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -195,10 +195,10 @@ public:
                         std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
                         for (; i != me->getThreatManager().getThreatList().end(); ++i)
                         {
-                            Unit* temp = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                            if (temp && temp->GetTypeId() == TYPEID_PLAYER && temp->getClass() == Healer)
+                            Unit* pTemp = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                            if (pTemp && pTemp->GetTypeId() == TYPEID_PLAYER && pTemp->getClass() == Healer)
                             {
-                                target = temp;
+                                target = pTemp;
                                 break;
                             }
                         }

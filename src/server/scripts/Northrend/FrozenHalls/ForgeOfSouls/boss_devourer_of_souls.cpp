@@ -114,8 +114,6 @@ struct outroPosition
     { { 0, 0 }, { 0.0f, 0.0f, 0.0f, 0.0f } }
 };
 
-Position const CrucibleSummonPos = {5672.294f,2520.686f, 713.4386f, 0.9599311f};
-
 #define DATA_THREE_FACED        1
 
 class boss_devourer_of_souls : public CreatureScript
@@ -148,6 +146,7 @@ class boss_devourer_of_souls : public CreatureScript
 
                 threeFaced = true;
                 mirroredSoulTarget = 0;
+				wailingSouls = 0;
 
                 instance->SetData(DATA_DEVOURER_EVENT, NOT_STARTED);
             }
@@ -156,8 +155,6 @@ class boss_devourer_of_souls : public CreatureScript
             {
                 DoScriptText(RAND(SAY_FACE_ANGER_AGGRO, SAY_FACE_DESIRE_AGGRO), me);
 
-                if (!me->FindNearestCreature(NPC_CRUCIBLE_OF_SOULS, 60)) // Prevent double spawn
-                    instance->instance->SummonCreature(NPC_CRUCIBLE_OF_SOULS, CrucibleSummonPos);
                 events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5000);
                 events.ScheduleEvent(EVENT_MIRRORED_SOUL, 8000);
                 events.ScheduleEvent(EVENT_WELL_OF_SOULS, 30000);
@@ -175,7 +172,7 @@ class boss_devourer_of_souls : public CreatureScript
                     {
                         if (player->GetAura(SPELL_MIRRORED_SOUL))
                         {
-                            int32 mirrorDamage = (uiDamage* 45)/100;
+                            int32 mirrorDamage = (uiDamage * 45)/100;
                             me->CastCustomSpell(player, 69034, &mirrorDamage, 0, 0, true);
                         }
                         else
@@ -238,7 +235,7 @@ class boss_devourer_of_souls : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell)
+            void SpellHitTarget(Unit* /*target*/, const SpellInfo *spell)
             {
                 if (spell->Id == H_SPELL_PHANTOM_BLAST)
                     threeFaced = false;
@@ -265,10 +262,10 @@ class boss_devourer_of_souls : public CreatureScript
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (eventId)
+                    switch(eventId)
                     {
                         case EVENT_PHANTOM_BLAST:
-                            DoCastVictim(SPELL_PHANTOM_BLAST);
+							DoCastVictim(SPELL_PHANTOM_BLAST);
                             events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5000);
                             break;
                         case EVENT_MIRRORED_SOUL:
@@ -299,23 +296,12 @@ class boss_devourer_of_souls : public CreatureScript
                             break;
 
                         case EVENT_WAILING_SOULS:
+							wailingSouls = 1;
                             me->SetDisplayId(DISPLAY_DESIRE);
                             DoScriptText(RAND(SAY_FACE_ANGER_WAILING_SOUL, SAY_FACE_DESIRE_WAILING_SOUL), me);
                             DoScriptText(EMOTE_WAILING_SOUL, me);
                             DoCast(me, SPELL_WAILING_SOULS_STARTING);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            {
-                                me->SetOrientation(me->GetAngle(target));
-                                DoCast(me, SPELL_WAILING_SOULS_BEAM);
-                            }
 
-                            beamAngle = me->GetOrientation();
-
-                            beamAngleDiff = M_PI/30.0f; // PI/2 in 15 sec = PI/30 per tick
-                            if (RAND(true, false))
-                                beamAngleDiff = -beamAngleDiff;
-
-                            me->InterruptNonMeleeSpells(false);
                             me->SetReactState(REACT_PASSIVE);
 
                             //Remove any target
@@ -325,19 +311,43 @@ class boss_devourer_of_souls : public CreatureScript
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
 
                             wailingSoulTick = 15;
-                            events.DelayEvents(18000); // no other events during wailing souls
+                            events.DelayEvents(24000); // no other events during wailing souls
                             events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 3000); // first one after 3 secs.
                             break;
 
                         case EVENT_WAILING_SOULS_TICK:
-                            beamAngle += beamAngleDiff;
-                            me->SetOrientation(beamAngle);
-                            me->StopMoving();
-
+							me->RemoveAura(SPELL_WAILING_SOULS_STARTING);
                             DoCast(me, SPELL_WAILING_SOULS);
 
-                            if (--wailingSoulTick)
-                                events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 1000);
+							Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+							if( !PlayerList.isEmpty()) 
+							{
+								for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i) 
+								{
+									if( Player *pPlayer = i->getSource()) 
+									{
+										if (pPlayer->isInFrontInMap(me,100))
+										{
+											pPlayer->ApplySpellImmune(SPELL_WAILING_SOULS, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
+											pPlayer->ApplySpellImmune(SPELL_WAILING_SOULS, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
+											pPlayer->ApplySpellImmune(H_SPELL_WAILING_SOULS, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
+											pPlayer->ApplySpellImmune(H_SPELL_WAILING_SOULS, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
+										}
+										else if (!pPlayer->isInFrontInMap(me,100))
+										{
+											pPlayer->ApplySpellImmune(SPELL_WAILING_SOULS, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+											pPlayer->ApplySpellImmune(SPELL_WAILING_SOULS, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
+											pPlayer->ApplySpellImmune(H_SPELL_WAILING_SOULS, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+											pPlayer->ApplySpellImmune(H_SPELL_WAILING_SOULS, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
+										}
+									}
+								}
+							}
+							me->SetOrientation(me->GetOrientation() + 1);
+							me->MonsterYell("Gasting WAILING SOULS", LANG_UNIVERSAL, 0);
+
+                            if (wailingSoulTick > 0)
+                                events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 1500);
                             else
                             {
                                 me->SetReactState(REACT_AGGRESSIVE);
@@ -345,12 +355,13 @@ class boss_devourer_of_souls : public CreatureScript
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                                 me->GetMotionMaster()->MoveChase(me->getVictim());
                                 events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60000, 70000));
+								wailingSouls = 0;
                             }
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
+				if (wailingSouls == 0)
+					DoMeleeAttackIfReady();
             }
 
         private:
@@ -360,11 +371,11 @@ class boss_devourer_of_souls : public CreatureScript
             float beamAngle;
             float beamAngleDiff;
             int8 wailingSoulTick;
-
+			uint8 wailingSouls;
             uint64 mirroredSoulTarget;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI *GetAI(Creature* creature) const
         {
             return new boss_devourer_of_soulsAI(creature);
         }

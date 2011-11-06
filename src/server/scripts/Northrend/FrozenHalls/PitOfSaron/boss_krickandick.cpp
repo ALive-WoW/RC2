@@ -578,7 +578,7 @@ class spell_ick_explosive_barrage : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript *GetAuraScript() const
         {
             return new spell_ick_explosive_barrage_AuraScript();
         }
@@ -598,6 +598,7 @@ class spell_exploding_orb_hasty_grow : public SpellScriptLoader
                 if (GetStackAmount() == 15)
                 {
                     Unit* target = GetTarget(); // store target because aura gets removed
+                    PreventDefaultAction();
                     target->CastSpell(target, SPELL_EXPLOSIVE_BARRAGE_DAMAGE, false);
                     target->RemoveAurasDueToSpell(SPELL_HASTY_GROW);
                     target->RemoveAurasDueToSpell(SPELL_AUTO_GROW);

@@ -1,6 +1,8 @@
 /*
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
+ * Copyright (C) 2011-2012 ALiveCore <http://www-wow-alive.de/>
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
@@ -17,10 +19,10 @@
 
 /* Script Data Start
 SDName: Boss_Skadi
-SDAuthor: LordVanMartin, JohnHoliver
-SD%Complete: 90%
+SDAuthor: LordVanMartin, JohnHoliver, DarkSoe
+SD%Complete: 99%
 SDComment: <Known Bugs>
-               After Unmount() he appears to still be flying even with SetFlying(false)
+               After Unmount() he appears to still be flying even with SetFlying(false) <- fixed in last commit or is bug existing ?
            </Known Bugs>
 SDCategory: Utgarde Pinnacle
 Script Data End */
@@ -170,10 +172,10 @@ public:
     {
         boss_skadiAI(Creature* c) : ScriptedAI(c), Summons(me)
         {
-            m_instance = c->GetInstanceScript();
+            m_pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* m_pInstance;
         SummonList Summons;
         uint64 m_uiGraufGUID;
         std::vector<uint64> triggersGUID;
@@ -194,6 +196,9 @@ public:
         {
             triggersGUID.clear();
 
+			SetCombatMovement(false);
+			m_pInstance->SetData(DATA_HARPOON_EVENT,0);
+
             m_uiCrushTimer = 8000;
             m_uiPoisonedSpearTimer = 10000;
             m_uiWhirlwindTimer = 20000;
@@ -208,10 +213,10 @@ public:
             me->SetSpeed(MOVE_FLIGHT, 3.0f);
             if ((Unit::GetCreature((*me), m_uiGraufGUID) == NULL) && !me->IsMounted())
                  me->SummonCreature(CREATURE_GRAUF, Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 3.0f);
-            if (m_instance)
+            if (m_pInstance)
             {
-                m_instance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, NOT_STARTED);
-                m_instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+                m_pInstance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, NOT_STARTED);
+                m_pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
             }
         }
 
@@ -235,10 +240,10 @@ public:
             m_uiMovementTimer = 1000;
             m_uiSummonTimer = 10000;
             me->SetInCombatWithZone();
-            if (m_instance)
+            if (m_pInstance)
             {
-                m_instance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, IN_PROGRESS);
-                m_instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+                m_pInstance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, IN_PROGRESS);
+                m_pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
                 me->GetMotionMaster()->MoveJump(Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 5.0f, 10.0f);
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                 m_uiMountTimer = 1000;
@@ -276,8 +281,35 @@ public:
             Summons.Despawn(summoned);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
-        {
+        void Check()
+		{
+			uint32 uiHarpoonstack = m_pInstance->GetData(DATA_HARPOON_EVENT);
+
+                if (uiHarpoonstack >= 3)
+                {
+                    Phase = SKADI;
+                    me->SetFlying(false);
+                    me->Unmount();
+					SetCombatMovement(true);
+                    if(Creature* pGrauf = me->SummonCreature(CREATURE_GRAUF, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3*IN_MILLISECONDS))
+                    {
+                        pGrauf->GetMotionMaster()->MoveFall(0);
+                        pGrauf->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);
+						pGrauf->SetReactState(REACT_PASSIVE);
+                    }
+                    // me->GetMotionMaster()->MoveJump(Location[4].GetPositionX(), Location[4].GetPositionY(), Location[4].GetPositionZ(), 5.0f, 10.0f);
+					me->NearTeleportTo(479.849915f, -512.391846f, 104.722984f, 3.057364f, false); 
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                    DoScriptText(SAY_DRAKE_DEATH, me);
+					me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    m_uiCrushTimer = 8000;
+                    m_uiPoisonedSpearTimer = 10000;
+                    m_uiWhirlwindTimer = 20000;
+                    me->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
+                }
+		}
+	//	void SpellHit(Unit* /*caster*/, const SpellInfo *spell)
+     /* {
             if (spell->Id == SPELL_HARPOON_DAMAGE)
             {
                 m_uiSpellHitCount++;
@@ -286,7 +318,7 @@ public:
                     Phase = SKADI;
                     me->SetFlying(false);
                     me->Unmount();
-                    if (Creature* pGrauf = me->SummonCreature(CREATURE_GRAUF, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3*IN_MILLISECONDS))
+                    if(Creature* pGrauf = me->SummonCreature(CREATURE_GRAUF, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3*IN_MILLISECONDS))
                     {
                         pGrauf->GetMotionMaster()->MoveFall(0);
                         pGrauf->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);
@@ -300,15 +332,17 @@ public:
                     me->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
                 }
             }
-        }
+        } */
 
         void UpdateAI(const uint32 diff)
         {
-            switch (Phase)
+            switch(Phase)
             {
                 case FLYING:
                     if (!UpdateVictim())
                         return;
+
+					Check();
 
                     if (me->GetPositionX() >= 519)
                     {
@@ -340,7 +374,7 @@ public:
 
                     if (m_uiMovementTimer <= diff)
                     {
-                        switch (m_uiWaypointId)
+                        switch(m_uiWaypointId)
                         {
                             case 0:
                                 me->GetMotionMaster()->MovePoint(0, Location[1].GetPositionX(), Location[1].GetPositionY(), Location[1].GetPositionZ());
@@ -411,8 +445,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
             Summons.DespawnAll();
-            if (m_instance)
-                m_instance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, DONE);
+            if (m_pInstance)
+                m_pInstance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -463,12 +497,14 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* pGO)
     {
-        InstanceScript* m_instance = pGO->GetInstanceScript();
-        if (!m_instance) return false;
+        InstanceScript* m_pInstance = pGO->GetInstanceScript();
+        if (!m_pInstance) return false;
 
-        if (Creature* pSkadi = Unit::GetCreature((*pGO), m_instance->GetData64(DATA_SKADI_THE_RUTHLESS)))
+        if (Creature* pSkadi = Unit::GetCreature((*pGO), m_pInstance->GetData64(DATA_SKADI_THE_RUTHLESS)))
         {
-            player->CastSpell(pSkadi, SPELL_RAPID_FIRE, true);
+        	player->CastSpell(pSkadi, SPELL_RAPID_FIRE, true);
+		m_pInstance->SetData(DATA_HARPOON_EVENT,1);
+		pGO->RemoveFromWorld();
         }
         return false;
     }

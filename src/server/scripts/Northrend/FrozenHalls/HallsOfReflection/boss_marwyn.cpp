@@ -63,15 +63,15 @@ public:
         {
             boss_horAI::Reset();
 
-            if (instance)
-                instance->SetData(DATA_MARWYN_EVENT, NOT_STARTED);
+            if (pInstance)
+                pInstance->SetData(DATA_MARWYN_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
-            if (instance)
-                instance->SetData(DATA_MARWYN_EVENT, IN_PROGRESS);
+            if (pInstance)
+                pInstance->SetData(DATA_MARWYN_EVENT, IN_PROGRESS);
 
             events.ScheduleEvent(EVENT_OBLITERATE, 30000);          // TODO Check timer
             events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
@@ -83,8 +83,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (instance)
-                instance->SetData(DATA_MARWYN_EVENT, DONE);
+            if (pInstance)
+                pInstance->SetData(DATA_MARWYN_EVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)

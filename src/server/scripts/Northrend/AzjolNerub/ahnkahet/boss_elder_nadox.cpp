@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "ScriptPCH.h"
 #include "ahnkahet.h"
 
@@ -290,7 +291,7 @@ public:
         void UpdateAI(const uint32 /*diff*/) {}
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new mob_nadox_eggsAI(creature);
     }

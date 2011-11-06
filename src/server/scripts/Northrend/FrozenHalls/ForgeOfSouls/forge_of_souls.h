@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #ifndef DEF_FORGE_OF_SOULS_H
 #define DEF_FORGE_OF_SOULS_H
 
@@ -46,6 +47,5 @@ enum Creatures
     NPC_CHAMPION_3_HORDE                          = 37588,
     NPC_CHAMPION_1_ALLIANCE                       = 37496,
     NPC_CHAMPION_2_ALLIANCE                       = 37497,
-    NPC_CRUCIBLE_OF_SOULS                         = 37094,
 };
 #endif

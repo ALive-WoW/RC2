@@ -86,7 +86,6 @@ public:
             return true;
         }
 
-        //TODO: this should be handled in map, maybe add a summon function in map
         // There is no other way afaik...
         void SpawnGameObject(uint32 entry, Position& pos)
         {

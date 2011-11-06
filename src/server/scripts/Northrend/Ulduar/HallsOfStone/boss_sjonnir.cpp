@@ -92,7 +92,7 @@ public:
     {
         boss_sjonnirAI(Creature* c) : ScriptedAI(c), lSummons(me)
         {
-            instance = c->GetInstanceScript();
+            pInstance = c->GetInstanceScript();
         }
 
         bool bIsFrenzy;
@@ -108,7 +108,7 @@ public:
 
         SummonList lSummons;
 
-        InstanceScript* instance;
+        InstanceScript* pInstance;
 
         void Reset()
         {
@@ -125,8 +125,8 @@ public:
 
             lSummons.DespawnAll();
 
-            if (instance)
-                instance->SetData(DATA_SJONNIR_EVENT, NOT_STARTED);
+            if (pInstance)
+                pInstance->SetData(DATA_SJONNIR_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -135,16 +135,16 @@ public:
 
             uiEncounterTimer = 0;
 
-            if (instance)
+            if (pInstance)
             {
-                if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_SJONNIR_DOOR)))
+                if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SJONNIR_DOOR)))
                     if (pDoor->GetGoState() == GO_STATE_READY)
                     {
                         EnterEvadeMode();
                         return;
                     }
 
-                instance->SetData(DATA_SJONNIR_EVENT, IN_PROGRESS);
+                pInstance->SetData(DATA_SJONNIR_EVENT, IN_PROGRESS);
             }
         }
 
@@ -219,8 +219,8 @@ public:
             DoScriptText(SAY_DEATH, me);
             lSummons.DespawnAll();
 
-            if (instance)
-                instance->SetData(DATA_SJONNIR_EVENT, DONE);
+            if (pInstance)
+                pInstance->SetData(DATA_SJONNIR_EVENT, DONE);
         }
         void KilledUnit(Unit* victim)
         {
@@ -271,10 +271,10 @@ public:
         {
             if (uiMergeTimer <= diff)
             {
-                if (Creature* temp = me->FindNearestCreature(CREATURE_MALFORMED_OOZE, 3.0f, true))
+                if (Creature* pTemp = me->FindNearestCreature(CREATURE_MALFORMED_OOZE, 3.0f, true))
                 {
                     DoSpawnCreature(CREATURE_IRON_SLUDGE, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
-                    temp->DisappearAndDie();
+                    pTemp->DisappearAndDie();
                     me->DisappearAndDie();
                 }
                 uiMergeTimer = 3000;
@@ -303,15 +303,15 @@ public:
     {
         mob_iron_sludgeAI(Creature* c) : ScriptedAI(c)
         {
-            instance = c->GetInstanceScript();
+            pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript* instance;
+        InstanceScript* pInstance;
 
         void JustDied(Unit* /*killer*/)
         {
-            if (instance)
-                if (Creature* Sjonnir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SJONNIR)))
+            if (pInstance)
+                if (Creature* Sjonnir = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_SJONNIR)))
                     Sjonnir->AI()->DoAction(ACTION_OOZE_DEAD);
         }
     };

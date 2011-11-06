@@ -23,6 +23,7 @@ SDComment: by /dev/rsa
 SDCategory: Trial of the Crusader
 EndScriptData */
 
+
 #include "ScriptPCH.h"
 #include "trial_of_the_crusader.h"
 
@@ -33,7 +34,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
         struct instance_trial_of_the_crusader_InstanceMapScript : public InstanceScript
         {
-            instance_trial_of_the_crusader_InstanceMapScript(Map* map) : InstanceScript(map) {}
+            instance_trial_of_the_crusader_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
             uint32 EncounterStatus[MAX_ENCOUNTERS];
             uint32 TrialCounter;
@@ -43,6 +44,12 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             uint32 NorthrendBeasts;
             std::string SaveDataBuffer;
             bool   NeedSave;
+
+			uint32 ChampionCount;
+
+            uint32 DataDamageTwin;
+            uint32 FjolaCasting;
+            uint32 EydisCasting;
 
             uint64 BarrentGUID;
             uint64 TirionGUID;
@@ -85,12 +92,15 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 EventStage = 0;
 
                 TributeChestGUID = 0;
+                DataDamageTwin = 0;
 
                 MainGateDoorGUID = 0;
                 EastPortcullisGUID = 0;
                 WebDoorGUID = 0;
 
                 NorthrendBeasts = NOT_STARTED;
+
+				ChampionCount = 0;
 
                 EventTimer = 1000;
 
@@ -236,6 +246,23 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             {
                 switch (type)
                 {
+					case DATA_FACTION_CHAMPIONS:
+						if (RAID_DIFFICULTY_25MAN_NORMAL || RAID_DIFFICULTY_25MAN_HEROIC)
+						{
+							if (ChampionCount < 10)
+								ChampionCount++;
+							else if (ChampionCount == 10)
+								SetData(TYPE_CRUSADERS,DONE);
+							break;
+						}
+						else
+						{
+							if (ChampionCount < 5)
+								ChampionCount++;
+							else if (ChampionCount == 5)
+								SetData(TYPE_CRUSADERS,DONE);
+							break;
+						}
                     case TYPE_JARAXXUS:
                         if (data == DONE)
                             EventStage = 2000;
@@ -363,6 +390,11 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 break;
                         }
                         break;
+                    case DATA_HEALTH_TWIN_SHARED:
+                        DataDamageTwin = data;
+                        data = NOT_STARTED;
+                        break;
+
                     //Achievements
                     case DATA_SNOBOLD_COUNT:
                         if (data == INCREASE)
@@ -466,6 +498,9 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             {
                 switch (type)
                 {
+					case DATA_FACTION_CHAMPIONS:
+						return ChampionCount;
+						break;
                     case TYPE_BEASTS:
                         return EncounterStatus[TYPE_BEASTS];
                     case TYPE_JARAXXUS:
@@ -574,6 +609,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 break;
                         };
                         return EventNPCId;
+                    case DATA_HEALTH_TWIN_SHARED:
+                        return DataDamageTwin;
                     default:
                         break;
                 }

@@ -132,7 +132,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch (eventId)
+                switch(eventId)
                 {
                     case EVENT_DISRUPT:
                         DoCastAOE(SPELL_SPELL_DISRUPTION);
@@ -157,7 +157,7 @@ public:
 
                         eruptDirection ? ++eruptSection : --eruptSection;
 
-                        events.ScheduleEvent(EVENT_ERUPT, phase == PHASE_FIGHT ? 10000 : 3000);
+                        events.ScheduleEvent(EVENT_ERUPT, phase == PHASE_FIGHT ? 10000 : 4000); //Shiro: time between eruption set from 3000 to 4000
                         break;
                 }
             }

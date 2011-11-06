@@ -73,7 +73,7 @@ public:
     {
         boss_tharon_jaAI(Creature* c) : ScriptedAI(c)
         {
-            instance = c->GetInstanceScript();
+            pInstance = c->GetInstanceScript();
         }
 
         uint32 uiPhaseTimer;
@@ -86,7 +86,7 @@ public:
 
         CombatPhase Phase;
 
-        InstanceScript* instance;
+        InstanceScript* pInstance;
 
         void Reset()
         {
@@ -96,16 +96,16 @@ public:
             uiShadowVolleyTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
             Phase = SKELETAL;
             me->SetDisplayId(me->GetNativeDisplayId());
-            if (instance)
-                instance->SetData(DATA_THARON_JA_EVENT, NOT_STARTED);
+            if (pInstance)
+                pInstance->SetData(DATA_THARON_JA_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (instance)
-                instance->SetData(DATA_THARON_JA_EVENT, IN_PROGRESS);
+            if (pInstance)
+                pInstance->SetData(DATA_THARON_JA_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 diff)
@@ -151,13 +151,13 @@ public:
                         DoScriptText(RAND(SAY_FLESH_1, SAY_FLESH_2), me);
                         me->SetDisplayId(MODEL_FLESH);
 
-                        std::list<Unit*> playerList;
+                        std::list<Unit* > playerList;
                         SelectTargetList(playerList, 5, SELECT_TARGET_TOPAGGRO, 0, true);
                         for (std::list<Unit*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                         {
-                            Unit* temp = (*itr);
-                            me->AddAura(SPELL_GIFT_OF_THARON_JA, temp);
-                            temp->SetDisplayId(MODEL_SKELETON);
+                            Unit* pTemp = (*itr);
+                            me->AddAura(SPELL_GIFT_OF_THARON_JA, pTemp);
+                            pTemp->SetDisplayId(MODEL_SKELETON);
                         }
                         uiPhaseTimer = 20*IN_MILLISECONDS;
                         uiLightningBreathTimer = urand(3*IN_MILLISECONDS, 4*IN_MILLISECONDS);
@@ -206,14 +206,14 @@ public:
                         uiRainOfFireTimer = urand(14*IN_MILLISECONDS, 18*IN_MILLISECONDS);
                         uiShadowVolleyTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
 
-                        std::list<Unit*> playerList;
+                        std::list<Unit* > playerList;
                         SelectTargetList(playerList, 5, SELECT_TARGET_TOPAGGRO, 0, true);
                         for (std::list<Unit*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                         {
-                            Unit* temp = (*itr);
-                            if (temp->HasAura(SPELL_GIFT_OF_THARON_JA))
-                                temp->RemoveAura(SPELL_GIFT_OF_THARON_JA);
-                            temp->DeMorph();
+                            Unit* pTemp = (*itr);
+                            if (pTemp->HasAura(SPELL_GIFT_OF_THARON_JA))
+                                pTemp->RemoveAura(SPELL_GIFT_OF_THARON_JA);
+                            pTemp->DeMorph();
                         }
                     } else uiPhaseTimer -= diff;
                     break;
@@ -229,22 +229,22 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (instance)
+            if (pInstance)
             {
                 // clean morph on players
-                Map::PlayerList const &PlayerList = instance->instance->GetPlayers();
+                Map::PlayerList const &PlayerList = pInstance->instance->GetPlayers();
 
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     if (Player* player = i->getSource())
                         player->DeMorph();
-                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2, SPELL_ACHIEVEMENT_CHECK);
+                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2, SPELL_ACHIEVEMENT_CHECK);
 
-                instance->SetData(DATA_THARON_JA_EVENT, DONE);
+                pInstance->SetData(DATA_THARON_JA_EVENT, DONE);
             }
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new boss_tharon_jaAI(creature);
     }

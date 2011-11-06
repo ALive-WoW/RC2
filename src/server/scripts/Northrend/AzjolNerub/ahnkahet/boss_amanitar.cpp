@@ -19,6 +19,7 @@
  * Comment:  Find correct mushrooms spell to make them visible - buffs of the mushrooms not ever applied to the users...
  */
 
+
 #include "ScriptPCH.h"
 #include "ahnkahet.h"
 
@@ -50,11 +51,11 @@ public:
     {
         boss_amanitarAI(Creature* c) : ScriptedAI(c)
         {
-            instance = c->GetInstanceScript();
+            pInstance = c->GetInstanceScript();
             bFirstTime = true;
         }
 
-        InstanceScript* instance;
+        InstanceScript* pInstance;
 
         uint32 uiRootTimer;
         uint32 uiBashTimer;
@@ -73,11 +74,11 @@ public:
             me->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
             me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
 
-            if (instance)
+            if (pInstance)
             {
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
+                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
                 if (!bFirstTime)
-                    instance->SetData(DATA_AMANITAR_EVENT, FAIL);
+                    pInstance->SetData(DATA_AMANITAR_EVENT, FAIL);
                 else
                     bFirstTime = false;
             }
@@ -85,17 +86,17 @@ public:
 
         void JustDied(Unit* /*Killer*/)
         {
-            if (instance)
+            if (pInstance)
             {
-                instance->SetData(DATA_AMANITAR_EVENT, DONE);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
+                pInstance->SetData(DATA_AMANITAR_EVENT, DONE);
+                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
             }
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (instance)
-                instance->SetData(DATA_AMANITAR_EVENT, IN_PROGRESS);
+            if (pInstance)
+                pInstance->SetData(DATA_AMANITAR_EVENT, IN_PROGRESS);
 
             DoCast(me, SPELL_MINI, false);
         }
@@ -154,7 +155,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new boss_amanitarAI(creature);
     }
@@ -215,7 +216,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new mob_amanitar_mushroomsAI(creature);
     }

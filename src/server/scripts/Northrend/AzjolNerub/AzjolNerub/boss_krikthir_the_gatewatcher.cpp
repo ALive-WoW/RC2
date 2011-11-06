@@ -19,6 +19,7 @@
  * Comment: Find in the future best timers and the event is not implemented.
  */
 
+
 #include "ScriptPCH.h"
 #include "azjol_nerub.h"
 
@@ -96,10 +97,10 @@ public:
     {
         boss_krik_thirAI(Creature* c) : ScriptedAI(c)
         {
-            instance = c->GetInstanceScript();
+            pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript* instance;
+        InstanceScript* pInstance;
 
         uint32 uiMindFlayTimer;
         uint32 uiCurseFatigueTimer;
@@ -110,8 +111,8 @@ public:
             uiMindFlayTimer = 15*IN_MILLISECONDS;
             uiCurseFatigueTimer = 12*IN_MILLISECONDS;
 
-            if (instance)
-                instance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, NOT_STARTED);
+            if (pInstance)
+                pInstance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -120,8 +121,8 @@ public:
             Summon();
             uiSummonTimer = 15*IN_MILLISECONDS;
 
-            if (instance)
-                instance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, IN_PROGRESS);
+            if (pInstance)
+                pInstance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, IN_PROGRESS);
         }
 
         void Summon()
@@ -181,8 +182,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (instance)
-                instance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, DONE);
+            if (pInstance)
+                pInstance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim)
@@ -199,7 +200,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new boss_krik_thirAI(creature);
     }
@@ -221,7 +222,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_skittering_infectorAI(creature);
     }
@@ -272,7 +273,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_anub_ar_skirmisherAI(creature);
     }
@@ -318,7 +319,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_anub_ar_shadowcasterAI(creature);
     }
@@ -363,7 +364,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_anub_ar_warriorAI(creature);
     }
@@ -414,7 +415,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_watcher_gashraAI(creature);
     }
@@ -468,7 +469,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_watcher_narjilAI(creature);
     }
@@ -524,7 +525,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_watcher_silthikAI(creature);
     }

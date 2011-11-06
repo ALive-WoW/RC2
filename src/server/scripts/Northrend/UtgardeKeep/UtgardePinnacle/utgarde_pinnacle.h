@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #ifndef DEF_PINNACLE_H
 #define DEF_PINNACLE_H
 
@@ -23,7 +24,8 @@ enum Data
     DATA_SVALA_SORROWGRAVE_EVENT,
     DATA_GORTOK_PALEHOOF_EVENT,
     DATA_SKADI_THE_RUTHLESS_EVENT,
-    DATA_KING_YMIRON_EVENT
+    DATA_KING_YMIRON_EVENT,
+	DATA_HARPOON_EVENT
 };
 enum Data64
 {

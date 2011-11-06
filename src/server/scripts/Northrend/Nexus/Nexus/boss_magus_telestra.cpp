@@ -69,10 +69,10 @@ public:
     {
         boss_magus_telestraAI(Creature* c) : ScriptedAI(c)
         {
-            instance = c->GetInstanceScript();
+            pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript* instance;
+        InstanceScript* pInstance;
 
         uint64 uiFireMagusGUID;
         uint64 uiFrostMagusGUID;
@@ -115,24 +115,24 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetVisible(true);
 
-            if (instance)
-                instance->SetData(DATA_MAGUS_TELESTRA_EVENT, NOT_STARTED);
+            if (pInstance)
+                pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (instance)
-                instance->SetData(DATA_MAGUS_TELESTRA_EVENT, IN_PROGRESS);
+            if (pInstance)
+                pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (instance)
-                instance->SetData(DATA_MAGUS_TELESTRA_EVENT, DONE);
+            if (pInstance)
+                pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -238,7 +238,7 @@ public:
                     for (uint8 n = 0; n < 3; ++n)
                         time[n] = 0;
                     me->GetMotionMaster()->Clear();
-                    me->SetPosition(CenterOfRoom.GetPositionX(), CenterOfRoom.GetPositionY(), CenterOfRoom.GetPositionZ(), CenterOfRoom.GetOrientation());
+                    me->GetMap()->CreatureRelocation(me, CenterOfRoom.GetPositionX(), CenterOfRoom.GetPositionY(), CenterOfRoom.GetPositionZ(), CenterOfRoom.GetOrientation());
                     DoCast(me, SPELL_TELESTRA_BACK);
                     me->SetVisible(true);
                     if (Phase == 1)

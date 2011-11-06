@@ -80,10 +80,10 @@ public:
     {
         boss_ionarAI(Creature* creature) : ScriptedAI(creature), lSparkList(creature)
         {
-            instance = creature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
-        InstanceScript* instance;
+        InstanceScript* pInstance;
 
         SummonList lSparkList;
 
@@ -116,16 +116,16 @@ public:
             if (!me->IsVisible())
                 me->SetVisible(true);
 
-            if (instance)
-                instance->SetData(TYPE_IONAR, NOT_STARTED);
+            if (pInstance)
+                pInstance->SetData(TYPE_IONAR, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (instance)
-                instance->SetData(TYPE_IONAR, IN_PROGRESS);
+            if (pInstance)
+                pInstance->SetData(TYPE_IONAR, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -134,8 +134,8 @@ public:
 
             lSparkList.DespawnAll();
 
-            if (instance)
-                instance->SetData(TYPE_IONAR, DONE);
+            if (pInstance)
+                pInstance->SetData(TYPE_IONAR, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -310,10 +310,10 @@ public:
     {
         mob_spark_of_ionarAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = creature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
-        InstanceScript* instance;
+        InstanceScript* pInstance;
 
         uint32 uiCheckTimer;
 
@@ -325,7 +325,7 @@ public:
 
         void MovementInform(uint32 uiType, uint32 uiPointId)
         {
-            if (uiType != POINT_MOTION_TYPE || !instance)
+            if (uiType != POINT_MOTION_TYPE || !pInstance)
                 return;
 
             if (uiPointId == DATA_POINT_CALLBACK)
@@ -340,7 +340,7 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             // Despawn if the encounter is not running
-            if (instance && instance->GetData(TYPE_IONAR) != IN_PROGRESS)
+            if (pInstance && pInstance->GetData(TYPE_IONAR) != IN_PROGRESS)
             {
                 me->DespawnOrUnsummon();
                 return;
@@ -349,9 +349,9 @@ public:
             // Prevent them to follow players through the whole instance
             if (uiCheckTimer <= uiDiff)
             {
-                if (instance)
+                if (pInstance)
                 {
-                    Creature* pIonar = instance->instance->GetCreature(instance->GetData64(DATA_IONAR));
+                    Creature* pIonar = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IONAR));
                     if (pIonar && pIonar->isAlive())
                     {
                         if (me->GetDistance(pIonar) > DATA_MAX_SPARK_DISTANCE)

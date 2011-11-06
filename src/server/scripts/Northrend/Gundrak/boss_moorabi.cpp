@@ -59,10 +59,10 @@ public:
     {
         boss_moorabiAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = creature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
-        InstanceScript* instance;
+        InstanceScript* pInstance;
 
         bool bPhase;
 
@@ -79,8 +79,8 @@ public:
             uiTransformationTImer = 12*IN_MILLISECONDS;
             bPhase = false;
 
-            if (instance)
-                instance->SetData(DATA_MOORABI_EVENT, NOT_STARTED);
+            if (pInstance)
+                pInstance->SetData(DATA_MOORABI_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -88,8 +88,8 @@ public:
             DoScriptText(SAY_AGGRO, me);
             DoCast(me, SPELL_MOJO_FRENZY, true);
 
-            if (instance)
-                instance->SetData(DATA_MOORABI_EVENT, IN_PROGRESS);
+            if (pInstance)
+                pInstance->SetData(DATA_MOORABI_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -155,8 +155,8 @@ public:
          {
             DoScriptText(SAY_DEATH, me);
 
-            if (instance)
-                instance->SetData(DATA_MOORABI_EVENT, DONE);
+            if (pInstance)
+                pInstance->SetData(DATA_MOORABI_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim)

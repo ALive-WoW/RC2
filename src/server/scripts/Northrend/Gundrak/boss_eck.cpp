@@ -43,7 +43,7 @@ public:
     {
         boss_eckAI(Creature* c) : ScriptedAI(c)
         {
-            instance = c->GetInstanceScript();
+            pInstance = c->GetInstanceScript();
         }
 
         uint32 uiBerserkTimer;
@@ -53,7 +53,7 @@ public:
 
         bool bBerserk;
 
-        InstanceScript* instance;
+        InstanceScript* pInstance;
 
         void Reset()
         {
@@ -64,14 +64,14 @@ public:
 
             bBerserk = false;
 
-            if (instance)
-                instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, NOT_STARTED);
+            if (pInstance)
+                pInstance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (instance)
-                instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, IN_PROGRESS);
+            if (pInstance)
+                pInstance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 diff)
@@ -126,8 +126,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (instance)
-                instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, DONE);
+            if (pInstance)
+                pInstance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, DONE);
         }
     };
 
@@ -147,17 +147,17 @@ public:
     {
         npc_ruins_dwellerAI(Creature* c) : ScriptedAI(c)
         {
-            instance = c->GetInstanceScript();
+            pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript* instance;
+        InstanceScript* pInstance;
 
         void JustDied(Unit* /*who*/)
         {
-            if (instance)
+            if (pInstance)
             {
-                instance->SetData64(DATA_RUIN_DWELLER_DIED, me->GetGUID());
-                if (instance->GetData(DATA_ALIVE_RUIN_DWELLERS) == 0)
+                pInstance->SetData64(DATA_RUIN_DWELLER_DIED, me->GetGUID());
+                if (pInstance->GetData(DATA_ALIVE_RUIN_DWELLERS) == 0)
                     me->SummonCreature(CREATURE_ECK, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300*IN_MILLISECONDS);
             }
         }

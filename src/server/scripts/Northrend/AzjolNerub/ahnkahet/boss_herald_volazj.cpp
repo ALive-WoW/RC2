@@ -19,6 +19,7 @@
  * Comment: Missing AI for Twisted Visages
  */
 
+
 #include "ScriptPCH.h"
 #include "ahnkahet.h"
 
@@ -69,10 +70,10 @@ public:
     {
         boss_volazjAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-            instance = creature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
-        InstanceScript* instance;
+        InstanceScript *pInstance;
 
         uint32 uiMindFlayTimer;
         uint32 uiShadowBoltVolleyTimer;
@@ -101,7 +102,7 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell)
+        void SpellHitTarget(Unit* target, const SpellInfo *spell)
         {
             if (spell->Id == SPELL_INSANITY)
             {
@@ -155,10 +156,10 @@ public:
             uiShadowBoltVolleyTimer = 5*IN_MILLISECONDS;
             uiShiverTimer = 15*IN_MILLISECONDS;
 
-            if (instance)
+            if (pInstance)
             {
-                instance->SetData(DATA_HERALD_VOLAZJ, NOT_STARTED);
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
+                pInstance->SetData(DATA_HERALD_VOLAZJ, NOT_STARTED);
+                pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
             }
 
             // Visible for all players in insanity
@@ -178,10 +179,10 @@ public:
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (instance)
+            if (pInstance)
             {
-                instance->SetData(DATA_HERALD_VOLAZJ, IN_PROGRESS);
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
+                pInstance->SetData(DATA_HERALD_VOLAZJ, IN_PROGRESS);
+                pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
             }
         }
 
@@ -236,11 +237,11 @@ public:
             // Roll Insanity
             uint32 spell = GetSpellForPhaseMask(phase);
             uint32 spell2 = GetSpellForPhaseMask(nextPhase);
-            Map* map = me->GetMap();
-            if (!map)
+            Map* pMap = me->GetMap();
+            if (!pMap)
                 return;
 
-            Map::PlayerList const &PlayerList = map->GetPlayers();
+            Map::PlayerList const &PlayerList = pMap->GetPlayers();
             if (!PlayerList.isEmpty())
             {
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -301,8 +302,8 @@ public:
         {
             DoScriptText(SAY_DEATH_1, me);
 
-            if (instance)
-                instance->SetData(DATA_HERALD_VOLAZJ, DONE);
+            if (pInstance)
+                pInstance->SetData(DATA_HERALD_VOLAZJ, DONE);
 
             Summons.DespawnAll();
             ResetPlayersPhaseMask();
@@ -314,7 +315,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new boss_volazjAI(creature);
     }

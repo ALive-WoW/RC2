@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "ScriptPCH.h"
 #include "azjol_nerub.h"
 
@@ -93,10 +94,10 @@ public:
     {
         boss_anub_arakAI(Creature* c) : ScriptedAI(c), lSummons(me)
         {
-            instance = c->GetInstanceScript();
+            pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript* instance;
+        InstanceScript *pInstance;
 
         bool bChanneling;
         bool bGuardianSummoned;
@@ -135,10 +136,10 @@ public:
 
             lSummons.DespawnAll();
 
-            if (instance)
+            if (pInstance)
             {
-                instance->SetData(DATA_ANUBARAK_EVENT, NOT_STARTED);
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+                pInstance->SetData(DATA_ANUBARAK_EVENT, NOT_STARTED);
+                pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
             }
         }
 
@@ -162,10 +163,10 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
-            if (instance)
+            if (pInstance)
             {
-                instance->SetData(DATA_ANUBARAK_EVENT, IN_PROGRESS);
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+                pInstance->SetData(DATA_ANUBARAK_EVENT, IN_PROGRESS);
+                pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
             }
         }
 
@@ -179,7 +180,7 @@ public:
             case PHASE_UNDERGROUND:
                 if (uiImpaleTimer <= diff)
                 {
-                    switch (uiImpalePhase)
+                    switch(uiImpalePhase)
                     {
                     case IMPALE_PHASE_TARGET:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
@@ -329,8 +330,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
             lSummons.DespawnAll();
-            if (instance)
-                instance->SetData(DATA_ANUBARAK_EVENT, DONE);
+            if (pInstance)
+                pInstance->SetData(DATA_ANUBARAK_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim)
@@ -346,7 +347,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new boss_anub_arakAI(creature);
     }
