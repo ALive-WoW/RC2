@@ -237,6 +237,12 @@ struct ScriptedAI : public CreatureAI
         return heroic25;
     }
 
+	void SetImmuneToPushPullEffects(bool set)
+	{
+		me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, set);
+		me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, set);
+	}
+
     private:
         Difficulty _difficulty;
         uint32 _evadeCheckCooldown;

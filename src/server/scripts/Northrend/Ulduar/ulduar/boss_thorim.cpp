@@ -572,7 +572,7 @@ public:
                                         me->SummonCreature(NPC_SIF, 2149.27f, -260.55f, 419.69f, 2.527f, TEMPSUMMON_CORPSE_DESPAWN);
                                         // Achievement Siffed
                                         if (instance)
-                                            DoCast(me, ACHIEVEMENT_SIFFED, true);
+                                            instance->DoCompleteAchievement(ACHIEVEMENT_SIFFED);
                                     }
                                     else me->AddAura(SPELL_TOUCH_OF_DOMINION, me);
                                 }
@@ -817,7 +817,7 @@ class npc_runic_colossus : public CreatureScript
             npc_runic_colossusAI(Creature* creature) : ScriptedAI(creature), summons(me)
             {
                 instance = creature->GetInstanceScript();
-//                SetImmuneToPushPullEffects(true);
+                SetImmuneToPushPullEffects(true);
             }
 
             void Reset()
@@ -1008,7 +1008,7 @@ public:
         npc_ancient_rune_giantAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
             instance = creature->GetInstanceScript();
-//            SetImmuneToPushPullEffects(true);
+            SetImmuneToPushPullEffects(true);
         }
 
         InstanceScript* instance;
