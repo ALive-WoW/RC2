@@ -30,6 +30,8 @@
 #define CAST_CRE(a)     (dynamic_cast<Creature*>(a))
 #define CAST_AI(a, b)   (dynamic_cast<a*>(b))
 
+#define GET_SPELL(a) (const_cast<SpellEntry*>(GetSpellStore()->LookupEntry(a)))
+
 class InstanceScript;
 
 class SummonList : public std::list<uint64>

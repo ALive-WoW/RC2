@@ -106,11 +106,11 @@ class boss_general_vezax : public CreatureScript
         {
             boss_general_vezaxAI(Creature* c) : BossAI(c, TYPE_VEZAX)
             {
-                /* add interrupt flag
+                // add interrupt flag
                 SpellEntry* tempSpell;
-                tempSpell = me->GET_SPELL(SPELL_SEARING_FLAMES);
+                tempSpell = GET_SPELL(SPELL_SEARING_FLAMES);
                 if (tempSpell)
-                    tempSpell->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;  */
+                    tempSpell->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
             }
 
             void Reset()

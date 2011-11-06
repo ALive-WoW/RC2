@@ -864,6 +864,7 @@ uint32 const* GetTalentTabPages(uint8 cls)
 
 // script support functions
  DBCStorage <SoundEntriesEntry>  const* GetSoundEntriesStore()   { return &sSoundEntriesStore;   }
+ DBCStorage <SpellEntry>		 const* GetSpellStore()			 { return &sSpellStore;			 }
  DBCStorage <SpellRangeEntry>    const* GetSpellRangeStore()     { return &sSpellRangeStore;     }
  DBCStorage <FactionEntry>       const* GetFactionStore()        { return &sFactionStore;        }
  DBCStorage <ItemEntry>          const* GetItemDisplayStore()    { return &sItemStore;           }
