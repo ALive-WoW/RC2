@@ -391,7 +391,7 @@ class boss_flame_leviathan : public CreatureScript
                     return;
 
                 events.Update(diff);
-//                _DoAggroPulse(diff);
+                _DoAggroPulse(diff);
 
                 if (Shutdown == RAID_MODE(2, 4))
                 {

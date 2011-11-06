@@ -59,7 +59,7 @@ public:
     {
         boss_cyanigosaAI(Creature* c) : ScriptedAI(c)
         {
-            instance = c->GetInstanceScript();
+            pInstance = c->GetInstanceScript();
         }
 
         uint32 uiArcaneVacuumTimer;
@@ -68,7 +68,7 @@ public:
         uint32 uiTailSweepTimer;
         uint32 uiUncontrollableEnergyTimer;
 
-        InstanceScript* instance;
+        InstanceScript* pInstance;
 
         void Reset()
         {
@@ -77,26 +77,26 @@ public:
             uiManaDestructionTimer = 30000;
             uiTailSweepTimer = 20000;
             uiUncontrollableEnergyTimer = 25000;
-            if (instance)
-                instance->SetData(DATA_CYANIGOSA_EVENT, NOT_STARTED);
+            if (pInstance)
+                pInstance->SetData(DATA_CYANIGOSA_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (instance)
-                instance->SetData(DATA_CYANIGOSA_EVENT, IN_PROGRESS);
+            if (pInstance)
+                pInstance->SetData(DATA_CYANIGOSA_EVENT, IN_PROGRESS);
         }
 
         void MoveInLineOfSight(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {
-            if (instance && instance->GetData(DATA_REMOVE_NPC) == 1)
+            if (pInstance && pInstance->GetData(DATA_REMOVE_NPC) == 1)
             {
                 me->DespawnOrUnsummon();
-                instance->SetData(DATA_REMOVE_NPC, 0);
+                pInstance->SetData(DATA_REMOVE_NPC, 0);
             }
 
             //Return since we have no target
@@ -145,8 +145,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (instance)
-                instance->SetData(DATA_CYANIGOSA_EVENT, DONE);
+            if (pInstance)
+                pInstance->SetData(DATA_CYANIGOSA_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim)
@@ -168,9 +168,6 @@ class achievement_defenseless : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
-            if(!target)
-                return false;
-
             InstanceScript* instance = target->GetInstanceScript();
             if (!instance)
                 return false;

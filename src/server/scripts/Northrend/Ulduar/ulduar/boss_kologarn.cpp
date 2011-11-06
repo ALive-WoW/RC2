@@ -125,11 +125,11 @@ class boss_kologarn : public CreatureScript
                 SetCombatMovement(false);
                 Reset();
 
-                /* should be triggered on caster?
+                // should be triggered on caster?
                 SpellEntry* tempSpell;
                 tempSpell = GET_SPELL(SPELL_STONE_SHOUT);
                 if (tempSpell)
-                    tempSpell->EffectImplicitTargetA[0] = 1; */
+                    tempSpell->EffectImplicitTargetA[0] = 1;
             }
 
             Vehicle* vehicle;
@@ -343,7 +343,7 @@ class boss_kologarn : public CreatureScript
                     return;
 
                 events.Update(diff);
-//                _DoAggroPulse(diff);
+                _DoAggroPulse(diff);
 
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
