@@ -411,7 +411,7 @@ class boss_steelbreaker : public CreatureScript
                     return;
 
                 events.Update(diff);
-//                _DoAggroPulse(diff);
+                _DoAggroPulse(diff);
 
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;

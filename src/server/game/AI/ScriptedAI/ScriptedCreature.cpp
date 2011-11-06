@@ -6,6 +6,7 @@
  * Please see the included DOCS/LICENSE.TXT for more information */
 
 #include "ScriptPCH.h"
+#include "ScriptedCreature.h"
 #include "Item.h"
 #include "Spell.h"
 #include "ObjectMgr.h"
@@ -497,6 +498,18 @@ void BossAI::_JustDied()
         instance->SetBossState(_bossId, DONE);
         instance->SaveToDB();
     }
+}
+
+void BossAI::_DoAggroPulse(const uint32 diff)
+{
+	if(inFightAggroCheck_Timer < diff)
+	{
+		if(me->getVictim() && me->getVictim()->ToPlayer())
+			DoAttackerGroupInCombat(me->getVictim()->ToPlayer());
+		inFightAggroCheck_Timer = MAX_AGGRO_PULSE_TIMER;
+	}
+	else
+		inFightAggroCheck_Timer -= diff;
 }
 
 void BossAI::_EnterCombat()

@@ -19,6 +19,7 @@
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "Creature.h"
+#include "Group.h"
 #include "World.h"
 #include "SpellMgr.h"
 #include "Vehicle.h"
@@ -119,6 +120,22 @@ void CreatureAI::MoveInLineOfSight_Safe(Unit* who)
     m_MoveInLineOfSight_locked = true;
     MoveInLineOfSight(who);
     m_MoveInLineOfSight_locked = false;
+}
+
+void CreatureAI::DoAttackerGroupInCombat(Player* attacker)
+{
+	if(attacker)
+		if(Group* group = attacker->GetGroup())
+			for(GroupReference* itr = group->GetFirstMember(); itr != NULL;itr = itr->next())
+			{
+				Player* pGroupGuy = itr->getSource();
+				if(pGroupGuy && pGroupGuy->isAlive() && pGroupGuy->GetMapId() == me->GetMapId())
+				{
+					me->SetInCombatWith(pGroupGuy);
+					pGroupGuy->SetInCombatWith(me);
+					me->AddThreat(pGroupGuy, 0.0f);
+				}
+			}
 }
 
 void CreatureAI::MoveInLineOfSight(Unit* who)
