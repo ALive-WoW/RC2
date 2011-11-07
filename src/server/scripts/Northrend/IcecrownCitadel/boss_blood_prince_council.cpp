@@ -1373,6 +1373,10 @@ class npc_dark_nucleus : public CreatureScript
                 if (attacker == me)
                     return;
 
+				// Don't take damage from other effects of the battle
+				if(attacker->GetTypeId() != TYPEID_PLAYER)
+					return;
+
                 if (!_lockedTarget)
                     if (me->getVictim() == attacker)
                         _lockedTarget = true;

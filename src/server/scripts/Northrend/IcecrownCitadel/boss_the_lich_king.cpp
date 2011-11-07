@@ -295,17 +295,17 @@ enum Phases
 
 #define PHASE_TWO_THREE  (events.GetPhaseMask() & PHASE_MASK_TWO ? PHASE_TWO : PHASE_THREE)
 
-Position const CenterPosition     = {503.6282f, -2124.655f, 1040.8602f, 0.0f};
-Position const TirionIntro        = {489.2970f, -2124.840f, 1040.8602f, 0.0f};
-Position const TirionCharge       = {482.9019f, -2124.479f, 1040.8602f, 0.0f};
+Position const CenterPosition     = {503.6282f, -2124.655f, 840.8569f, 0.0f};
+Position const TirionIntro        = {489.2970f, -2124.840f, 840.8569f, 0.0f};
+Position const TirionCharge       = {482.9019f, -2124.479f, 840.8570f, 0.0f};
 Position const LichKingIntro[3]   =
 {
-    {432.0851f, -2123.673f, 1064.6615f, 0.0f},
-    {457.8351f, -2123.423f, 1041.1615f, 0.0f},
-    {465.0730f, -2123.470f, 1040.8602f, 0.0f},
+    {432.0851f, -2123.673f, 864.6582f, 0.0f},
+    {457.8351f, -2123.423f, 841.1582f, 0.0f},
+    {465.0730f, -2123.470f, 840.8569f, 0.0f},
 };
-Position const OutroPosition1     = {493.6286f, -2124.569f, 1040.8602f, 0.0f};
-Position const OutroFlying        = {508.9897f, -2124.561f, 1045.8598f, 0.0f};
+Position const OutroPosition1     = {493.6286f, -2124.569f, 840.8569f, 0.0f};
+Position const OutroFlying        = {508.9897f, -2124.561f, 845.3565f, 0.0f};
 Position const TerenasSpawn       = {495.5542f, -2517.012f, 1050.000f, 4.6993f};
 Position const TerenasSpawnHeroic = {495.7080f, -2523.760f, 1050.000f, 0.0f};
 Position const SpiritWardenSpawn  = {495.3406f, -2529.983f, 1050.000f, 1.5592f};
@@ -715,10 +715,6 @@ class boss_the_lich_king : public CreatureScript
                         summon->SetReactState(REACT_PASSIVE);
                         summon->CastSpell(summon, SPELL_DEFILE_AURA, false);
                         break;
-                    case NPC_VALKYR_SHADOWGUARD:
-                        summon->CastSpell(summon, SPELL_WINGS_OF_THE_DAMNED, true);
-                        summon->CastSpell(summon, SPELL_VALKYR_TARGET_SEARCH, true);
-                        break;
                     case NPC_FROSTMOURNE_TRIGGER:
                     {
                         summons.Summon(summon);
@@ -904,8 +900,8 @@ class boss_the_lich_king : public CreatureScript
                             break;
                         case EVENT_INTRO_CAST_FREEZE:
                             Talk(SAY_LK_INTRO_3);
-							if(Unit* Tirion = me->GetMap()->GetCreature(instance->GetData64(DATA_HIGHLORD_TIRION_FORDRING)))
-								DoCast(Tirion, SPELL_ICE_LOCK, false);
+                            if(Unit* Tirion = me->GetMap()->GetCreature(instance->GetData64(DATA_HIGHLORD_TIRION_FORDRING)))
+                                DoCast(Tirion, SPELL_ICE_LOCK, false);
                             events.ScheduleEvent(EVENT_FINISH_INTRO, 1000, 0, PHASE_INTRO);
                             break;
                         case EVENT_FINISH_INTRO:
@@ -1484,6 +1480,7 @@ class npc_valkyr_shadowguard : public CreatureScript
             {
                 _events.Reset();
                 me->SetReactState(REACT_PASSIVE);
+                DoCast(me, SPELL_WINGS_OF_THE_DAMNED, false);
                 me->SetSpeed(MOVE_FLIGHT, 0.642857f, true);
             }
 
@@ -1581,9 +1578,11 @@ class npc_valkyr_shadowguard : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_GRAB_PLAYER:
-                            DoCastAOE(SPELL_VALKYR_TARGET_SEARCH);
-                            _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2000);
-                            break;
+                            if (!_grabbedPlayer)
+                            {
+                                DoCastAOE(SPELL_VALKYR_TARGET_SEARCH);
+                                _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2000);
+                            }
                         case EVENT_MOVE_TO_DROP_POS:
                             me->GetMotionMaster()->MovePoint(POINT_DROP_PLAYER, _dropPoint);
                             break;
@@ -2488,7 +2487,7 @@ class spell_the_lich_king_summon_into_air : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_summon_into_air_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectLaunch += SpellEffectFn(spell_the_lich_king_summon_into_air_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 
@@ -2741,7 +2740,7 @@ class spell_the_lich_king_vile_spirits_visual : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_vile_spirits_visual_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectLaunch += SpellEffectFn(spell_the_lich_king_vile_spirits_visual_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -2974,7 +2973,7 @@ class spell_the_lich_king_restore_soul : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_restore_soul_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHit += SpellEffectFn(spell_the_lich_king_restore_soul_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
                 BeforeHit += SpellHitFn(spell_the_lich_king_restore_soul_SpellScript::RemoveAura);
             }
 

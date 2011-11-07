@@ -225,7 +225,7 @@ class npc_little_ooze : public CreatureScript
 
         struct npc_little_oozeAI : public ScriptedAI
         {
-            npc_little_oozeAI(Creature* creature) : ScriptedAI(creature)
+            npc_little_oozeAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript())
             {
             }
 
@@ -254,12 +254,15 @@ class npc_little_ooze : public CreatureScript
                     DoCastVictim(SPELL_STICKY_OOZE);
                     events.ScheduleEvent(EVENT_STICKY_OOZE, 15000);
                 }
+				if(instance->GetBossState(DATA_ROTFACE) == DONE)
+					me->DespawnOrUnsummon();
 
                 DoMeleeAttackIfReady();
             }
 
         private:
             EventMap events;
+            InstanceScript* instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const

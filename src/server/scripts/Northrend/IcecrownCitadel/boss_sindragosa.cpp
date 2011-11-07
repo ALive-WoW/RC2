@@ -271,9 +271,13 @@ class boss_sindragosa : public CreatureScript
                 {
                     case ACTION_START_FROSTWYRM:
                     {
+                        sLog->outString("Sindragosa flying in.");
                         instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 255);
                         if (me->isDead())
+                        {
+                            sLog->outString("Sindragosa already dead?");
                             return;
+                        }
 
                         me->setActive(true);
                         me->SetSpeed(MOVE_FLIGHT, 4.0f);
@@ -718,17 +722,17 @@ class npc_spinestalker : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 _events.Reset();
-                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 0);
+                //_instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 0);
             }
 
             void DoAction(int32 const action)
             {
-                if (action == ACTION_START_FROSTWYRM && _instance->GetData(DATA_SPINESTALKER) != 255)
+                if (action == ACTION_START_FROSTWYRM)
                 {
                     _instance->SetData(DATA_SPINESTALKER, 255);
                     if (me->isDead())
                         return;
-
+                    
                     me->setActive(true);
                     me->SetSpeed(MOVE_FLIGHT, 2.0f);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -833,12 +837,17 @@ class npc_rimefang : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 _events.Reset();
-                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 0);
+                //_instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 0);
+
+                if(_instance->GetData(DATA_SINDRAGOSA_FROSTWYRMS) == 255)
+                    return;
+                
+                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 5);    
             }
 
             void DoAction(int32 const action)
             {
-                if (action == ACTION_START_FROSTWYRM && _instance->GetData(DATA_RIMEFANG) != 255)
+                if (action == ACTION_START_FROSTWYRM)
                 {
                     _instance->SetData(DATA_RIMEFANG, 255);
                     if (me->isDead())

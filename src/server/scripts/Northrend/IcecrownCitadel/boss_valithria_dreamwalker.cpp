@@ -353,6 +353,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                     me->GetPosition(x, y, z);
                     me->CastSpell(x, y, z, SPELL_DREAMWALKERS_RAGE, false);
                     _events.ScheduleEvent(EVENT_DREAM_SLIP, 3500);
+                    _instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, DONE);
                     if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VALITHRIA_LICH_KING)))
                         lichKing->AI()->EnterEvadeMode();
                 }
@@ -638,6 +639,9 @@ class npc_the_lich_king_controller : public CreatureScript
                 _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STAT_CASTING))
+                    return;
+
+                if(_instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == DONE)
                     return;
 
                 while (uint32 eventId = _events.ExecuteEvent())

@@ -798,6 +798,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case DATA_SINDRAGOSA_FROSTWYRMS:
                     {
+                        // 255 = Sindragoas has entered the stage
                         if (FrostwyrmCount == 255)
                             return;
 
@@ -813,8 +814,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 if (FrostwyrmCount)
                                 {
                                     --FrostwyrmCount;
+                                    sLog->outString("Sindragosa, Frostwyrm dead. FrostwyrmCount: %d"), FrostwyrmCount;
                                     if (!FrostwyrmCount)
                                     {
+                                        sLog->outString("Call Sindragosa");
                                         instance->LoadGrid(SindragosaSpawnPos.GetPositionX(), SindragosaSpawnPos.GetPositionY());
                                         if (Creature* boss = instance->SummonCreature(NPC_SINDRAGOSA, SindragosaSpawnPos))
                                             boss->AI()->DoAction(ACTION_START_FROSTWYRM);
@@ -823,6 +826,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 break;
                             case 1:
                                 ++FrostwyrmCount;
+                                break;
+                            case 5:
+                                sLog->outString("Force Call Sindragosa");
+                                instance->LoadGrid(SindragosaSpawnPos.GetPositionX(), SindragosaSpawnPos.GetPositionY());
+                                if (Creature* boss = instance->SummonCreature(NPC_SINDRAGOSA, SindragosaSpawnPos))
+                                    boss->AI()->DoAction(ACTION_START_FROSTWYRM);
                                 break;
                             default:
                                 FrostwyrmCount = data;
