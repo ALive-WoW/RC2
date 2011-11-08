@@ -266,9 +266,6 @@ class ObjectAccessor
         static void _buildChangeObjectForPlayer(WorldObject*, UpdateDataMapType&);
         static void _buildPacket(Player*, Object*, UpdateDataMapType&);
         void _update();
-        
-        typedef UNORDERED_MAP<uint64, Corpse*> Player2CorpsesMapType;
-        typedef UNORDERED_MAP<Player*, UpdateData>::value_type UpdateDataValueType;
 
         std::set<Object*> i_objects;
         Player2CorpsesMapType i_player2corpse;
