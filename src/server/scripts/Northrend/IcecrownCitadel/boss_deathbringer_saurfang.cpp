@@ -1087,24 +1087,24 @@ class npc_bloodbeast : public CreatureScript
 
         struct npc_bloodbeastAI : public ScriptedAI
         {
-  		 npc_bloodbeastAI(Creature* creature) : ScriptedAI(creature) {}
+  		    npc_bloodbeastAI(Creature* creature) : ScriptedAI(creature) {}
 
-   		void UpdateAI(uint32 const diff)
-   		{
-    			if (!UpdateVictim())
-     				return;
+   		    void UpdateAI(uint32 const diff)
+   		    {
+                if (!UpdateVictim())
+     			    return;
 
-    			if (!me->HasAura(SPELL_BLOOD_LINK_BEAST))
-     			DoCast(me, SPELL_BLOOD_LINK_BEAST, true);
+        		if (!me->HasAura(SPELL_BLOOD_LINK_BEAST))
+         		    DoCast(me, SPELL_BLOOD_LINK_BEAST, true);
 
-    			DoMeleeAttackIfReady();
-   		}
-  	};
+        		DoMeleeAttackIfReady();
+   	    	}
+  	    };
 
-  	CreatureAI* GetAI(Creature* creature) const
-  	{
-  		return GetIcecrownCitadelAI<npc_bloodbeastAI>(creature);
-  	}
+      	CreatureAI* GetAI(Creature* creature) const
+  	    {
+  		    return GetIcecrownCitadelAI<npc_bloodbeastAI>(creature);
+  	    }
 };
 
 class spell_deathbringer_blood_link : public SpellScriptLoader

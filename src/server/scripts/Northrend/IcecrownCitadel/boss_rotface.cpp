@@ -47,7 +47,6 @@ enum Spells
     // Rotface
     SPELL_SLIME_SPRAY                       = 69508,    // every 20 seconds
     SPELL_MUTATED_INFECTION                 = 69674,    // hastens every 1:30
-	//SPELL_GREEN_BLIGHT_RESIDUE				= 72145,	// debuff for quest
 
     // Oozes
     SPELL_LITTLE_OOZE_COMBINE               = 69537,    // combine 2 Small Oozes
@@ -254,8 +253,8 @@ class npc_little_ooze : public CreatureScript
                     DoCastVictim(SPELL_STICKY_OOZE);
                     events.ScheduleEvent(EVENT_STICKY_OOZE, 15000);
                 }
-				if(instance->GetBossState(DATA_ROTFACE) == DONE)
-					me->DespawnOrUnsummon();
+                if(instance->GetBossState(DATA_ROTFACE) == DONE)
+                    me->DespawnOrUnsummon();
 
                 DoMeleeAttackIfReady();
             }
@@ -733,7 +732,7 @@ class spell_rotface_unstable_ooze_explosion : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_rotface_unstable_ooze_explosion_SpellScript::CheckTarget, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
+                OnEffectHit += SpellEffectFn(spell_rotface_unstable_ooze_explosion_SpellScript::CheckTarget, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
             }
         };
 

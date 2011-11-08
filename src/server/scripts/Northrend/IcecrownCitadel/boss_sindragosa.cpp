@@ -1,5 +1,7 @@
 /*
  * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * 
+ * Copyright (C) 2011-2012 ALiveCore <http://www.wow-alive.de/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1084,7 +1086,7 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
 
-                if (!GetHitUnit()->isAlive())
+                if (!GetHitUnit()->isAlive() || !_targetCount)
                     return;
 
                 float resistance = float(GetHitUnit()->GetResistance(GetFirstSchoolInMask(SpellSchoolMask(GetSpellInfo()->SchoolMask))));

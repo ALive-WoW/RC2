@@ -81,6 +81,7 @@ enum Spells
 
     // Slime Puddle
     SPELL_GROW_STACKER                  = 70345,
+    SPELL_GROW                          = 70347,
     SPELL_SLIME_PUDDLE_AURA             = 70343,
 
     // Gas Cloud
@@ -260,6 +261,9 @@ class boss_professor_putricide : public CreatureScript
                     case NPC_GROWING_OOZE_PUDDLE:
                         summon->CastSpell(summon, SPELL_GROW_STACKER, true);
                         summon->CastSpell(summon, SPELL_SLIME_PUDDLE_AURA, true);
+                        // blizzard casts this spell 7 times initially (confirmed in sniff)
+                        for (uint8 i = 0; i < 7; ++i)
+                            summon->CastSpell(summon, SPELL_GROW, true);
                         break;
                     case NPC_GAS_CLOUD:
                         // no possible aura seen in sniff adding the aurastate
@@ -818,38 +822,45 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
         }
 };
 
+class ExactDistanceCheck
+{
+    public:
+        ExactDistanceCheck(Unit* source, float dist) : _source(source), _dist(dist) {}
+
+        bool operator()(Unit* unit)
+        {
+            return _source->GetExactDist2d(unit) > _dist;
+        }
+
+    private:
+        Unit* _source;
+        float _dist;
+};
+
 class spell_putricide_slime_puddle : public SpellScriptLoader
 {
     public:
         spell_putricide_slime_puddle() : SpellScriptLoader("spell_putricide_slime_puddle") { }
 
-        class spell_putricide_slime_puddle_AuraScript : public AuraScript
+        class spell_putricide_slime_puddle_SpellScript : public SpellScript
         {
-            PrepareAuraScript(spell_putricide_slime_puddle_AuraScript);
+            PrepareSpellScript(spell_putricide_slime_puddle_SpellScript);
 
-            void HandleTriggerSpell(AuraEffect const* aurEff)
+            void ScaleRange(std::list<Unit*>& targets)
             {
-                PreventDefaultAction();
-                if (Unit* caster = GetCaster())
-                {
-                    int32 radiusMod = 4;
-                    if (Aura* size = caster->GetAura(70347))
-                        radiusMod += size->GetStackAmount();
-
-                    uint32 triggerSpellId = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-                    caster->CastCustomSpell(triggerSpellId, SPELLVALUE_RADIUS_MOD, radiusMod * 100, caster, true);
-                }
+                targets.remove_if(ExactDistanceCheck(GetCaster(), 2.5f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_putricide_slime_puddle_AuraScript::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_putricide_slime_puddle_SpellScript::ScaleRange, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_putricide_slime_puddle_SpellScript::ScaleRange, EFFECT_1, TARGET_UNIT_DEST_AREA_ENTRY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        SpellScript* GetSpellScript() const
         {
-            return new spell_putricide_slime_puddle_AuraScript();
+            return new spell_putricide_slime_puddle_SpellScript();
         }
 };
 
@@ -1064,7 +1075,7 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
                         {
                             if (Aura* newPlague = professor->AddAura(plagueId, GetHitUnit()))
                             {
-                                newPlague->SetMaxDuration(oldPlague->GetDuration());
+                                newPlague->SetMaxDuration(oldPlague->GetMaxDuration());
                                 newPlague->SetDuration(oldPlague->GetDuration());
                                 oldPlague->Remove();
                                 GetCaster()->RemoveAurasDueToSpell(searcherId);
@@ -1117,14 +1128,14 @@ class spell_putricide_eat_ooze : public SpellScriptLoader
 
                 if (Aura* grow = target->GetAura(uint32(GetEffectValue())))
                 {
-                    if (grow->GetStackAmount() < 4)
+                    if (grow->GetStackAmount() < 3)
                     {
                         target->RemoveAurasDueToSpell(SPELL_GROW_STACKER);
                         target->RemoveAura(grow);
-                        target->DespawnOrUnsummon();
+                        target->DespawnOrUnsummon(1);
                     }
                     else
-                        grow->ModStackAmount(-4);
+                        grow->ModStackAmount(-3);
                 }
             }
 

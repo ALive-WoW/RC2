@@ -1560,7 +1560,7 @@ class npc_valkyr_shadowguard : public CreatureScript
             void SetGUID(uint64 guid, int32 /* = 0*/)
             {
                 _grabbedPlayer = guid;
-                _events.Reset();
+                //_events.Reset();
             }
 
             void UpdateAI(uint32 const diff)
@@ -1583,6 +1583,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                                 DoCastAOE(SPELL_VALKYR_TARGET_SEARCH);
                                 _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2000);
                             }
+                            break;
                         case EVENT_MOVE_TO_DROP_POS:
                             me->GetMotionMaster()->MovePoint(POINT_DROP_PLAYER, _dropPoint);
                             break;
@@ -1936,7 +1937,7 @@ class npc_spirit_bomb : public CreatureScript
             {
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 float destX, destY, destZ;
                 me->GetPosition(destX, destY);
@@ -1959,7 +1960,7 @@ class npc_spirit_bomb : public CreatureScript
             {
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*diff*/)
             {
                 UpdateVictim();
                 // no melee attacks
@@ -1988,7 +1989,7 @@ class npc_broken_frostmourne : public CreatureScript
                 _events.Reset();
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 _events.SetPhase(PHASE_OUTRO);
                 _events.ScheduleEvent(EVENT_OUTRO_KNOCK_BACK, 3000, 0, PHASE_OUTRO);
@@ -2092,7 +2093,6 @@ class spell_the_lich_king_necrotic_plague : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Unit* newCaster = GetTarget();
                 switch (GetTargetApplication()->GetRemoveMode())
                 {
                     case AURA_REMOVE_BY_ENEMY_SPELL:
@@ -2255,7 +2255,7 @@ class spell_the_lich_king_shadow_trap_visual : public SpellScriptLoader
         {
             PrepareAuraScript(spell_the_lich_king_shadow_trap_visual_AuraScript);
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
                     GetTarget()->CastSpell(GetTarget(), SPELL_SHADOW_TRAP_AURA, TRIGGERED_NONE);
@@ -2331,7 +2331,7 @@ class spell_the_lich_king_quake : public SpellScriptLoader
             void Register()
             {
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_quake_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_quake_SpellScript::HandleSendEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
+                OnEffectHit += SpellEffectFn(spell_the_lich_king_quake_SpellScript::HandleSendEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
             }
         };
 
@@ -2638,7 +2638,7 @@ class spell_the_lich_king_cast_back_to_caster : public SpellScriptLoader
         {
             PrepareSpellScript(spell_the_lich_king_cast_back_to_caster_SpellScript);
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
             }

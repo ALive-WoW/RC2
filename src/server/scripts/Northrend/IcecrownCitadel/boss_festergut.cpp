@@ -46,7 +46,6 @@ enum Spells
     SPELL_GAS_SPORE             = 69278,
     SPELL_VILE_GAS              = 69240,
     SPELL_INOCULATED            = 69291,
-	//SPELL_ORANGE_BLIGHT_RESIDUE	= 72144, // debuff for quest
 
     // Stinky
     SPELL_MORTAL_WOUND          = 71127,
@@ -294,6 +293,10 @@ class npc_stinky_icc : public CreatureScript
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
                 _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
+            }
+
+            void EnterCombat(Unit* /*target*/)
+            {
                 DoCast(me, SPELL_PLAGUE_STENCH);
             }
 

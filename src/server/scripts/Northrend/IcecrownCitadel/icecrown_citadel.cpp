@@ -797,6 +797,7 @@ class boss_sister_svalna : public CreatureScript
             {
                 _JustReachedHome();
                 me->SetReactState(REACT_PASSIVE);
+                me->SetFlying(false);
             }
 
             void DoAction(int32 const action)
@@ -844,6 +845,7 @@ class boss_sister_svalna : public CreatureScript
                 _isEventInProgress = false;
                 me->setActive(false);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_PASSIVE);
+                me->SetFlying(false);
             }
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
@@ -867,7 +869,7 @@ class boss_sister_svalna : public CreatureScript
                         if (TempSummon* summon = target->SummonCreature(NPC_IMPALING_SPEAR, *target))
                         {
                             Talk(EMOTE_SVALNA_IMPALE, target->GetGUID());
-                            summon->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK1 | 0x4000);
+                            summon->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK1 | UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
                             summon->CastCustomSpell(VEHICLE_SPELL_RIDE_HARDCODED, SPELLVALUE_BASE_POINT0, 1, target, false);
                         }
                         break;
@@ -903,7 +905,10 @@ class boss_sister_svalna : public CreatureScript
                             break;
                         case EVENT_IMPALING_SPEAR:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_IMPALING_SPEAR))
+                            {
+                                DoCast(me, SPELL_AETHER_SHIELD);
                                 DoCast(target, SPELL_IMPALING_SPEAR);
+                            }
                             events.ScheduleEvent(EVENT_IMPALING_SPEAR, urand(20000, 25000));
                             break;
                         default:
@@ -1766,7 +1771,7 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_icc_sprit_alarm_SpellScript::HandleEvent, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
+                OnEffectHit += SpellEffectFn(spell_icc_sprit_alarm_SpellScript::HandleEvent, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
             }
         };
 
@@ -1918,10 +1923,27 @@ class spell_svalna_revive_champion : public SpellScriptLoader
                 Trinity::RandomResizeList(unitList, 2);
             }
 
+            void Land(SpellEffIndex /*effIndex*/)
+            {
+                Creature* caster = GetCaster()->ToCreature();
+                if (!caster)
+                    return;
+
+                Position pos;
+                caster->GetPosition(&pos);
+                caster->GetNearPosition(pos, 5.0f, 0.0f);
+                pos.m_positionZ = caster->GetBaseMap()->GetHeight(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true, 20.0f);
+                pos.m_positionZ += 0.05f;
+                caster->SetHomePosition(pos);
+                caster->GetMotionMaster()->MovePoint(POINT_LAND, pos);
+            }
+
             void Register()
             {
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_svalna_revive_champion_SpellScript::RemoveAliveTarget, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+                OnEffectHit += SpellEffectFn(spell_svalna_revive_champion_SpellScript::Land, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
+
         };
 
         SpellScript* GetSpellScript() const
@@ -1943,7 +1965,11 @@ class spell_svalna_remove_spear : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
                 if (Creature* target = GetHitCreature())
-                    target->DespawnOrUnsummon();
+                {
+                    if (Unit* vehicle = target->GetVehicleBase())
+                        vehicle->RemoveAurasDueToSpell(SPELL_IMPALING_SPEAR);
+                    target->DespawnOrUnsummon(1);
+                }
             }
 
             void Register()
