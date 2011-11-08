@@ -291,7 +291,8 @@ class boss_sindragosa : public CreatureScript
                     case ACTION_BOMB_LANDED:
                     {
                         _bCanLand = true;
-                        if (_bombsLanded++ != 4)
+                        ++_bombsLanded;
+                        if (_bombsLanded != 4)
                             events.ScheduleEvent(EVENT_FROST_BOMB, 1000);
                         break;
                     }
@@ -1207,7 +1208,17 @@ class spell_sindragosa_frost_beacon : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(GetTarget(), SPELL_ICE_TOMB_DAMAGE, true);
+                {
+                    if (Unit *target = GetTarget())
+                    {
+                        target->RemoveAurasDueToSpell(SPELL_UNCHAINED_MAGIC);
+                        target->RemoveAurasDueToSpell(SPELL_FROST_BREATH_P1);
+                        target->RemoveAurasDueToSpell(SPELL_FROST_BREATH_P2);
+                        target->RemoveAurasDueToSpell(SPELL_MYSTIC_BUFFET);
+                        caster->CastSpell(target, SPELL_ICE_TOMB_DAMAGE, true);
+                    }
+                }
+
             }
 
             void Register()
@@ -1412,7 +1423,7 @@ class spell_rimefang_icy_blast : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_rimefang_icy_blast_SpellScript::HandleTriggerMissile, EFFECT_1, SPELL_EFFECT_TRIGGER_MISSILE);
+                OnEffectHit += SpellEffectFn(spell_rimefang_icy_blast_SpellScript::HandleTriggerMissile, EFFECT_1, SPELL_EFFECT_TRIGGER_MISSILE);
             }
         };
 

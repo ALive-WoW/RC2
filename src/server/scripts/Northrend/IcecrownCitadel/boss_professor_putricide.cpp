@@ -65,6 +65,8 @@ enum Spells
     SPELL_MALLEABLE_GOO                 = 70852,
     SPELL_UNSTABLE_EXPERIMENT           = 70351,
     SPELL_TEAR_GAS                      = 71617,    // phase transition
+    SPELL_TEAR_GAS_AURA                 = 71618,
+    SPELL_TEAR_GAS_EFFECT               = 71615,
     SPELL_CREATE_CONCOCTION             = 71621,
     SPELL_GUZZLE_POTIONS                = 71893,
     SPELL_OOZE_TANK_PROTECTION          = 71770,    // protects the tank
@@ -196,7 +198,8 @@ class boss_professor_putricide : public CreatureScript
 
                 if (instance->GetBossState(DATA_ROTFACE) == DONE && instance->GetBossState(DATA_FESTERGUT) == DONE)
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-				me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_TEAR_GAS, true);
+			    me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_TEAR_GAS_AURA, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_TEAR_GAS_EFFECT, true);
             }
 
             void EnterCombat(Unit* who)
@@ -223,8 +226,9 @@ class boss_professor_putricide : public CreatureScript
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_OOZE_TANK_PROTECTION, true);
                 DoZoneInCombat(me);
-				me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_TEAR_GAS, true);
-
+			    me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_TEAR_GAS_AURA, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_TEAR_GAS_EFFECT, true);
+            
                 instance->SetBossState(DATA_PROFESSOR_PUTRICIDE, IN_PROGRESS);
             }
 
@@ -571,8 +575,8 @@ class boss_professor_putricide : public CreatureScript
                             me->SetReactState(REACT_DEFENSIVE);
                             AttackStart(me->getVictim());
                             // remove Tear Gas
-                            instance->DoRemoveAurasDueToSpellOnPlayers(71615);
-                            instance->DoRemoveAurasDueToSpellOnPlayers(71618);
+                            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TEAR_GAS_EFFECT);
+                            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TEAR_GAS_AURA);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GAS_VARIABLE);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OOZE_VARIABLE);
                             break;
@@ -1201,11 +1205,11 @@ class spell_putricide_mutation_init : public SpellScriptLoader
                 InstanceScript* instance = GetTargetUnit()->GetInstanceScript();
                 if (!instance)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
+                
                 Creature* professor = ObjectAccessor::GetCreature(*GetTargetUnit(), instance->GetData64(DATA_PROFESSOR_PUTRICIDE));
                 if (!professor)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
+                
                 if (professor->AI()->GetData(DATA_PHASE) == PHASE_COMBAT_3 || !professor->isAlive())
                 {
                     extendedError = SPELL_CUSTOM_ERROR_ALL_POTIONS_USED;
@@ -1225,10 +1229,10 @@ class spell_putricide_mutation_init : public SpellScriptLoader
             {
                 if (!GetTargetUnit())
                     return SPELL_FAILED_BAD_TARGETS;
-
+                
                 if (GetTargetUnit()->GetTypeId() != TYPEID_PLAYER)
                     return SPELL_FAILED_TARGET_NOT_PLAYER;
-
+                
                 SpellCustomErrors extension = SPELL_CUSTOM_ERROR_NONE;
                 SpellCastResult result = CheckRequirementInternal(extension);
                 if (result != SPELL_CAST_OK)
@@ -1255,7 +1259,7 @@ class spell_putricide_mutation_init : public SpellScriptLoader
                 uint32 spellId = 70311;
                 if (GetTarget()->GetMap()->GetSpawnMode() & 1)
                     spellId = 71503;
-
+                
                 GetTarget()->CastSpell(GetTarget(), spellId, true);
             }
 
@@ -1355,7 +1359,7 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_putricide_mutated_transformation_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectHit += SpellEffectFn(spell_putricide_mutated_transformation_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 
