@@ -763,7 +763,7 @@ class World
         void DeleteCharaceterNameData(uint32 guid) { _characterNameDataMap.erase(guid); }
 		void ReloadSingleCharacterNameData(uint32 guid);
 		
-		        // Wintergrasp
+		// Wintergrasp
         uint32 GetWintergrapsTimer() { return m_WintergrapsTimer; }
         uint32 GetWintergrapsState() { return m_WintergrapsState; }
         uint32 m_WintergrapsTimer;

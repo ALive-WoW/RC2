@@ -18,7 +18,7 @@
 #include "ScriptPCH.h"
 #include "vault_of_archavon.h"
 #include "OutdoorPvPMgr.h"
-#include "../../OutdoorPvP/OutdoorPvPWG.h"
+#include "OutdoorPvPWG.h"
 
 /* Vault of Archavon encounters:
 1 - Archavon the Stone Watcher event

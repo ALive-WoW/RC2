@@ -84,7 +84,7 @@ class HashMapHolder
 
 class ObjectAccessor
 {
-    friend class ACE_Singleton<ObjectAccessor, ACE_Thread_Mutex>;
+    friend class ACE_Singleton<ObjectAccessor, ACE_Null_Mutex>;
     friend class WorldRunnable;
     private:
         ObjectAccessor();
@@ -196,10 +196,10 @@ class ObjectAccessor
         static Pet* FindPet(uint64);
         static Player* FindPlayer(uint64);
         static Unit* FindUnit(uint64);
-        Player* FindPlayerByName(const char* name);
+        static Player* FindPlayerByName(const char* name);
 
         // when using this, you must use the hashmapholder's lock
-        HashMapHolder<Player>::MapType const& GetPlayers() const
+        static HashMapHolder<Player>::MapType const& GetPlayers()
         {
             return HashMapHolder<Player>::GetContainer();
         }
@@ -216,23 +216,24 @@ class ObjectAccessor
         //    return HashMapHolder<GameObject>::GetContainer();
         //}
 
-        template<class T> void AddObject(T* object)
+        template<class T> static void AddObject(T* object)
         {
             HashMapHolder<T>::Insert(object);
         }
 
-        template<class T> void RemoveObject(T* object)
+        template<class T> static void RemoveObject(T* object)
         {
             HashMapHolder<T>::Remove(object);
         }
 
+        static void SaveAllPlayers();
+        
+        //non-static functions
         void RemoveObject(Player* pl)
         {
             HashMapHolder<Player>::Remove(pl);
             RemoveUpdateObject((Object*)pl);
         }
-
-        void SaveAllPlayers();
 
         void AddUpdateObject(Object* obj)
         {
@@ -246,7 +247,6 @@ class ObjectAccessor
             i_objects.erase(obj);
         }
 
-        void Update(uint32 diff);
 
         //Thread safe
         Corpse* GetCorpseForPlayerGUID(uint64 guid);
@@ -254,7 +254,9 @@ class ObjectAccessor
         void AddCorpse(Corpse* corpse);
         void AddCorpsesToGrid(GridCoord const& gridpair, GridType& grid, Map* map);
         Corpse* ConvertCorpseForPlayer(uint64 player_guid, bool insignia = false);
+        
         //Thread unsafe
+        void Update(uint32 diff);
         void RemoveOldCorpses();
 
     protected:
@@ -264,6 +266,9 @@ class ObjectAccessor
         static void _buildChangeObjectForPlayer(WorldObject*, UpdateDataMapType&);
         static void _buildPacket(Player*, Object*, UpdateDataMapType&);
         void _update();
+        
+        typedef UNORDERED_MAP<uint64, Corpse*> Player2CorpsesMapType;
+        typedef UNORDERED_MAP<Player*, UpdateData>::value_type UpdateDataValueType;
 
         std::set<Object*> i_objects;
         Player2CorpsesMapType i_player2corpse;
@@ -272,5 +277,5 @@ class ObjectAccessor
         ACE_RW_Thread_Mutex i_corpseLock;
 };
 
-#define sObjectAccessor ACE_Singleton<ObjectAccessor, ACE_Thread_Mutex>::instance()
+#define sObjectAccessor ACE_Singleton<ObjectAccessor, ACE_Null_Mutex>::instance()
 #endif

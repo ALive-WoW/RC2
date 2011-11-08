@@ -332,7 +332,7 @@ class boss_sindragosa : public CreatureScript
                         events.ScheduleEvent(EVENT_AIR_MOVEMENT, 1);
                         break;
                     case POINT_AIR_PHASE:
-                        me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), NULL);
+                        me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), false);
                         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FROST_AURA);
                         me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_AURA, true);
                         _bombsLanded = 0;
@@ -580,15 +580,7 @@ class boss_sindragosa : public CreatureScript
                             if (_isThirdPhase && !me->HasAura(SPELL_MYSTIC_BUFFET))
                                 DoCast(me, SPELL_MYSTIC_BUFFET, true);
 
-                            if (!_isInAirPhase)
-                            {
-                                Talk(SAY_PHASE_2);
-                                events.ScheduleEvent(EVENT_ICE_TOMB, urand(7000, 10000));
-                                events.RescheduleEvent(EVENT_ICY_GRIP, urand(35000, 40000));
-                                DoCast(me, SPELL_MYSTIC_BUFFET, true);
-                            }
-                            else
-                                events.ScheduleEvent(EVENT_THIRD_PHASE_CHECK, 5000);
+                            events.ScheduleEvent(EVENT_THIRD_PHASE_CHECK, 5000);
                             break;
                         }
                         default:
@@ -1420,13 +1412,30 @@ class spell_rimefang_icy_blast : public SpellScriptLoader
                 PreventHitDefaultEffect(effIndex);
                 if (Position const* pos = GetTargetDest())
                     if (TempSummon* summon = GetCaster()->SummonCreature(NPC_ICY_BLAST, *pos, TEMPSUMMON_TIMED_DESPAWN, 40000))
+                    {
                         summon->CastSpell(summon, SPELL_ICY_BLAST_AREA, true);
+
+                        if (Creature* trigger = summon->FindNearestCreature(NPC_TRIGGER, 5.0f))
+                            trigger->DespawnOrUnsummon();
+                    }
+            }
+
+            void MarkIcyBlastSpot()
+            {
+                if (Position const* pos = GetTargetDest())
+                    if (TempSummon* summon = GetCaster()->SummonCreature(NPC_TRIGGER, *pos, TEMPSUMMON_TIMED_DESPAWN, 40000))
+                    {
+                        summon->CastSpell(summon, 65686, true); //Just visual aura
+                    }
+
             }
 
             void Register()
             {
+                BeforeHit += SpellHitFn(spell_rimefang_icy_blast_SpellScript::MarkIcyBlastSpot); 
                 OnEffectHit += SpellEffectFn(spell_rimefang_icy_blast_SpellScript::HandleTriggerMissile, EFFECT_1, SPELL_EFFECT_TRIGGER_MISSILE);
             }
+
         };
 
         SpellScript* GetSpellScript() const

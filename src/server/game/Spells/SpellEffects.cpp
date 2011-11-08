@@ -63,6 +63,7 @@
 #include "GameObjectAI.h"
 #include "AccountMgr.h"
 #include "InstanceScript.h"
+#include "OutdoorPvPWG.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -4333,15 +4334,18 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
 
     // TODO: not all spells that used this effect apply cooldown at school spells
     // also exist case: apply cooldown to interrupted cast only and to all spells
-    for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
+    // there is no CURRENT_AUTOREPEAT_SPELL spells that can be interrupted
+    for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_AUTOREPEAT_SPELL; ++i)
     {
         if (Spell* spell = unitTarget->GetCurrentSpell(CurrentSpellTypes(i)))
         {
             SpellInfo const* curSpellInfo = spell->m_spellInfo;
             // check if we can interrupt spell
             if ((spell->getState() == SPELL_STATE_CASTING
-                || (spell->getState() == SPELL_STATE_PREPARING && spell->CalcCastTime() > 0.0f))
-                && curSpellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_INTERRUPT && curSpellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
+                || (spell->getState() == SPELL_STATE_PREPARING && spell->GetCastTime() > 0.0f))
+                && curSpellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE
+                && ((i == CURRENT_GENERIC_SPELL && curSpellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_INTERRUPT)
+                || (i == CURRENT_CHANNELED_SPELL && curSpellInfo->ChannelInterruptFlags & CHANNEL_INTERRUPT_FLAG_INTERRUPT)))
             {
                 if (m_originalCaster)
                 {
@@ -4460,6 +4464,24 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
+                //Teleport to Lake Wintergrasp
+                case 58622:
+                {
+                    if(OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197))
+                        if(pvpWG->isWarTime() || pvpWG->m_timer<300000)
+                        {
+                            if ((pvpWG->getDefenderTeam()==TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == ALLIANCE))
+                                unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_FORTRESS, true);
+                            else if ((pvpWG->getDefenderTeam()==TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == HORDE))
+                                unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_HORDE_CAMP, true);
+                    
+                            if ((pvpWG->getDefenderTeam()!=TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == HORDE))
+                                unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_FORTRESS, true);
+                            else if ((pvpWG->getDefenderTeam()!=TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == ALLIANCE))
+                                unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_ALLIENCE_CAMP, true);
+                        }
+                    return;
+                }
                 // Glyph of Backstab
                 case 63975:
                 {
@@ -7241,9 +7263,26 @@ void Spell::EffectPlayerNotification(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+
     switch (m_spellInfo->Id)
     {
         case 58730: // Restricted Flight Area
+        {
+            if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+            {
+                if (pvpWG->isWarTime()==true)
+                {
+                    unitTarget->ToPlayer()->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
+                    unitTarget->PlayDirectSound(9417); // Fel Reaver sound
+                    unitTarget->MonsterTextEmote("The air is too thin in Wintergrasp for normal flight. You will be ejected in 9 sec.",unitTarget->GetGUID(),true);
+                    break;
+                } 
+                else 
+                    unitTarget->RemoveAura(58730);
+            }
+            break;
+        }
         case 58600: // Restricted Flight Area
             unitTarget->ToPlayer()->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
             break;

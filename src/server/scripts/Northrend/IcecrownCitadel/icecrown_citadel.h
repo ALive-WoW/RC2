@@ -258,6 +258,7 @@ enum CreaturesIds
     NPC_ICY_BLAST                               = 38223,
     NPC_FROST_BOMB                              = 37186,
     NPC_ICE_TOMB                                = 36980,
+    NPC_TRIGGER                                 = 38667,
 
     // The Lich King
     NPC_THE_LICH_KING                           = 36597,
@@ -277,7 +278,7 @@ enum CreaturesIds
     NPC_WORLD_TRIGGER                           = 22515,
     NPC_WORLD_TRIGGER_INFINITE_AOI              = 36171,
     NPC_SPIRIT_BOMB                             = 39189,
-    NPC_FROSTMOURNE_TRIGGER                     = 38584,
+    NPC_FROSTMOURNE_TRIGGER                     = 38584,    
 };
 
 enum GameObjectsIds

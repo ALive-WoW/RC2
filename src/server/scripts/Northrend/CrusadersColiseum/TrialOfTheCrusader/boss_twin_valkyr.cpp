@@ -75,6 +75,7 @@ enum BossSpells
     SPELL_LIGHT_TWIN_PACT       = 65876,
     SPELL_LIGHT_VORTEX          = 66046,
     SPELL_LIGHT_TOUCH           = 67297,
+    SPELL_TWIN_EMPATHY_LIGHT    = 66133,
 
     SPELL_DARK_TWIN_SPIKE       = 66069,
     SPELL_DARK_SURGE            = 65768,
@@ -95,6 +96,7 @@ enum BossSpells
     SPELL_UNLEASHED_DARK        = 65808,
     SPELL_UNLEASHED_LIGHT       = 65795,
     //PowerUp 67604
+    SPELL_POWERING_UP           = 67590,
 };
 
 #define SPELL_DARK_ESSENCE_HELPER RAID_MODE<uint32>(65684, 67176, 67177, 67178)
@@ -102,6 +104,9 @@ enum BossSpells
 
 #define SPELL_EMPOWERED_DARK_HELPER RAID_MODE<uint32>(65724,67213,67214,67215)
 #define SPELL_EMPOWERED_LIGHT_HELPER RAID_MODE<uint32>(65748, 67216, 67217, 67218)
+
+#define SPELL_UNLEASHED_DARK_HELPER RAID_MODE<uint32>(65808, 67172, 67173, 67174)
+#define SPELL_UNLEASHED_LIGHT_HELPER RAID_MODE<uint32>(65795, 67238, 67239, 67240)
 
 enum Actions
 {
@@ -117,10 +122,10 @@ struct boss_twin_baseAI : public ScriptedAI
 {
     boss_twin_baseAI(Creature* creature) : ScriptedAI(creature), Summons(me)
     {
-        m_pInstance = (InstanceScript*)creature->GetInstanceScript();
+        m_instance = (InstanceScript*)creature->GetInstanceScript();
     }
 
-    InstanceScript* m_pInstance;
+    InstanceScript* m_instance;
     SummonList Summons;
 
     uint8  m_uiStage;
@@ -170,10 +175,10 @@ struct boss_twin_baseAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        if (m_pInstance)
+        if (m_instance)
         {
-            m_pInstance->SetData(TYPE_VALKIRIES, FAIL);
-            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetMaxHealth());
+            m_instance->SetData(TYPE_VALKIRIES, FAIL);
+            m_instance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetMaxHealth());
         }
         me->DespawnOrUnsummon();
     }
@@ -201,8 +206,8 @@ struct boss_twin_baseAI : public ScriptedAI
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
             DoScriptText(urand(0, 1) ? SAY_KILL1 : SAY_KILL2, me);
-            if (m_pInstance)
-                m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
+            if (m_instance)
+                m_instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
         }
     }
 
@@ -223,10 +228,10 @@ struct boss_twin_baseAI : public ScriptedAI
         switch (summoned->GetEntry())
         {
             case NPC_LIGHT_ESSENCE:
-                m_pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHT_ESSENCE_HELPER);
+                m_instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHT_ESSENCE_HELPER);
                 break;
             case NPC_DARK_ESSENCE:
-                m_pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DARK_ESSENCE_HELPER);
+                m_instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DARK_ESSENCE_HELPER);
                 break;
         }
         Summons.Despawn(summoned);
@@ -251,16 +256,16 @@ struct boss_twin_baseAI : public ScriptedAI
                     uiDamage /= 2;
         }
 
-        if (m_pInstance)
-            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() >= uiDamage ? me->GetHealth() - uiDamage : 0);
+        if (m_instance)
+            m_instance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() >= uiDamage ? me->GetHealth() - uiDamage : 0);
     }
 
     void SpellHit(Unit* caster, const SpellInfo* spell)
     {
         if (caster->ToCreature() == me)
             if (spell->Effects[0].Effect == 136) //Effect Heal
-                if (m_pInstance)
-                    m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() + me->CountPctFromMaxHealth(spell->Effects[EFFECT_0].CalcValue()));
+                if (m_instance)
+                    m_instance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() + me->CountPctFromMaxHealth(spell->Effects[EFFECT_0].CalcValue()));
     }
 
 	//Shiro
@@ -294,17 +299,17 @@ struct boss_twin_baseAI : public ScriptedAI
     void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
-        if (m_pInstance)
+        if (m_instance)
         {
-            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, 0);
+            m_instance->SetData(DATA_HEALTH_TWIN_SHARED, 0);
             if (Creature* pSister = GetSister())
             {
                 if (!pSister->isAlive())
                 {
-                    m_pInstance->SetData(TYPE_VALKIRIES, DONE);
+                    m_instance->SetData(TYPE_VALKIRIES, DONE);
                     Summons.DespawnAll();
                 }
-                else m_pInstance->SetData(TYPE_VALKIRIES, SPECIAL);
+                else m_instance->SetData(TYPE_VALKIRIES, SPECIAL);
             }
         }
         Summons.DespawnAll();
@@ -313,16 +318,16 @@ struct boss_twin_baseAI : public ScriptedAI
     // Called when sister pointer needed
     Creature* GetSister()
     {
-        return Unit::GetCreature((*me), m_pInstance->GetData64(m_uiSisterNpcId));
+        return Unit::GetCreature((*me), m_instance->GetData64(m_uiSisterNpcId));
     }
 
     void EnterCombat(Unit* /*who*/)
     {
         me->SetInCombatWithZone();
-        if (m_pInstance)
+        if (m_instance)
         {
-            m_pInstance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
-            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetMaxHealth());
+            m_instance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
+            m_instance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetMaxHealth());
         }
         if (me->isAlive())
         {
@@ -349,11 +354,11 @@ struct boss_twin_baseAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (!m_pInstance || !UpdateVictim())
+        if (!m_instance || !UpdateVictim())
             return;
 
-        if (m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED) != 0)
-            me->SetHealth(m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED));
+        if (m_instance->GetData(DATA_HEALTH_TWIN_SHARED) != 0)
+            me->SetHealth(m_instance->GetData(DATA_HEALTH_TWIN_SHARED));
         else
             me->SetHealth(1);
 
@@ -482,18 +487,18 @@ public:
             EssenceLocation[0] = TwinValkyrsLoc[2];
             EssenceLocation[1] = TwinValkyrsLoc[3];
 
-            if (m_pInstance)
+            if (m_instance)
             {
-                m_pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
+                m_instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
             }
         }
 
         void EnterCombat(Unit* who)
         {
             boss_twin_baseAI::EnterCombat(who);
-            if (m_pInstance)
+            if (m_instance)
             {
-                m_pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
+                m_instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
             }
         }
     };
@@ -594,10 +599,10 @@ struct mob_unleashed_ballAI : public ScriptedAI
 {
     mob_unleashed_ballAI(Creature* creature) : ScriptedAI(creature)
     {
-        m_pInstance = (InstanceScript*)creature->GetInstanceScript();
+        m_instance = (InstanceScript*)creature->GetInstanceScript();
     }
 
-    InstanceScript* m_pInstance;
+    InstanceScript* m_instance;
     uint32 m_uiRangeCheckTimer;
 
     void MoveToNextPoint()
@@ -668,6 +673,16 @@ public:
             }
             else m_uiRangeCheckTimer -= uiDiff;
         }
+
+        void SpellHitTarget(Unit* who, SpellInfo const* spell)
+        {
+            if (spell->Id == SPELL_UNLEASHED_DARK_HELPER)
+            {
+                if (who->HasAura(SPELL_DARK_ESSENCE_HELPER))
+                    who->CastSpell(who, SPELL_POWERING_UP, true);
+            }
+        }
+
     };
 
 };
@@ -701,6 +716,16 @@ public:
             }
             else m_uiRangeCheckTimer -= uiDiff;
         }
+
+        void SpellHitTarget(Unit* who, SpellInfo const* spell)
+        {
+            if (spell->Id == SPELL_UNLEASHED_LIGHT_HELPER)
+            {
+                if (who->HasAura(SPELL_LIGHT_ESSENCE_HELPER))
+                    who->CastSpell(who, SPELL_POWERING_UP, true);
+            }
+        }
+
     };
 
 };
