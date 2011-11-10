@@ -360,6 +360,7 @@ class boss_xt002 : public CreatureScript
 				Unit* heart = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XT002_HEART));
 				if(!heart)
 						me->SummonCreature(NPC_HEART_XT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
+				Unit* heart = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XT002_HEART));
 				if (heart)
                 {
 
