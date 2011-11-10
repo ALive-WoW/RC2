@@ -63,6 +63,7 @@ public:
         uint64 uiXT002GUID;
         uint64 uiXT002DoorGUID;
         uint64 XTToyPileGUIDs[4];
+		uint64 uiXT002HeartGUID;
 
         // Assembly of Iron
         uint64 uiAssemblyGUIDs[3];
@@ -165,6 +166,7 @@ public:
             uiRazorscaleController    = 0;
             uiExpCommanderGUID        = 0;
             uiXT002GUID               = 0;
+			uiXT002HeartGUID		  = 0;
             IronCouncilEntranceGUID   = 0;
             ArchivumDoorGUID          = 0;
             uiKologarnGUID            = 0;
@@ -405,6 +407,9 @@ public:
                         if (!XTToyPileGUIDs[i])
                             XTToyPileGUIDs[i] = creature->GetGUID();
                     break;
+				case NPC_HEART_XT:
+					uiXT002HeartGUID = creature->GetGUID();
+					break;
                 // Assembly of Iron
                 case NPC_STEELBREAKER:
                     uiAssemblyGUIDs[0] = creature->GetGUID();
@@ -965,6 +970,7 @@ public:
                 case TYPE_RAZORSCALE:           return uiRazorscaleGUID;
                 case DATA_RAZORSCALE_CONTROL:   return uiRazorscaleController;
                 case TYPE_XT002:                return uiXT002GUID;
+				case DATA_XT002_HEART:			return uiXT002HeartGUID;
                 case TYPE_KOLOGARN:             return uiKologarnGUID;
                 case DATA_LEFT_ARM:             return uiLeftArmGUID;
                 case DATA_RIGHT_ARM:            return uiRightArmGUID;
