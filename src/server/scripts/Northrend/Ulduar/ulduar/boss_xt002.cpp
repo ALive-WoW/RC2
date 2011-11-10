@@ -357,15 +357,14 @@ class boss_xt002 : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
 
                 //Unit* heart = me->GetVehicleKit() ? me->GetVehicleKit()->GetPassenger(HEART_VEHICLE_SEAT) : NULL;
-				Unit* heart = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XT002_HEART));
-				if(!heart)
-						me->SummonCreature(NPC_HEART_XT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
-				Unit* heart = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XT002_HEART));
-				if (heart)
+	   	  if(!ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XT002_HEART)));
+			me->SummonCreature(NPC_HEART_XT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
+		  Unit* heart = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XT002_HEART));
+		  if (heart)
                 {
 
-                    heart->UpdatePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()-20.0f, me->GetOrientation(), true);
-					heart->SetPhaseMask(me->GetPhaseMask(),true);
+                    heart->UpdatePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), true);
+		      heart->SetPhaseMask(me->GetPhaseMask(),true);
                     heart->CastSpell(heart, SPELL_HEART_OVERLOAD, false);
                     heart->CastSpell(me, SPELL_HEART_LIGHTNING_TETHER, false);
                     heart->CastSpell(heart, SPELL_HEART_HEAL_TO_FULL, true);
