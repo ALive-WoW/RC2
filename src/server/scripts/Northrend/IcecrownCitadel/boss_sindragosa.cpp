@@ -434,6 +434,14 @@ class boss_sindragosa : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
+                
+                if(Unit* victim = me->getVictim()){
+                    if(victim->HasAura(SPELL_ICE_TOMB_DAMAGE)){
+                         if (Unit *newVictim = SelectTarget(SELECT_TARGET_RANDOM, 0, -5.0f))
+                            AttackStart(newVictim);
+                    }
+                }
+
                 if (!UpdateVictim() || !CheckInRoom())
                     return;
 

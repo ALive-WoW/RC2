@@ -151,6 +151,10 @@ enum CreaturesIds
     NPC_MINCHAR_BEAM_STALKER                    = 38557,
     NPC_VALITHRIA_DREAMWALKER_QUEST             = 38589,
 
+    // Val'kyr Herald
+    NPC_VALKYR_HERALD                           = 37098,
+    NPC_SEVERED_ESSENCE                         = 38410,
+
     // Lord Marrowgar
     NPC_LORD_MARROWGAR                          = 36612,
     NPC_COLDFLAME                               = 36672,
