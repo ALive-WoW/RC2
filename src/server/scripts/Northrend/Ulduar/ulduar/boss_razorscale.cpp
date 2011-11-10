@@ -112,7 +112,6 @@ enum Events
 {
     EVENT_BERSERK                                = 1,
     EVENT_BREATH                                 = 2,
-    EVENT_BREATH_EMOTE                           = 17,
     EVENT_BUFFET                                 = 3,
     EVENT_FIREBALL                               = 5,
     EVENT_FLIGHT                                 = 6,
@@ -412,6 +411,9 @@ class boss_razorscale : public CreatureScript
                     me->GetMotionMaster()->MovePoint(1, RazorGround);
                 }
 
+                if (me->HasUnitState(UNIT_STAT_CASTING))
+                    return;
+
                 if (phase == PHASE_GROUND)
                 {
                     while (uint32 eventId = events.ExecuteEvent())
@@ -430,7 +432,7 @@ class boss_razorscale : public CreatureScript
                                 events.ScheduleEvent(EVENT_DEVOURING, 10000, 0, PHASE_FLIGHT);
                                 events.ScheduleEvent(EVENT_SUMMON, 5000, 0, PHASE_FLIGHT);
                                 ++FlyCount;
-                                return;
+                                break;
                             case EVENT_LAND:
                                 me->SetFlying(false);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -440,7 +442,7 @@ class boss_razorscale : public CreatureScript
                                 events.ScheduleEvent(EVENT_BREATH, 30000, 0, PHASE_GROUND);
                                 events.ScheduleEvent(EVENT_BUFFET, 33000, 0, PHASE_GROUND);
                                 events.ScheduleEvent(EVENT_FLIGHT, 35000, 0, PHASE_GROUND);
-                                return;
+                                break;
                             case EVENT_BREATH:
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                                 me->RemoveAllAuras();
@@ -448,13 +450,13 @@ class boss_razorscale : public CreatureScript
                                 DoScriptText(EMOTE_BREATH, me, 0);
                                 DoCastAOE(SPELL_FLAMEBREATH);
                                 events.CancelEvent(EVENT_BREATH);
-                                return;
+                                break;
                             case EVENT_BUFFET:
                                 DoCastAOE(SPELL_WINGBUFFET);
                                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_RAZORSCALE_CONTROL) : 0))
                                     controller->CastSpell(controller, SPELL_FLAMED, true);
                                 events.CancelEvent(EVENT_BUFFET);
-                                return;
+                                break;
                         }
                     }
                 }
@@ -465,35 +467,35 @@ class boss_razorscale : public CreatureScript
                         switch (eventId)
                         {
                             case EVENT_FLAME:
-                                DoCastAOE(SPELL_FLAMEBUFFET);
-                                events.ScheduleEvent(EVENT_FLAME, 10000, 0, PHASE_PERMAGROUND);
-                                return;
-                            case EVENT_BREATH_EMOTE:
-                                me->MonsterTextEmote(EMOTE_BREATH, 0, true);
-                                events.ScheduleEvent(EVENT_BREATH_EMOTE, 20000, 0, PHASE_PERMAGROUND);
-                                events.ScheduleEvent(EVENT_BREATH, 1000, 0, PHASE_PERMAGROUND);
-                                return;
+                                DoCast(me, SPELL_FLAMEBUFFET, true);
+                                events.ScheduleEvent(EVENT_FLAME, 10000, 0);
+                                break;
                             case EVENT_BREATH:
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+                                me->RemoveAllAuras();
+                                me->SetReactState(REACT_AGGRESSIVE);
+                                DoScriptText(EMOTE_BREATH, me, 0);
                                 DoCastAOE(SPELL_FLAMEBREATH);
-                                return;
+                                events.ScheduleEvent(EVENT_BREATH, 20000, 0);
+                                break;
                             case EVENT_FIREBALL:
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
                                     DoCast(target, SPELL_FIREBALL);
-                                events.ScheduleEvent(EVENT_FIREBALL, 3000, 0, PHASE_PERMAGROUND);
-                                return;
+                                events.ScheduleEvent(EVENT_FIREBALL, 3000, 0);
+                                break;
                             case EVENT_DEVOURING:
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f))
                                     DoCast(target, SPELL_DEVOURING_FLAME);
-                                events.ScheduleEvent(EVENT_DEVOURING, 10000, 0, PHASE_PERMAGROUND);
-                                return;
+                                events.ScheduleEvent(EVENT_DEVOURING, 10000, 0);
+                                break;
                             case EVENT_BUFFET:
-                                DoCastAOE(SPELL_WINGBUFFET);
+                                DoCastAOE(SPELL_WINGBUFFET, true);
                                 events.CancelEvent(EVENT_BUFFET);
-                                return;
+                                break;
                             case EVENT_FUSE:
-                                DoCast(me->getVictim(), SPELL_FUSEARMOR);
-                                events.ScheduleEvent(EVENT_FUSE, 10000, 0, PHASE_PERMAGROUND);
-                                return;
+                                DoCast(me->getVictim(), SPELL_FUSEARMOR, true);
+                                events.ScheduleEvent(EVENT_FUSE, 10000, 0);
+                                break;
                         }
                     }
 
@@ -509,16 +511,16 @@ class boss_razorscale : public CreatureScript
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
                                     DoCast(target, SPELL_FIREBALL);
                                 events.ScheduleEvent(EVENT_FIREBALL, 3000, 0, PHASE_FLIGHT);
-                                return;
+                                break;
                             case EVENT_DEVOURING:
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
                                     me->CastSpell(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), SPELL_DEVOURING_FLAME, true);
                                 events.ScheduleEvent(EVENT_DEVOURING, 10000, 0, PHASE_FLIGHT);
-                                return;
+                                break;
                             case EVENT_SUMMON:
                                 SummonMoleMachines();
                                 events.ScheduleEvent(EVENT_SUMMON, 45000, 0, PHASE_FLIGHT);
-                                return;
+                                break;
                         }
                     }
                 }
@@ -536,13 +538,13 @@ class boss_razorscale : public CreatureScript
                 me->SetSpeed(MOVE_FLIGHT, 1.0f, true);
                 PermaGround = true;
                 DoCastAOE(SPELL_FLAMEBREATH);
-                events.ScheduleEvent(EVENT_FLAME, 15000, 0, PHASE_PERMAGROUND);
-                events.RescheduleEvent(EVENT_DEVOURING, 15000, 0, PHASE_PERMAGROUND);
-                events.RescheduleEvent(EVENT_BREATH, 20000, 0, PHASE_PERMAGROUND);
-                events.RescheduleEvent(EVENT_FIREBALL, 3000, 0, PHASE_PERMAGROUND);
-                events.RescheduleEvent(EVENT_DEVOURING, 6000, 0, PHASE_PERMAGROUND);
-                events.RescheduleEvent(EVENT_BUFFET, 2500, 0, PHASE_PERMAGROUND);
-                events.RescheduleEvent(EVENT_FUSE, 5000, 0, PHASE_PERMAGROUND);
+                events.ScheduleEvent(EVENT_FLAME, 15000, 0);
+                events.RescheduleEvent(EVENT_DEVOURING, 15000, 0);
+                events.RescheduleEvent(EVENT_BREATH, 20000, 0);
+                events.RescheduleEvent(EVENT_FIREBALL, 3000, 0);
+                events.RescheduleEvent(EVENT_DEVOURING, 6000, 0);
+                events.RescheduleEvent(EVENT_BUFFET, 2500, 0);
+                events.RescheduleEvent(EVENT_FUSE, 5000, 0);
             }
 
             void SummonMoleMachines()
@@ -908,7 +910,10 @@ class npc_darkrune_guardian : public CreatureScript
             void SetData(uint32 type, uint32 value)
             {
                 if (type == DATA_IRON_DWARF_MEDIUM_RARE)
+                {
                     killedByBreath = value;
+                    me->DisappearAndDie();
+                }
             }
 
 
@@ -1042,11 +1047,16 @@ class spell_razorscale_flame_breath : public SpellScriptLoader
             void CheckDamage()
             {
                 Creature* target = GetHitCreature();
-                if (!target || target->GetEntry() != NPC_DARK_RUNE_GUARDIAN)
-                    return;
-
-                if (GetHitDamage() >= int32(target->GetHealth()))
+                if (target && target->GetEntry() != NPC_DARK_RUNE_GUARDIAN){
                     target->AI()->SetData(DATA_IRON_DWARF_MEDIUM_RARE, 1);
+                }
+                
+                /*
+                if (!target && target->GetEntry() != NPC_DARK_RUNE_GUARDIAN)
+                    return;
+                
+                if (GetHitDamage() >= int32(target->GetHealth()))
+                    target->AI()->SetData(DATA_IRON_DWARF_MEDIUM_RARE, 1);*/
             }
 
             void Register()
