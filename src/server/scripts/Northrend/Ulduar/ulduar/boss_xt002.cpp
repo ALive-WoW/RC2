@@ -253,7 +253,15 @@ class boss_xt002 : public CreatureScript
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
             {
                 if (!_hardMode && _phase == 1 && !HealthAbovePct(100 - 25 * (_heartExposed+1)))
+				{
+					Unit* heart = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XT002_HEART));
+					if(!heart)
+					{
+						me->SummonCreature(NPC_HEART_XT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
+						ExposeHeart();
+					}
                     ExposeHeart();
+				}
             }
 
             void UpdateAI(const uint32 diff)
@@ -356,10 +364,13 @@ class boss_xt002 : public CreatureScript
                 me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
 
-                Unit* heart = me->GetVehicleKit() ? me->GetVehicleKit()->GetPassenger(HEART_VEHICLE_SEAT) : NULL;
-                if (heart)
+                //Unit* heart = me->GetVehicleKit() ? me->GetVehicleKit()->GetPassenger(HEART_VEHICLE_SEAT) : NULL;
+				Unit* heart = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XT002_HEART));
+				if (heart)
                 {
+
                     heart->UpdatePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()-20.0f, me->GetOrientation(), true);
+					heart->SetPhaseMask(me->GetPhaseMask(),true);
                     heart->CastSpell(heart, SPELL_HEART_OVERLOAD, false);
                     heart->CastSpell(me, SPELL_HEART_LIGHTNING_TETHER, false);
                     heart->CastSpell(heart, SPELL_HEART_HEAL_TO_FULL, true);
@@ -394,12 +405,13 @@ class boss_xt002 : public CreatureScript
                 events.RescheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB);
                 events.RescheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX));
 
-                Unit* heart = me->GetVehicleKit() ? me->GetVehicleKit()->GetPassenger(HEART_VEHICLE_SEAT) : NULL;
+                Unit* heart = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XT002_HEART));
                 if (!heart)
                     return;
 
                 heart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 heart->RemoveAurasDueToSpell(SPELL_EXPOSED_HEART);
+				heart->SetPhaseMask(256, true);
 
                 if (!_hardMode)
                 {
