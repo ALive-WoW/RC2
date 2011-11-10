@@ -253,15 +253,7 @@ class boss_xt002 : public CreatureScript
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
             {
                 if (!_hardMode && _phase == 1 && !HealthAbovePct(100 - 25 * (_heartExposed+1)))
-				{
-					Unit* heart = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XT002_HEART));
-					if(!heart)
-					{
-						me->SummonCreature(NPC_HEART_XT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
-						ExposeHeart();
-					}
-                    ExposeHeart();
-				}
+					ExposeHeart();
             }
 
             void UpdateAI(const uint32 diff)
@@ -366,19 +358,18 @@ class boss_xt002 : public CreatureScript
 
                 //Unit* heart = me->GetVehicleKit() ? me->GetVehicleKit()->GetPassenger(HEART_VEHICLE_SEAT) : NULL;
 				Unit* heart = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XT002_HEART));
-				if (heart)
-                {
+				if(!heart)
+						Unit* heart = me->SummonCreature(NPC_HEART_XT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
 
-                    heart->UpdatePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()-20.0f, me->GetOrientation(), true);
-					heart->SetPhaseMask(me->GetPhaseMask(),true);
-                    heart->CastSpell(heart, SPELL_HEART_OVERLOAD, false);
-                    heart->CastSpell(me, SPELL_HEART_LIGHTNING_TETHER, false);
-                    heart->CastSpell(heart, SPELL_HEART_HEAL_TO_FULL, true);
-                    heart->CastSpell(heart, SPELL_EXPOSED_HEART, false);    // Channeled
-
-                    heart->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    heart->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-               }
+				heart->UpdatePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()-20.0f, me->GetOrientation(), true);
+				heart->SetPhaseMask(me->GetPhaseMask(),true);
+				heart->CastSpell(heart, SPELL_HEART_OVERLOAD, false);
+				heart->CastSpell(me, SPELL_HEART_LIGHTNING_TETHER, false);
+				heart->CastSpell(heart, SPELL_HEART_HEAL_TO_FULL, true);
+				heart->CastSpell(heart, SPELL_EXPOSED_HEART, false);    // Channeled
+				
+				heart->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+				heart->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
                 events.CancelEvent(EVENT_SEARING_LIGHT);
                 events.CancelEvent(EVENT_GRAVITY_BOMB);
