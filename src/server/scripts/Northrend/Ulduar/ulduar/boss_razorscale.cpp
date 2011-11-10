@@ -112,6 +112,7 @@ enum Events
 {
     EVENT_BERSERK                                = 1,
     EVENT_BREATH                                 = 2,
+    EVENT_BREATH_EMOTE                           = 17,
     EVENT_BUFFET                                 = 3,
     EVENT_FIREBALL                               = 5,
     EVENT_FLIGHT                                 = 6,
@@ -467,10 +468,13 @@ class boss_razorscale : public CreatureScript
                                 DoCastAOE(SPELL_FLAMEBUFFET);
                                 events.ScheduleEvent(EVENT_FLAME, 10000, 0, PHASE_PERMAGROUND);
                                 return;
-                            case EVENT_BREATH:
+                            case EVENT_BREATH_EMOTE:
                                 me->MonsterTextEmote(EMOTE_BREATH, 0, true);
-                                DoCastVictim(SPELL_FLAMEBREATH);
-                                events.ScheduleEvent(EVENT_BREATH, 20000, 0, PHASE_PERMAGROUND);
+                                events.ScheduleEvent(EVENT_BREATH_EMOTE, 20000, 0, PHASE_PERMAGROUND);
+                                events.ScheduleEvent(EVENT_BREATH, 1000, 0, PHASE_PERMAGROUND);
+                                return;
+                            case EVENT_BREATH:
+                                DoCastAOE(SPELL_FLAMEBREATH);
                                 return;
                             case EVENT_FIREBALL:
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
@@ -562,7 +566,7 @@ class boss_razorscale : public CreatureScript
                     case ACTION_EVENT_START:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        DoZoneInCombat();
+                        DoZoneInCombat(me, 150.0f);
                         break;
                 }
             }
@@ -1016,7 +1020,7 @@ class spell_razorscale_devouring_flame : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_razorscale_devouring_flame_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectHit += SpellEffectFn(spell_razorscale_devouring_flame_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 
