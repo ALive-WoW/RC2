@@ -357,10 +357,11 @@ class boss_xt002 : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
 
                 //Unit* heart = me->GetVehicleKit() ? me->GetVehicleKit()->GetPassenger(HEART_VEHICLE_SEAT) : NULL;
-	   	  if(!ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XT002_HEART)));
-			me->SummonCreature(NPC_HEART_XT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
-		  Unit* heart = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XT002_HEART));
-		  if (heart)
+	   	        // Summon heart if it is not yet summoned or spawned
+                if(!ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XT002_HEART)))
+			        me->SummonCreature(NPC_HEART_XT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
+		        
+                if (Unit* heart = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XT002_HEART)))
                 {
 					heart->SetPhaseMask(me->GetPhaseMask(),true);
                     heart->UpdatePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), true);
@@ -505,6 +506,9 @@ class mob_scrapbot : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
+                if(_instance->GetBossState(TYPE_XT002) != IN_PROGRESS)
+                    me->DespawnOrUnsummon();
+
                 if (_rangeCheckTimer <= diff)
                 {
                     if (Creature* xt002 = me->GetCreature(*me, _instance->GetData64(TYPE_XT002)))
@@ -566,6 +570,9 @@ class mob_pummeller : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
+                if(_instance->GetBossState(TYPE_XT002) != IN_PROGRESS)
+                    me->DespawnOrUnsummon();
+
                 if (!UpdateVictim())
                     return;
 
@@ -696,6 +703,9 @@ class mob_boombot : public CreatureScript
 
             void UpdateAI(uint32 const /*diff*/)
             {
+                if(_instance->GetBossState(TYPE_XT002) != IN_PROGRESS)
+                    me->DespawnOrUnsummon();
+
                 if (!UpdateVictim())
                     return;
 

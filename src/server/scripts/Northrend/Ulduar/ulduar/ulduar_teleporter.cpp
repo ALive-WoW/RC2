@@ -91,36 +91,25 @@ public:
 
     bool OnGossipHello(Player *pPlayer, GameObject *pGO)
     {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Expedition Base Camp", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + BASE_CAMP);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Zum Basislager der Expedition", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + BASE_CAMP);
         if (InstanceScript* pInstance = pGO->GetInstanceScript())
         {
             if (pInstance->GetData(TYPE_COLOSSUS) == 2 || pPlayer->isGameMaster()) //count of 2 collossus death
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Formation Grounds", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GROUNDS);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Zum Gestaltungsgelände", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GROUNDS);
             if (pInstance->GetBossState(TYPE_LEVIATHAN) == DONE || pPlayer->isGameMaster())
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Colossal Forge", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + FORGE);
-            /*if (pInstance->GetBossState(TYPE_XT002) == DONE || pPlayer->isGameMaster())
-            {
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Scrapyard", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + SCRAPYARD);
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Antechamber of Ulduar", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + ANTECHAMBER);
-            }
-            if (pInstance->GetBossState(TYPE_KOLOGARN) == DONE || pPlayer->isGameMaster())
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Shattered Walkway", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + WALKWAY);
-            if (pInstance->GetBossState(TYPE_AURIAYA) == DONE || pPlayer->isGameMaster())
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Conservatory of Life", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + CONSERVATORY);
-            if (pInstance->GetBossState(TYPE_FREYA) == DONE || pPlayer->isGameMaster())
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Spark of Imagination", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + SPARK);
-            if (pInstance->GetBossState(TYPE_VEZAX) == DONE || pPlayer->isGameMaster())
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Descent into Madness", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + MADNESS);*/
-
-	     if (pPlayer->isGameMaster())
-            {
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Scrapyard", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + SCRAPYARD);
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Antechamber of Ulduar", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + ANTECHAMBER);
-				pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Shattered Walkway", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + WALKWAY);
-				pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Conservatory of Life", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + CONSERVATORY);
-				pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Spark of Imagination", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + SPARK);
-				pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Descent into Madness", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + MADNESS);
-            }            
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Zur Großen Schmiede", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + FORGE);
+            if (pInstance->GetBossState(TYPE_XT002) == FAIL /*|| pInstance->GetBossState(TYPE_XT002) == DONE*/ || pPlayer->isGameMaster())
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Zum Schrottplatz", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + SCRAPYARD);
+            if (/*pInstance->GetBossState(TYPE_XT002) == DONE ||*/ pPlayer->isGameMaster())
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Zur Vorkammer", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + ANTECHAMBER);
+            if (/*pInstance->GetBossState(TYPE_KOLOGARN) == DONE ||*/ pPlayer->isGameMaster())
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Zum Zerschmetterten Gang", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + WALKWAY);
+            if (/*pInstance->GetBossState(TYPE_AURIAYA) == DONE ||*/ pPlayer->isGameMaster())
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Zum Konservatorium des Lebens", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + CONSERVATORY);
+            if (/*pInstance->GetBossState(TYPE_FREYA) == DONE ||*/ pPlayer->isGameMaster())
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Zum Funken der Imagination", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + SPARK);
+            if (/*pInstance->GetBossState(TYPE_VEZAX) == DONE ||*/ pPlayer->isGameMaster())
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Zum Abstieg in den Wahnsinn", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + MADNESS);
         }
         pPlayer->SEND_GOSSIP_MENU(pGO->GetGOInfo()->GetGossipMenuId(), pGO->GetGUID());
         return true;
