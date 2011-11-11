@@ -362,9 +362,8 @@ class boss_xt002 : public CreatureScript
 		  Unit* heart = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XT002_HEART));
 		  if (heart)
                 {
-
+					heart->SetPhaseMask(me->GetPhaseMask(),true);
                     heart->UpdatePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), true);
-		      heart->SetPhaseMask(me->GetPhaseMask(),true);
                     heart->CastSpell(heart, SPELL_HEART_OVERLOAD, false);
                     heart->CastSpell(me, SPELL_HEART_LIGHTNING_TETHER, false);
                     heart->CastSpell(heart, SPELL_HEART_HEAL_TO_FULL, true);

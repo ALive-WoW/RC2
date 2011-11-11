@@ -103,6 +103,7 @@ enum Spells
     SPELL_BLOOD_LINK_POWER              = 72195,
     SPELL_BLOOD_LINK_DUMMY              = 72202,
     SPELL_MARK_OF_THE_FALLEN_CHAMPION   = 72293,
+	SPELL_EFFECT_MARK_DMG				= 69189,
     SPELL_BOILING_BLOOD                 = 72385,
     SPELL_RUNE_OF_BLOOD                 = 72410,
 	SPELL_DAMAGE_BUFF					= 64036, // Buff adds 5% more DMG
@@ -424,6 +425,19 @@ class boss_deathbringer_saurfang : public CreatureScript
 
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
+
+				uint32 Markdmg;
+				Markdmg =  urand(5700,6300);
+				int Markdamage = Markdmg;
+				//Greift alle Male auf und gibt ihnen den Dmg sobald der Boss Schaden macht
+				Map::PlayerList const &pList = me->GetMap()->GetPlayers();
+				if (pList.isEmpty()) return;
+
+				for (Map::PlayerList::const_iterator i = pList.begin(); i != pList.end(); ++i)
+				   if (Player* pPlayer = i->getSource())
+					   if (pPlayer->isAlive())
+						  if (pPlayer->HasAura(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
+							me->CastCustomSpell(pPlayer, SPELL_EFFECT_MARK_DMG,&Markdamage, 0, 0, true);
 
 				uint32 power = me->GetPower(POWER_ENERGY);
 				if (power >= 100)
