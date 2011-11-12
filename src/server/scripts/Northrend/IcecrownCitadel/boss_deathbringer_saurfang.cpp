@@ -345,7 +345,7 @@ class boss_deathbringer_saurfang : public CreatureScript
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_KILL);
-				/* // Doesn't try if Mark do healt on Saurfang
+
 				if (victim->HasAura(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
 				{
 					if (me->GetMap()->GetDifficulty() == 0 || me->GetMap()->GetDifficulty() == 1)
@@ -353,7 +353,6 @@ class boss_deathbringer_saurfang : public CreatureScript
 					if (me->GetMap()->GetDifficulty() == 2 || me->GetMap()->GetDifficulty() == 3)
 						victim->CastSpell(me, 72279, true);	// Heal the Boss 20%
 				}
-				*/
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)

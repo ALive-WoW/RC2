@@ -148,7 +148,6 @@ enum Actions
     ACTION_ENTER_COMBAT = 1,
     MISSED_PORTALS      = 2,
     ACTION_DEATH        = 3,
-	ACTION_END			= 4,
 };
 
 Position const ValithriaSpawnPos = {4210.813f, 2484.443f, 364.9558f, 0.01745329f};
@@ -355,7 +354,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                     me->RemoveAurasDueToSpell(SPELL_CORRUPTION_VALITHRIA);
                     DoCast(me, SPELL_ACHIEVEMENT_CHECK);
-		      DoCast(me, SPELL_DREAM_SLIP, false);
+		            DoCast(me, SPELL_DREAM_SLIP, false);
                     _instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, DONE);
                     if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VALITHRIA_LICH_KING)))
                         lichKing->AI()->EnterEvadeMode();
@@ -402,7 +401,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                     DoCast(me, SPELL_CLEAR_ALL);
                     DoCast(me, SPELL_AWARD_REPUTATION_BOSS_KILL);
                     // this display id was found in sniff instead of the one on aura
-                    DoAction(ACTION_END);
+                    me->SetDisplayId(11686);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 					DoCast(me, SPELL_DREAMWALKERS_RAGE, true);
                     me->DespawnOrUnsummon(4000);
@@ -517,11 +516,16 @@ class npc_green_dragon_combat_trigger : public CreatureScript
 
             void EnterCombat(Unit* /*target*/)
             {
-                me->setActive(true);
-                DoZoneInCombat();
-                instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, IN_PROGRESS);
-                if (Creature* valithria = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VALITHRIA_DREAMWALKER)))
-                    valithria->AI()->DoAction(ACTION_ENTER_COMBAT);
+                if(instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == DONE)
+                    EnterEvadeMode();
+                else
+                {
+                    me->setActive(true);
+                    DoZoneInCombat();
+                    instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, IN_PROGRESS);
+                    if (Creature* valithria = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VALITHRIA_DREAMWALKER)))
+                        valithria->AI()->DoAction(ACTION_ENTER_COMBAT);
+                }
             }
 
             void AttackStart(Unit* target)
