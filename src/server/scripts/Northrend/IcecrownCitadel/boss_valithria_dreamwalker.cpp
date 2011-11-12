@@ -148,6 +148,7 @@ enum Actions
     ACTION_ENTER_COMBAT = 1,
     MISSED_PORTALS      = 2,
     ACTION_DEATH        = 3,
+	ACTION_END			= 4,
 };
 
 Position const ValithriaSpawnPos = {4210.813f, 2484.443f, 364.9558f, 0.01745329f};
@@ -354,10 +355,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                     me->RemoveAurasDueToSpell(SPELL_CORRUPTION_VALITHRIA);
                     DoCast(me, SPELL_ACHIEVEMENT_CHECK);
-                    float x, y, z;
-                    me->GetPosition(x, y, z);
-                    me->CastSpell(x, y, z, SPELL_DREAMWALKERS_RAGE, false);
-                    _events.ScheduleEvent(EVENT_DREAM_SLIP, 3500);
+		      DoCast(me, SPELL_DREAM_SLIP, false);
                     _instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, DONE);
                     if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VALITHRIA_LICH_KING)))
                         lichKing->AI()->EnterEvadeMode();
@@ -404,8 +402,9 @@ class boss_valithria_dreamwalker : public CreatureScript
                     DoCast(me, SPELL_CLEAR_ALL);
                     DoCast(me, SPELL_AWARD_REPUTATION_BOSS_KILL);
                     // this display id was found in sniff instead of the one on aura
-                    me->SetDisplayId(11686);
+                    DoAction(ACTION_END);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+					DoCast(me, SPELL_DREAMWALKERS_RAGE, true);
                     me->DespawnOrUnsummon(4000);
                     //if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VALITHRIA_LICH_KING)))
                     //    lichKing->CastSpell(lichKing, SPELL_SPAWN_CHEST, false);
@@ -465,7 +464,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                             _events.ScheduleEvent(EVENT_DREAM_PORTAL, urand(45000, 48000));
                             break;
                         case EVENT_DREAM_SLIP:
-                            DoCast(me, SPELL_DREAM_SLIP);
+                            DoCast(me, SPELL_DREAM_SLIP, true);
                             break;
                         default:
                             break;

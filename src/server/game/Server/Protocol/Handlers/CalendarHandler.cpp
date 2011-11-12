@@ -141,13 +141,13 @@ void WorldSession::HandleCalendarGetEvent(WorldPacket& recv_data)
     recv_data.read_skip<uint64>();                          // unk
 }
 
-void WorldSession::HandleCalendarGuildFilter(WorldPacket& recv_data)
+/*void WorldSession::HandleCalendarGuildFilter(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_GUILD_FILTER");
     recv_data.read_skip<uint32>();                          // unk1
     recv_data.read_skip<uint32>();                          // unk2
     recv_data.read_skip<uint32>();                          // unk3
-}
+}*/
 
 void WorldSession::HandleCalendarArenaTeam(WorldPacket& recv_data)
 {
