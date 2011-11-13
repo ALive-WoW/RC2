@@ -121,26 +121,27 @@ enum Events
     EVENT_BLISTERING_ZOMBIE_SUMMONER        = 7,
     EVENT_RISEN_ARCHMAGE_SUMMONER           = 8,
     EVENT_BLAZING_SKELETON_SUMMONER         = 9,
+	EVENT_CHECK_WIPE						= 10,
 
     // Risen Archmage
-    EVENT_FROSTBOLT_VOLLEY                  = 10,
-    EVENT_MANA_VOID                         = 11,
-    EVENT_COLUMN_OF_FROST                   = 12,
+    EVENT_FROSTBOLT_VOLLEY                  = 11,
+    EVENT_MANA_VOID                         = 12,
+    EVENT_COLUMN_OF_FROST                   = 13,
 
     // Blazing Skeleton
-    EVENT_FIREBALL                          = 13,
-    EVENT_LEY_WASTE                         = 14,
+    EVENT_FIREBALL                          = 14,
+    EVENT_LEY_WASTE                         = 15,
 
     // Suppresser
-    EVENT_SUPPRESSION                       = 15,
+    EVENT_SUPPRESSION                       = 16,
 
     // Gluttonous Abomination
-    EVENT_GUT_SPRAY                         = 16,
+    EVENT_GUT_SPRAY                         = 17,
 
     // Dream Cloud
     // Nightmare Cloud
-    EVENT_CHECK_PLAYER                      = 17,
-    EVENT_EXPLODE                           = 18,
+    EVENT_CHECK_PLAYER                      = 18,
+    EVENT_EXPLODE                           = 19,
 };
 
 enum Actions
@@ -610,6 +611,7 @@ class npc_the_lich_king_controller : public CreatureScript
                 _events.ScheduleEvent(EVENT_BLISTERING_ZOMBIE_SUMMONER, 40000);
                 _events.ScheduleEvent(EVENT_RISEN_ARCHMAGE_SUMMONER, 60000);
                 _events.ScheduleEvent(EVENT_BLAZING_SKELETON_SUMMONER, 50000);
+				_events.ScheduleEvent(EVENT_CHECK_WIPE, 10000);
                 
                 me->SetReactState(REACT_PASSIVE);
                 _timerGluttonousAbomination = 60000;
@@ -779,6 +781,20 @@ class npc_the_lich_king_controller : public CreatureScript
                             if(_timerBlazingSkeleton > 5000)
                                 _timerBlazingSkeleton -= RAID_MODE(1000, 5000, 1000, 5000);
 							break;
+						}
+						case EVENT_CHECK_WIPE:
+						{
+							Map::PlayerList const &pList = me->GetMap()->GetPlayers();
+							if (pList.isEmpty()) return;
+							for (Map::PlayerList::const_iterator i = pList.begin(); i != pList.end(); ++i)
+								if (Player* pPlayer = i->getSource())
+									if (pPlayer)
+										if (pPlayer && pPlayer->isAlive() && !pPlayer->isGameMaster())
+										{
+											_events.ScheduleEvent(EVENT_CHECK_WIPE, 10000);
+											break;
+										}
+							me->AI()->EnterEvadeMode();
 						}
                         default:
                             break;
