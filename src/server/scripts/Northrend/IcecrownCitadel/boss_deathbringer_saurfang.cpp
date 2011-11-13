@@ -425,119 +425,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
-				uint32 Markdmg;
-				Markdmg =  urand(5700,6300);
-				int Markdamage = Markdmg;
-				//Greift alle Male auf und gibt ihnen den Dmg sobald der Boss Schaden macht
-				Map::PlayerList const &pList = me->GetMap()->GetPlayers();
-				if (pList.isEmpty()) return;
-
-				for (Map::PlayerList::const_iterator i = pList.begin(); i != pList.end(); ++i)
-				   if (Player* pPlayer = i->getSource())
-					   if (pPlayer->isAlive())
-						  if (pPlayer->HasAura(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
-							me->CastCustomSpell(pPlayer, SPELL_EFFECT_MARK_DMG,&Markdamage, 0, 0, true);
-
-				uint32 power = me->GetPower(POWER_ENERGY);
-				if (power >= 100)
-				{
-					//Mal einfügen
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 20);																											
-					DoAction(ACTION_MARK_OF_THE_FALLEN_CHAMPION);
-				}
-				else if (power >= 95 && power < 100)
-				{
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 19);
-				}
-				else if (power >= 90 && power < 95)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.90f);
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 18);
-				}	
-				else if (power >= 85 && power < 90)
-				{
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 17);
-				}
-				else if (power >= 80 && power < 85)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.80f);
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 16);
-				}
-				else if (power >= 75 && power < 80)
-				{
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 15);
-				}
-				else if (power >= 70 && power < 75)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.70f);
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 14);
-				}
-
-				else if (power >= 65 && power < 70)
-				{
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 13);
-				}
-				else if (power >= 60 && power < 65)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.60f);
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 12);
-				}
-				else if (power >= 55 && power < 60)
-				{
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 11);
-				}
-				else if (power >= 50 && power < 55)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.50f);
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 10);
-				}
-				else if (power >= 45 && power < 50)
-				{
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 9);
-				}
-				else if (power >= 40 && power < 45)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.40f);
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 8);
-				}
-				else if (power >= 35 && power < 40)
-				{
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 7);
-				}
-				else if (power >= 30 && power < 35)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.30f);
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 6);
-				}
-				else if (power >= 25 && power < 30)
-				{
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 5);
-				}
-				else if (power >= 20 && power < 25)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.20f);
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 4);
-				}
-				else if (power >= 15 && power < 20)
-				{
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 3);
-				}
-				else if (power >= 10 && power < 15)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.10f);
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 2);
-				}
-				else if (power >= 5 && power < 10)
-				{
-					me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 1);
-				}
-				else if (power >= 0 && power < 5)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.00f);
-					me->RemoveAurasDueToSpell(SPELL_DAMAGE_BUFF);
-				}
-
-                while (uint32 eventId = events.ExecuteEvent())
+				while (uint32 eventId = events.ExecuteEvent())
                 {					
                     switch (eventId)
                     {
@@ -1179,9 +1067,7 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
                 PreventDefaultAction();
                 if (GetUnitOwner()->getPowerType() == POWER_ENERGY && GetUnitOwner()->GetPower(POWER_ENERGY) == GetUnitOwner()->GetMaxPower(POWER_ENERGY))
                     if (Creature* saurfang = GetUnitOwner()->ToCreature())
-					{
-					}
-                      //  saurfang->AI()->DoAction(ACTION_MARK_OF_THE_FALLEN_CHAMPION);
+					    saurfang->AI()->DoAction(ACTION_MARK_OF_THE_FALLEN_CHAMPION);
             }
 
             void Register()

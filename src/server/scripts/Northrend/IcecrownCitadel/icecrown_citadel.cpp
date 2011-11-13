@@ -2344,7 +2344,7 @@ class npc_valkyr_herald : public CreatureScript
                                     //summon->AI()->SetGUID(target->GetGUID(), DATA_CLONED_PLAYER);
                                 }
                             }
-                            events.ScheduleEvent(EVENT_SEVERED_ESSENCE, 20000);
+                            events.ScheduleEvent(EVENT_SEVERED_ESSENCE, 15000);
                             break;
                         }
                         default:
