@@ -2312,11 +2312,6 @@ class npc_valkyr_herald : public CreatureScript
                 summons.Summon(summon);
             }
 
-            void JustDied (Unit *killer)
-            {
-                summons.DespawnAll();
-            }
-            
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim()){

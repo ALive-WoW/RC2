@@ -781,21 +781,32 @@ class npc_the_lich_king_controller : public CreatureScript
                             if(_timerBlazingSkeleton > 5000)
                                 _timerBlazingSkeleton -= RAID_MODE(1000, 5000, 1000, 5000);
 							break;
-						}
-						case EVENT_CHECK_WIPE:
-						{
-							Map::PlayerList const &pList = me->GetMap()->GetPlayers();
-							if (pList.isEmpty()) return;
-							for (Map::PlayerList::const_iterator i = pList.begin(); i != pList.end(); ++i)
-								if (Player* pPlayer = i->getSource())
-									if (pPlayer)
-										if (pPlayer && pPlayer->isAlive() && !pPlayer->isGameMaster())
-										{
-											_events.ScheduleEvent(EVENT_CHECK_WIPE, 10000);
-											break;
-										}
-							me->AI()->EnterEvadeMode();
-						}
+                        }
+                        case EVENT_CHECK_WIPE:
+                        {
+                            sLog->outString("EVENT_CHECK_WIPE");
+                            Map::PlayerList const &pList = me->GetMap()->GetPlayers();
+                            if (pList.isEmpty())
+                            {
+                                sLog->outString("- no one found");
+                                return;
+                            }
+
+                            for (Map::PlayerList::const_iterator i = pList.begin(); i != pList.end(); ++i)
+                            {
+                                if (Player* pPlayer = i->getSource())
+                                {
+                                    if (pPlayer->isAlive() && !pPlayer->isGameMaster())
+                                    {
+                                        sLog->outString("- Player found - reschedule");
+                                        _events.ScheduleEvent(EVENT_CHECK_WIPE, 10000);
+                                        return;
+                                    }
+                                }
+                            }
+                            sLog->outString("- Evade");
+                            me->AI()->EnterEvadeMode();
+                        }
                         default:
                             break;
                     }
