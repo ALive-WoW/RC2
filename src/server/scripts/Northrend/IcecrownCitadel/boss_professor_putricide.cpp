@@ -231,6 +231,8 @@ class boss_professor_putricide : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_TEAR_GAS_EFFECT, true);
             
                 instance->SetBossState(DATA_PROFESSOR_PUTRICIDE, IN_PROGRESS);
+
+                _experimentState = EXPERIMENT_STATE_OOZE;
             }
 
             void JustReachedHome()
@@ -251,6 +253,7 @@ class boss_professor_putricide : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MUTATED_PLAGUE);
             }
 
             void JustSummoned(Creature* summon)
@@ -688,7 +691,7 @@ class npc_volatile_ooze : public CreatureScript
             void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell)
             {
                 if (!_newTargetSelectTimer && sSpellMgr->GetSpellDifficultyId(spell->Id) == sSpellMgr->GetSpellDifficultyId(SPELL_OOZE_ERUPTION))
-                    _newTargetSelectTimer = 1000;
+                    _newTargetSelectTimer = 2000;
             }
 
             void UpdateAI(uint32 const diff)
@@ -696,6 +699,13 @@ class npc_volatile_ooze : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                if(Unit* victim = me->getVictim())
+                {
+                    if(victim->HasAura(SPELL_TEAR_GAS_AURA))
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                }
+                
                 if (!_newTargetSelectTimer)
                     return;
 

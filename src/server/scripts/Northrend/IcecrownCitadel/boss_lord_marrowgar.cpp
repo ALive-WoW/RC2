@@ -193,7 +193,11 @@ class boss_lord_marrowgar : public CreatureScript
                             // no break here
                         case EVENT_BONE_STORM_MOVE:
                         {
-                            events.ScheduleEvent(EVENT_BONE_STORM_MOVE, _boneStormDuration/3);
+                            if(IsHeroic())
+                                events.ScheduleEvent(EVENT_BONE_STORM_MOVE, _boneStormDuration/4);
+                            else
+                                events.ScheduleEvent(EVENT_BONE_STORM_MOVE, _boneStormDuration/3);
+
                             Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me));
                             if (!unit)
                                 unit = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);

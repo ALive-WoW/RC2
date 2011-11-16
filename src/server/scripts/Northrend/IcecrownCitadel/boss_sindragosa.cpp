@@ -197,6 +197,7 @@ class boss_sindragosa : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FROST_BREATH_P2);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MYSTIC_BUFFET);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ASPHYXIATION);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FROST_INFUSION);
                 me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_AURA, false);
             }
 
@@ -400,7 +401,7 @@ class boss_sindragosa : public CreatureScript
                 {
                     if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(_isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1, me))
                     {
-                        if (player->GetQuestStatus(QUEST_FROST_INFUSION) != QUEST_STATUS_REWARDED && spellId == spell->Id)
+                        if (Is25ManRaid() && player->GetQuestStatus(QUEST_FROST_INFUSION) != QUEST_STATUS_REWARDED && spellId == spell->Id)
                         {
                             if (Item* shadowsEdge = player->GetWeaponForAttack(BASE_ATTACK, true))
                             {

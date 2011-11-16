@@ -190,6 +190,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BLOOD_MIRROR_DUMMY);
                 instance->DoRemoveAurasDueToSpellOnPlayers(DELIRIOUS_SLASH);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PACT_OF_THE_DARKFALLEN);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GUSHING_WOUND);
                 // Blah, credit the quest
                 if (_creditBloodQuickening)
                 {
