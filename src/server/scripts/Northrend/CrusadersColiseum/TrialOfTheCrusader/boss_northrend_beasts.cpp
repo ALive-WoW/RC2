@@ -96,7 +96,7 @@ enum BossSpells
     SPELL_BURNING_SPRAY     = 66902,
     SPELL_SWEEP_1           = 67646,
     SPELL_EMERGE_0          = 66947,
-    SPELL_SUBMERGE_0        = 53421,
+    SPELL_SUBMERGE_0        = 66948,
     SPELL_ENRAGE            = 68335,
     SPELL_SLIME_POOL_EFFECT = 66882, //In 60s it diameter grows from 10y to 40y (r=r+0.25 per second)
 
