@@ -664,12 +664,18 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            m_uiTargetGUID = who->GetGUID();
-            DoCast(who, SPELL_MARK);
-            me->SetSpeed(MOVE_RUN, 0.5f);
-            m_uiSpeed = 0;
-            m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
-            me->TauntApply(who);
+            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0F, true, 0);
+            if (target)
+            {
+                m_uiTargetGUID = target->GetGUID();
+                DoCast(target, SPELL_MARK);
+                me->SetSpeed(MOVE_RUN, 0.5f);
+                m_uiSpeed = 0;
+                m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
+                me->TauntApply(target);
+            }
+            else
+                sLog->outString("boss_anub_arak_trial:678 | Kein target gefunden");
         }
 
         void DamageTaken(Unit* /*who*/, uint32& uiDamage)
@@ -679,22 +685,14 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-			if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-			{
-				while (!target || !target->isAlive() || !target->HasAura(SPELL_MARK) || target->isTotem())
-				{
-					target = SelectTarget(SELECT_TARGET_RANDOM);
-				}
-			}
-
-            /*Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID);
-            if (!target || !target->isAlive() || !target->HasAura(SPELL_MARK) || target->isTotem())
+            Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID);
+            if (!target || !target->isAlive() || !target->HasAura(SPELL_MARK) || target->isPet() || target->isTotem())
             {
                 if (Creature* pAnubarak = Unit::GetCreature((*me), m_instance->GetData64(NPC_ANUBARAK)))
                     pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);
                 me->DisappearAndDie();
                 return;
-            }*/
+            }
 
             if (m_uiIncreaseSpeedTimer)
             {
