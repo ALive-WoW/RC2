@@ -29,7 +29,10 @@ enum
     DATA_MISTRESS_OF_PAIN_COUNT          = 302,
     DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE = 303,
 	
-	DATA_FACTION_CHAMPIONS		= 401,
+
+    // Encounter States/Boss GUIDs
+    DATA_FACTION_CHAMPIONS		= 401,
+    DATA_ANUB_ARAK              = 402,
 
     INCREASE                    = 501,
     DECREASE                    = 502,

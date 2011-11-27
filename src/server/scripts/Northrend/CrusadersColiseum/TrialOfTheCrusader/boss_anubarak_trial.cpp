@@ -34,6 +34,12 @@ EndScriptData */
 
 
 #include "ScriptPCH.h"
+#include "ObjectMgr.h"
+#include "UnitAI.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellAuras.h"
 #include "trial_of_the_crusader.h"
 
 enum Yells
@@ -134,9 +140,9 @@ public:
         return new boss_anubarak_trialAI(creature);
     };
 
-    struct boss_anubarak_trialAI : public ScriptedAI
+    struct boss_anubarak_trialAI : public BossAI
     {
-        boss_anubarak_trialAI(Creature* creature) : ScriptedAI(creature), Summons(me)
+        boss_anubarak_trialAI(Creature* creature) : BossAI(creature, DATA_ANUB_ARAK), Summons(me)
         {
             m_instance = (InstanceScript*)creature->GetInstanceScript();
         }
@@ -236,7 +242,6 @@ public:
                     break;
                 case NPC_SPIKE:
                     summoned->CombatStart(target);
-                    DoScriptText(EMOTE_SPIKE, me, target);
                     break;
             }
             Summons.Summon(summoned);
@@ -662,20 +667,27 @@ public:
             m_uiTargetGUID = 0;
         }
 
-        void EnterCombat(Unit* who)
+        void SetGUID(uint64 guid)
         {
-            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0F, true, 0);
-            if (target)
+            m_uiTargetGUID = guid;
+        
+            if(Unit* target = ObjectAccessor::GetPlayer(*me, m_uiTargetGUID))
             {
-                m_uiTargetGUID = target->GetGUID();
+            
                 DoCast(target, SPELL_MARK);
                 me->SetSpeed(MOVE_RUN, 0.5f);
                 m_uiSpeed = 0;
                 m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
                 me->TauntApply(target);
+                me->CombatStart(target);
+            
+                DoScriptText(EMOTE_SPIKE, me, target);
             }
-            else
-                sLog->outString("boss_anub_arak_trial:678 | Kein target gefunden");
+        }
+
+
+        void EnterCombat(Unit* who)
+        {
         }
 
         void DamageTaken(Unit* /*who*/, uint32& uiDamage)
@@ -685,8 +697,39 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID);
-            if (!target || !target->isAlive() || !target->HasAura(SPELL_MARK) || target->isPet() || target->isTotem())
+            if(!me->getVictim())
+                return;
+            
+            Unit* target = me->getVictim();
+
+            if(target->isTotem() || target->isPet() || target->GetTypeId() != TYPEID_PLAYER){
+                DoCast(me, SPELL_SPIKE_TRAIL);
+                me->Kill(target, false);
+                Unit* newTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true);
+                SetGUID(newTarget->GetGUID());
+                return;
+            }
+
+            // Safety check
+            if (m_uiTargetGUID == 0)
+            {
+                std::list<Unit*> unitList;
+                SelectTargetList(unitList, 10, SELECT_TARGET_RANDOM, -5.0f, true);
+                for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
+                {
+                    if ((*itr)->GetTypeId() != TYPEID_PLAYER || (*itr)->isTotem() || (*itr)->isPet())
+                        unitList.erase(itr++);
+                    else
+                        ++itr;
+                }
+                std::list<Unit*>::iterator itr = unitList.begin();
+                std::advance(itr, urand(0, unitList.size()-1));
+                Unit* target = *itr;
+
+                SetGUID(target->GetGUID());
+            }
+        
+            if (!target /*|| !target->isAlive()*/ || !target->HasAura(SPELL_MARK))
             {
                 if (Creature* pAnubarak = Unit::GetCreature((*me), m_instance->GetData64(NPC_ANUBARAK)))
                     pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);
