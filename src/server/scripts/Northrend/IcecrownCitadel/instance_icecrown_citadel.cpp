@@ -119,6 +119,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                 RotfaceGUID = 0;
                 ProfessorPutricideGUID = 0;
                 PutricideTableGUID = 0;
+                PutricideGreenStalkerGUID = 0;
+                PutricideRedStalkerGUID = 0;
                 memset(BloodCouncilGUIDs, 0, 3 * sizeof(uint64));
                 BloodCouncilControllerGUID = 0;
                 BloodQueenLanaThelGUID = 0;
@@ -150,6 +152,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 ColdflameJetsState = NOT_STARTED;
                 BloodQuickeningState = NOT_STARTED;
                 BloodQuickeningMinutes = 0;
+                MuradinBronzebeardGSGUID = 0;
             }
 
             void FillInitialWorldStates(WorldPacket& data)
@@ -239,6 +242,21 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_PROFESSOR_PUTRICIDE:
                         ProfessorPutricideGUID = creature->GetGUID();
                         break;
+                    case NPC_ABOMINATION_WING_MAD_SCIENTIST_STALKER:
+                    {
+                        if(creature->GetPositionX() > 4350.0f)
+                        {
+                            sLog->outString("Found Green Stalker: %u"), creature->GetGUID();
+                            PutricideGreenStalkerGUID = creature->GetGUID();
+                        }
+                        else
+                        {
+                            sLog->outString("Found Red Stalker: %u"), creature->GetGUID();
+                            PutricideRedStalkerGUID = creature->GetGUID();
+                        }
+                        sLog->outString("Green Stalker: %u / Red Stalker: %u"), PutricideGreenStalkerGUID, PutricideRedStalkerGUID;
+                        break;
+                    }
                     case NPC_PRINCE_KELESETH:
                         BloodCouncilGUIDs[0] = creature->GetGUID();
                         break;
@@ -299,6 +317,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_TERENAS_MENETHIL_FROSTMOURNE_H:
                         TerenasMenethilGUID = creature->GetGUID();
                         break;
+                    case NPC_GS_MURADIN_BRONZEBEARD:
+                        MuradinBronzebeardGSGUID = creature->GetGUID();
                     default:
                         break;
                 }
@@ -578,6 +598,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return ProfessorPutricideGUID;
                     case DATA_PUTRICIDE_TABLE:
                         return PutricideTableGUID;
+                    case DATA_PUTRICIDE_GREEN_STALKER:
+                        return PutricideGreenStalkerGUID;
+                    case DATA_PUTRICIDE_RED_STALKER:
+                        return PutricideRedStalkerGUID;
                     case DATA_PRINCE_KELESETH_GUID:
                         return BloodCouncilGUIDs[0];
                     case DATA_PRINCE_TALDARAM_GUID:
@@ -1286,6 +1310,8 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 RotfaceGUID;
             uint64 ProfessorPutricideGUID;
             uint64 PutricideTableGUID;
+            uint64 PutricideGreenStalkerGUID;
+            uint64 PutricideRedStalkerGUID;
             uint64 BloodCouncilGUIDs[3];
             uint64 BloodCouncilControllerGUID;
             uint64 BloodQueenLanaThelGUID;
@@ -1295,7 +1321,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 ValithriaDreamwalkerGUID;
             uint64 ValithriaLichKingGUID;
             uint64 ValithriaTriggerGUID;
-			uint64 ValithriaCacheGUID;
+	     uint64 ValithriaCacheGUID;
             uint64 SindragosaGUID;
             uint64 SpinestalkerGUID;
             uint64 RimefangGUID;
@@ -1310,6 +1336,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 FrozenBolvarGUID;
             uint64 PillarsChainedGUID;
             uint64 PillarsUnchainedGUID;
+            uint64 MuradinBronzebeardGSGUID;
             uint32 TeamInInstance;
             uint32 ColdflameJetsState;
             uint32 FrostwyrmCount;

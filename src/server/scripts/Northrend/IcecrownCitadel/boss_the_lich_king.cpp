@@ -1490,6 +1490,28 @@ class npc_valkyr_shadowguard : public CreatureScript
                 _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2500);
             }
 
+            void SpellHit(Unit* attacker, const SpellEntry* spellEntry)
+            {
+                if (spellEntry)
+                    switch (spellEntry->Id)
+                    {
+                        case SPELL_VALKYR_CARRY:
+                        {
+                            sLog->outString("SpellHit - SPELL_VALKYR_CARRY");
+                            float speedRate = me->GetSpeedRate(MOVE_RUN);
+                            speedRate = 0.25f;
+                            me->SetSpeed(MOVE_FLIGHT, speedRate);
+                            me->SetSpeed(MOVE_RUN, speedRate);
+
+                            me->SetReactState(REACT_PASSIVE);
+                            me->AttackStop();
+                            SetCombatMovement(false);
+                            
+                            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        }
+                    }
+            }
+            
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
                 if (!IsHeroic())
@@ -1503,6 +1525,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                     _events.Reset();
                     DoCastAOE(SPELL_EJECT_ALL_PASSENGERS);
                     me->GetMotionMaster()->MoveTargetedHome();
+                    me->SetSpeed(MOVE_FLIGHT, 0.642857f, true);
                     me->ClearUnitState(UNIT_STAT_EVADE);
                 }
             }
@@ -1636,6 +1659,13 @@ class npc_strangulate_vehicle : public CreatureScript
                 // this will let us easily access all creatures of this entry on heroic mode when its time to teleport back
                 if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING)))
                     lichKing->AI()->JustSummoned(me);
+            }
+
+            void HealReceived(Unit* healer, uint32& heal)
+            {
+                if (TempSummon* summ = me->ToTempSummon())
+                    if (Unit* summoner = summ->GetSummoner())
+                        summoner->SetHealth(std::min(summoner->GetHealth() + heal, summoner->GetMaxHealth()));
             }
 
             void DoAction(int32 const action)
