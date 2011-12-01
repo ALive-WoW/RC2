@@ -178,6 +178,18 @@ enum CreaturesIds
     NPC_MURADIN_GS                              = 36948,
     NPC_SAURFANG_GS                             = 36939,
 
+    NPC_SKYBREAKER_SERGEANT                     = 36961,
+    NPC_SKYBREAKER_MORTAR_SOLDIER               = 36978,
+    NPC_SKYBREAKER_MARINE                       = 36950,
+    NPC_SKYBREAKER_SORCERER                     = 37026,
+    NPC_SKYBREAKER_RIFLEMAN                     = 36969,
+
+    NPC_KORKRON_SERGEANT                        = 36960,
+    NPC_KORKRON_ROCKETEER                       = 36982,
+    NPC_KORKRON_REAVER                          = 36957,
+    NPC_KORKRON_BATTLE_MAGE                     = 37117,
+    NPC_KORKRON_AXETHROWER                      = 36968,
+
     // Deathbringer Saurfang
     NPC_DEATHBRINGER_SAURFANG                   = 37813,
     NPC_BLOOD_BEAST                             = 38508,
@@ -319,6 +331,8 @@ enum GameObjectsIds
     GO_GUNSHIP_CACHE_25N                    = 202240,
     GO_GUNSHIP_CACHE_10H                    = 202238,
     GO_GUNSHIP_CACHE_25H                    = 202241,
+    GO_GUNSHIP_SKYBREAKER_PORTAL            = 195371,
+    GO_GUNSHIP_ORGRIMS_HAMMER_PORTAL        = 196413,
 
     // Deathbringer Saurfang
     GO_SAURFANG_S_DOOR                      = 201825,
