@@ -106,6 +106,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 LadyDeathwisperElevatorGUID = 0;
 				MuradinGUID = 0;
                 SaurfangGUID = 0;
+                memset(GSCannonGUIDs, 0, 4 * sizeof(uint64));
                 DeathbringerSaurfangGUID = 0;
                 DeathbringerSaurfangDoorGUID = 0;
                 DeathbringerSaurfangEventGUID = 0;
@@ -224,6 +225,38 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case NPC_SAURFANG_GS:
                         SaurfangGUID = creature->GetGUID();
+                        break;
+                    case NPC_SKYBREAKER_CANNON:
+                        if (GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
+                        {
+                            creature->SetVisible(true);
+                            if (GSCannonGUIDs[0] == 0)
+                                GSCannonGUIDs[0] = creature->GetGUID();
+                            else if (GSCannonGUIDs[1] == 0)
+                                GSCannonGUIDs[1] = creature->GetGUID();
+                            else if (GSCannonGUIDs[2] == 0)
+                                GSCannonGUIDs[2] = creature->GetGUID();
+                            else if (GSCannonGUIDs[3] == 0)
+                                GSCannonGUIDs[3] = creature->GetGUID();
+                        }
+                        else
+                            creature->SetVisible(false);
+                        break;
+                    case NPC_ORGRIMS_HAMMER_CANNON:
+                        if (GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                        {
+                            creature->SetVisible(true);
+                            if (GSCannonGUIDs[0] == 0)
+                                GSCannonGUIDs[0] = creature->GetGUID();
+                            else if (GSCannonGUIDs[1] == 0)
+                                GSCannonGUIDs[1] = creature->GetGUID();
+                            else if (GSCannonGUIDs[2] == 0)
+                                GSCannonGUIDs[2] = creature->GetGUID();
+                            else if (GSCannonGUIDs[3] == 0)
+                                GSCannonGUIDs[3] = creature->GetGUID();
+                        }
+                        else
+                            creature->SetVisible(false);
                         break;
                     case NPC_DEATHBRINGER_SAURFANG:
                         DeathbringerSaurfangGUID = creature->GetGUID();
@@ -591,6 +624,14 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return MuradinGUID;
                     case NPC_SAURFANG_GS:
                         return SaurfangGUID;
+                    case DATA_GUNSHIP_CANNON_1:
+                        return GSCannonGUIDs[0];
+                    case DATA_GUNSHIP_CANNON_2:
+                        return GSCannonGUIDs[1];
+                    case DATA_GUNSHIP_CANNON_3:
+                        return GSCannonGUIDs[2];
+                    case DATA_GUNSHIP_CANNON_4:
+                        return GSCannonGUIDs[3];
                     case DATA_DEATHBRINGER_SAURFANG:
                         return DeathbringerSaurfangGUID;
                     case DATA_SAURFANG_EVENT_NPC:
@@ -1306,6 +1347,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 LadyDeathwisperElevatorGUID;
 			uint64 MuradinGUID;
             uint64 SaurfangGUID;
+            uint64 GSCannonGUIDs[4];
             uint64 DeathbringerSaurfangGUID;
             uint64 DeathbringerSaurfangDoorGUID;
             uint64 DeathbringerSaurfangEventGUID;   // Muradin Bronzebeard or High Overlord Saurfang

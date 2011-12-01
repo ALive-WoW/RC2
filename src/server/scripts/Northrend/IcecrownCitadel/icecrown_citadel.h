@@ -74,6 +74,10 @@ enum DataTypes
     DATA_LORD_MARROWGAR             = 0,
     DATA_LADY_DEATHWHISPER          = 1,
     DATA_GUNSHIP_EVENT              = 2,
+    DATA_GUNSHIP_CANNON_1           = 44,
+    DATA_GUNSHIP_CANNON_2           = 45,
+    DATA_GUNSHIP_CANNON_3           = 46,
+    DATA_GUNSHIP_CANNON_4           = 47,
     DATA_DEATHBRINGER_SAURFANG      = 3,
     DATA_FESTERGUT                  = 4,
     DATA_ROTFACE                    = 5,
@@ -177,6 +181,9 @@ enum CreaturesIds
     // Gunship Battle
     NPC_MURADIN_GS                              = 36948,
     NPC_SAURFANG_GS                             = 36939,
+
+    NPC_SKYBREAKER_CANNON                       = 36838,
+    NPC_ORGRIMS_HAMMER_CANNON                   = 36839,
 
     NPC_SKYBREAKER_SERGEANT                     = 36961,
     NPC_SKYBREAKER_MORTAR_SOLDIER               = 36978,
