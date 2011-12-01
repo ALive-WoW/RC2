@@ -73,7 +73,7 @@ enum DataTypes
     // Encounter States/Boss GUIDs
     DATA_LORD_MARROWGAR             = 0,
     DATA_LADY_DEATHWHISPER          = 1,
-    DATA_GUNSHIP_BATTLE_EVENT       = 2,
+    DATA_GUNSHIP_EVENT              = 2,
     DATA_DEATHBRINGER_SAURFANG      = 3,
     DATA_FESTERGUT                  = 4,
     DATA_ROTFACE                    = 5,
@@ -86,8 +86,8 @@ enum DataTypes
     DATA_THE_LICH_KING              = 12,
 
     // Additional data
-    DATA_ALLIGS_HEALTH_TRIGGER	 = 53,
-    DATA_GUNSHIP_EVENT              = 52,
+    DATA_SAURFANG_EVENT_NPC         = 13,
+    DATA_BONED_ACHIEVEMENT          = 14,
     DATA_OOZE_DANCE_ACHIEVEMENT     = 15,
     DATA_PUTRICIDE_TABLE            = 16,
     DATA_NAUSEA_ACHIEVEMENT         = 17,
@@ -175,13 +175,8 @@ enum CreaturesIds
     NPC_VENGEFUL_SHADE                          = 38222,
 
     // Gunship Battle
-    NPC_ALLIGSTRIGGER_10			      = 400031,
-    NPC_HORDEGSTRIGGER_10			      = 400030,
-    NPC_ALLIGSTRIGGER_25                        = 400036,
-    NPC_HORDEGSTRIGGER_25                       = 400035,
-    NPC_CANONTRIGGER                            = 400032,
-    NPC_FIGHTTRIGGER                            = 400033,
-    NPC_PORTAL                                  = 400034,
+    NPC_MURADIN_GS                              = 36948,
+    NPC_SAURFANG_GS                             = 36939,
 
     // Deathbringer Saurfang
     NPC_DEATHBRINGER_SAURFANG                   = 37813,
@@ -193,7 +188,6 @@ enum CreaturesIds
     NPC_SE_KOR_KRON_REAVER                      = 37920,
     NPC_SE_SKYBREAKER_MARINE                    = 37830,
     NPC_FROST_FREEZE_TRAP                       = 37744,
-    NPC_GS_MURADIN_BRONZEBEARD                  = 36948,
 
     // Festergut
     NPC_FESTERGUT                               = 36626,
@@ -315,7 +309,7 @@ enum GameObjectsIds
     // Lady Deathwhisper
     GO_ORATORY_OF_THE_DAMNED_ENTRANCE       = 201563,
     GO_LADY_DEATHWHISPER_ELEVATOR           = 202220,
-
+	
     // GunShip Battle
     GO_HORDE_GUNSHIP                        = 1915002,
     GO_ALLI_GUNSHIP                         = 1914902,

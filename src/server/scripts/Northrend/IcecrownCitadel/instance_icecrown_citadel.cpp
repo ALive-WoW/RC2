@@ -104,6 +104,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                 TeamInInstance = 0;
                 HeroicAttempts = MaxHeroicAttempts;
                 LadyDeathwisperElevatorGUID = 0;
+				MuradinGUID = 0;
+                SaurfangGUID = 0;
                 DeathbringerSaurfangGUID = 0;
                 DeathbringerSaurfangDoorGUID = 0;
                 DeathbringerSaurfangEventGUID = 0;
@@ -152,7 +154,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                 ColdflameJetsState = NOT_STARTED;
                 BloodQuickeningState = NOT_STARTED;
                 BloodQuickeningMinutes = 0;
-                MuradinBronzebeardGSGUID = 0;
             }
 
             void FillInitialWorldStates(WorldPacket& data)
@@ -217,6 +218,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_GARROSH_HELLSCREAM:
                         if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_KING_VARIAN_WRYNN, ALLIANCE);
+                        break;
+                    case NPC_MURADIN_GS:
+                        MuradinGUID = creature->GetGUID();
+                        break;
+                    case NPC_SAURFANG_GS:
+                        SaurfangGUID = creature->GetGUID();
                         break;
                     case NPC_DEATHBRINGER_SAURFANG:
                         DeathbringerSaurfangGUID = creature->GetGUID();
@@ -317,8 +324,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_TERENAS_MENETHIL_FROSTMOURNE_H:
                         TerenasMenethilGUID = creature->GetGUID();
                         break;
-                    case NPC_GS_MURADIN_BRONZEBEARD:
-                        MuradinBronzebeardGSGUID = creature->GetGUID();
                     default:
                         break;
                 }
@@ -582,6 +587,10 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 switch (type)
                 {
+					case NPC_MURADIN_GS:
+                        return MuradinGUID;
+                    case NPC_SAURFANG_GS:
+                        return SaurfangGUID;
                     case DATA_DEATHBRINGER_SAURFANG:
                         return DeathbringerSaurfangGUID;
                     case DATA_SAURFANG_EVENT_NPC:
@@ -1295,6 +1304,8 @@ class instance_icecrown_citadel : public InstanceMapScript
         protected:
             EventMap Events;
             uint64 LadyDeathwisperElevatorGUID;
+			uint64 MuradinGUID;
+            uint64 SaurfangGUID;
             uint64 DeathbringerSaurfangGUID;
             uint64 DeathbringerSaurfangDoorGUID;
             uint64 DeathbringerSaurfangEventGUID;   // Muradin Bronzebeard or High Overlord Saurfang
@@ -1321,7 +1332,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 ValithriaDreamwalkerGUID;
             uint64 ValithriaLichKingGUID;
             uint64 ValithriaTriggerGUID;
-	     uint64 ValithriaCacheGUID;
+            uint64 ValithriaCacheGUID;
             uint64 SindragosaGUID;
             uint64 SpinestalkerGUID;
             uint64 RimefangGUID;
@@ -1336,7 +1347,6 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 FrozenBolvarGUID;
             uint64 PillarsChainedGUID;
             uint64 PillarsUnchainedGUID;
-            uint64 MuradinBronzebeardGSGUID;
             uint32 TeamInInstance;
             uint32 ColdflameJetsState;
             uint32 FrostwyrmCount;
