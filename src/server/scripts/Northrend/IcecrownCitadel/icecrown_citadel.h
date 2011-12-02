@@ -197,6 +197,10 @@ enum CreaturesIds
     NPC_KORKRON_BATTLE_MAGE                     = 37117,
     NPC_KORKRON_AXETHROWER                      = 36968,
 
+    NPC_GUNSHIP_LIFE_TRIGGER_ALLIANCE           = 0,
+    NPC_GUNSHIP_LIFE_TRIGGER_HORDE              = 0,
+    NPC_GUNSHIP_FIGHT_TRIGGER                   = 0,
+
     // Deathbringer Saurfang
     NPC_DEATHBRINGER_SAURFANG                   = 37813,
     NPC_BLOOD_BEAST                             = 38508,
