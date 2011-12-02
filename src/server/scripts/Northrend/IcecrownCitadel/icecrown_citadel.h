@@ -119,8 +119,6 @@ enum DataTypes
     DATA_TERENAS_MENETHIL           = 39,
     DATA_PUTRICIDE_GREEN_STALKER    = 40,
     DATA_PUTRICIDE_RED_STALKER      = 41,
-    DATA_SAURFANG_EVENT_NPC         = 42,
-    DATA_BONED_ACHIEVEMENT          = 43,
 };
 
 enum CreaturesIds
