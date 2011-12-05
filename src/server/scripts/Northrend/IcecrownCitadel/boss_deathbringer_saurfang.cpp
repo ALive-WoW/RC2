@@ -268,7 +268,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 DoCast(me, SPELL_RUNE_OF_BLOOD_S, true);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
                 me->RemoveAurasDueToSpell(SPELL_FRENZY);
-		  cpower = 0;
+                cpower = 0;
             }
 
             void EnterCombat(Unit* who)

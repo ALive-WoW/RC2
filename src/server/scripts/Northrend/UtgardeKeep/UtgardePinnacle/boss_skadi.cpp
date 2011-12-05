@@ -503,8 +503,8 @@ public:
         if (Creature* pSkadi = Unit::GetCreature((*pGO), m_pInstance->GetData64(DATA_SKADI_THE_RUTHLESS)))
         {
         	player->CastSpell(pSkadi, SPELL_RAPID_FIRE, true);
-		m_pInstance->SetData(DATA_HARPOON_EVENT,1);
-		pGO->RemoveFromWorld();
+            m_pInstance->SetData(DATA_HARPOON_EVENT,1);
+            //pGO->RemoveFromWorld();
         }
         return false;
     }
