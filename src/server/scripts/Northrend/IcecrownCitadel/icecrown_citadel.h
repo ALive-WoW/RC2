@@ -78,6 +78,7 @@ enum DataTypes
     DATA_GUNSHIP_CANNON_2           = 45,
     DATA_GUNSHIP_CANNON_3           = 46,
     DATA_GUNSHIP_CANNON_4           = 47,
+    DATA_GUNSHIP_BOAT_COUNT         = 48,
     DATA_DEATHBRINGER_SAURFANG      = 3,
     DATA_FESTERGUT                  = 4,
     DATA_ROTFACE                    = 5,

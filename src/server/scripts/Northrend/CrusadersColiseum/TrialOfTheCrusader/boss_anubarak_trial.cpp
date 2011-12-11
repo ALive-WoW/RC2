@@ -673,15 +673,17 @@ public:
         
             if(Unit* target = ObjectAccessor::GetPlayer(*me, m_uiTargetGUID))
             {
-            
-                DoCast(target, SPELL_MARK);
-                me->SetSpeed(MOVE_RUN, 0.5f);
-                m_uiSpeed = 0;
-                m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
-                me->TauntApply(target);
-                me->CombatStart(target);
-            
-                DoScriptText(EMOTE_SPIKE, me, target);
+                if(target)
+                {
+                    DoCast(target, SPELL_MARK);
+                    me->SetSpeed(MOVE_RUN, 0.5f);
+                    m_uiSpeed = 0;
+                    m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
+                    me->TauntApply(target);
+                    me->CombatStart(target);
+                    
+                    DoScriptText(EMOTE_SPIKE, me, target);
+                }
             }
         }
 
@@ -702,7 +704,8 @@ public:
             
             Unit* target = me->getVictim();
 
-            if(target->isTotem() || target->isPet() || target->GetTypeId() != TYPEID_PLAYER){
+            if(target && target->isTotem() || target->isPet() || target->GetTypeId() != TYPEID_PLAYER)
+            {
                 DoCast(me, SPELL_SPIKE_TRAIL);
                 me->Kill(target, false);
                 Unit* newTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true);
@@ -729,7 +732,7 @@ public:
                 SetGUID(target->GetGUID());
             }
         
-            if (!target /*|| !target->isAlive()*/ || !target->HasAura(SPELL_MARK))
+            if (!target || !target->isAlive() || !target->HasAura(SPELL_MARK))
             {
                 if (Creature* pAnubarak = Unit::GetCreature((*me), m_instance->GetData64(NPC_ANUBARAK)))
                     pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);

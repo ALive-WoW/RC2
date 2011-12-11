@@ -5079,6 +5079,14 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         {
             switch (dummySpell->Id)
             {
+                case 71875: // Item - Icecrown 25 Normal Slow Melee Weapon Proc
+                case 71877: // Item - Icecrown 25 Heroic Slow Melee Weapon Proc
+                {
+                    basepoints0 = CalculatePctN(int32(damage), triggerAmount);
+                    target = victim;
+                    triggered_spell_id = 71879;
+                    break;
+                }
                 // Bloodworms Health Leech
                 case 50453:
                 {
