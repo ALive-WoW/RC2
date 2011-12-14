@@ -355,16 +355,6 @@ class boss_deathbringer_saurfang : public CreatureScript
 				}
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
-            {
-                if (!_frenzied && HealthBelowPct(31)) // AT 30%, not below
-                {
-                    _frenzied = true;
-                    DoCast(me, SPELL_FRENZY);
-                    Talk(SAY_FRENZY);
-                }
-            }
-
             void JustSummoned(Creature* summon)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
@@ -424,6 +414,57 @@ class boss_deathbringer_saurfang : public CreatureScript
 
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
+
+                if (!_frenzied && HealthBelowPct(31)) // AT 30%, not below
+                {
+                    DoCast(me, SPELL_FRENZY);
+                    Talk(SAY_FRENZY);
+                    _frenzied = true;
+                }
+
+                uint32 power = me->GetPower(POWER_ENERGY);
+                if (power >= 100)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 20);																											
+                else if (power >= 95 && power < 100)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 19);
+                else if (power >= 90 && power < 95)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 18);
+                else if (power >= 85 && power < 90)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 17);
+                else if (power >= 80 && power < 85)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 16);
+                else if (power >= 75 && power < 80)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 15);
+                else if (power >= 70 && power < 75)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 14);
+                else if (power >= 65 && power < 70)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 13);
+                else if (power >= 60 && power < 65)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 12);
+                else if (power >= 55 && power < 60)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 11);
+                else if (power >= 50 && power < 55)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 10);
+                else if (power >= 45 && power < 50)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 9);
+                else if (power >= 40 && power < 45)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 8);
+                else if (power >= 35 && power < 40)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 7);
+                else if (power >= 30 && power < 35)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 6);
+                else if (power >= 25 && power < 30)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 5);
+                else if (power >= 20 && power < 25)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 4);
+                else if (power >= 15 && power < 20)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 3);
+                else if (power >= 10 && power < 15)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 2);
+                else if (power >= 5 && power < 10)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 1);
+                else if (power >= 0 && power < 5)
+                    me->RemoveAurasDueToSpell(SPELL_DAMAGE_BUFF);
 
 				while (uint32 eventId = events.ExecuteEvent())
                 {					
