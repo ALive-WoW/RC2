@@ -466,6 +466,24 @@ class boss_deathbringer_saurfang : public CreatureScript
                 else if (power >= 0 && power < 5)
                     me->RemoveAurasDueToSpell(SPELL_DAMAGE_BUFF);
 
+                // Male aufgreifen und Schaden am Spieler mit Mal verursachen
+                if(me->isAttackReady())
+                {
+                    uint32 Markdmg;
+                    Markdmg =  urand(5700,6300);
+                    int Markdamage = Markdmg;
+
+                    Map::PlayerList const &pList = me->GetMap()->GetPlayers();
+                    if (pList.isEmpty()) return;
+
+                    for (Map::PlayerList::const_iterator i = pList.begin(); i != pList.end(); ++i)
+                        if (Player* pPlayer = i->getSource())
+                            if (pPlayer->isAlive())
+                                if (pPlayer->HasAura(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
+                                    me->CastCustomSpell(pPlayer, SPELL_EFFECT_MARK_DMG,&Markdamage, 0, 0, true);
+
+                }
+
 				while (uint32 eventId = events.ExecuteEvent())
                 {					
                     switch (eventId)
