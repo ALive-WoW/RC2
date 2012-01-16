@@ -670,7 +670,7 @@ public:
                 if (player->isGameMaster())
                     continue;
 
-                if (player->isAlive())
+                if (player->isAlive() && GetData(DATA_DOOR_INTEGRITY) > 0)
                     return false;
             }
 
