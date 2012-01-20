@@ -73,7 +73,12 @@ enum DataTypes
     // Encounter States/Boss GUIDs
     DATA_LORD_MARROWGAR             = 0,
     DATA_LADY_DEATHWHISPER          = 1,
-    DATA_GUNSHIP_BATTLE_EVENT       = 2,
+    DATA_GUNSHIP_EVENT              = 2,
+    DATA_GUNSHIP_CANNON_1           = 44,
+    DATA_GUNSHIP_CANNON_2           = 45,
+    DATA_GUNSHIP_CANNON_3           = 46,
+    DATA_GUNSHIP_CANNON_4           = 47,
+    DATA_GUNSHIP_BOAT_COUNT         = 48,
     DATA_DEATHBRINGER_SAURFANG      = 3,
     DATA_FESTERGUT                  = 4,
     DATA_ROTFACE                    = 5,
@@ -86,8 +91,8 @@ enum DataTypes
     DATA_THE_LICH_KING              = 12,
 
     // Additional data
-    DATA_ALLIGS_HEALTH_TRIGGER	 = 53,
-    DATA_GUNSHIP_EVENT              = 52,
+    DATA_SAURFANG_EVENT_NPC         = 13,
+    DATA_BONED_ACHIEVEMENT          = 14,
     DATA_OOZE_DANCE_ACHIEVEMENT     = 15,
     DATA_PUTRICIDE_TABLE            = 16,
     DATA_NAUSEA_ACHIEVEMENT         = 17,
@@ -115,8 +120,6 @@ enum DataTypes
     DATA_TERENAS_MENETHIL           = 39,
     DATA_PUTRICIDE_GREEN_STALKER    = 40,
     DATA_PUTRICIDE_RED_STALKER      = 41,
-    DATA_SAURFANG_EVENT_NPC         = 42,
-    DATA_BONED_ACHIEVEMENT          = 43,
 };
 
 enum CreaturesIds
@@ -175,13 +178,27 @@ enum CreaturesIds
     NPC_VENGEFUL_SHADE                          = 38222,
 
     // Gunship Battle
-    NPC_ALLIGSTRIGGER_10			      = 400031,
-    NPC_HORDEGSTRIGGER_10			      = 400030,
-    NPC_ALLIGSTRIGGER_25                        = 400036,
-    NPC_HORDEGSTRIGGER_25                       = 400035,
-    NPC_CANONTRIGGER                            = 400032,
-    NPC_FIGHTTRIGGER                            = 400033,
-    NPC_PORTAL                                  = 400034,
+    NPC_MURADIN_GS                              = 36948,
+    NPC_SAURFANG_GS                             = 36939,
+
+    NPC_SKYBREAKER_CANNON                       = 36838,
+    NPC_ORGRIMS_HAMMER_CANNON                   = 36839,
+
+    NPC_SKYBREAKER_SERGEANT                     = 36961,
+    NPC_SKYBREAKER_MORTAR_SOLDIER               = 36978,
+    NPC_SKYBREAKER_MARINE                       = 36950,
+    NPC_SKYBREAKER_SORCERER                     = 37026,
+    NPC_SKYBREAKER_RIFLEMAN                     = 36969,
+
+    NPC_KORKRON_SERGEANT                        = 36960,
+    NPC_KORKRON_ROCKETEER                       = 36982,
+    NPC_KORKRON_REAVER                          = 36957,
+    NPC_KORKRON_BATTLE_MAGE                     = 37117,
+    NPC_KORKRON_AXETHROWER                      = 36968,
+
+    NPC_GUNSHIP_LIFE_TRIGGER_ALLIANCE           = 0,
+    NPC_GUNSHIP_LIFE_TRIGGER_HORDE              = 0,
+    NPC_GUNSHIP_FIGHT_TRIGGER                   = 0,
 
     // Deathbringer Saurfang
     NPC_DEATHBRINGER_SAURFANG                   = 37813,
@@ -193,7 +210,6 @@ enum CreaturesIds
     NPC_SE_KOR_KRON_REAVER                      = 37920,
     NPC_SE_SKYBREAKER_MARINE                    = 37830,
     NPC_FROST_FREEZE_TRAP                       = 37744,
-    NPC_GS_MURADIN_BRONZEBEARD                  = 36948,
 
     // Festergut
     NPC_FESTERGUT                               = 36626,
@@ -315,7 +331,7 @@ enum GameObjectsIds
     // Lady Deathwhisper
     GO_ORATORY_OF_THE_DAMNED_ENTRANCE       = 201563,
     GO_LADY_DEATHWHISPER_ELEVATOR           = 202220,
-
+	
     // GunShip Battle
     GO_HORDE_GUNSHIP                        = 1915002,
     GO_ALLI_GUNSHIP                         = 1914902,
@@ -325,6 +341,8 @@ enum GameObjectsIds
     GO_GUNSHIP_CACHE_25N                    = 202240,
     GO_GUNSHIP_CACHE_10H                    = 202238,
     GO_GUNSHIP_CACHE_25H                    = 202241,
+    GO_GUNSHIP_SKYBREAKER_PORTAL            = 195371,
+    GO_GUNSHIP_ORGRIMS_HAMMER_PORTAL        = 196413,
 
     // Deathbringer Saurfang
     GO_SAURFANG_S_DOOR                      = 201825,

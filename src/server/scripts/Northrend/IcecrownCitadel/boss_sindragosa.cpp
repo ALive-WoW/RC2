@@ -199,6 +199,16 @@ class boss_sindragosa : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ASPHYXIATION);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FROST_INFUSION);
                 me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_AURA, false);
+                
+                // Avoid Bug using
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                if (me->GetHealth() == me->GetMaxHealth())
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                else
+                {
+                    me->SetHealth(me->GetMaxHealth());
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                }
             }
 
             void Reset()
@@ -337,8 +347,8 @@ class boss_sindragosa : public CreatureScript
                         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FROST_AURA);
                         me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_AURA, true);
                         _bombsLanded = 0;
-                        //13 seconds instead of 8 because ice block takes a few seconds to appear.
-                        events.ScheduleEvent(EVENT_FROST_BOMB, 13000);
+                        //16 seconds instead of 8 because ice block takes a few seconds to appear.
+                        events.ScheduleEvent(EVENT_FROST_BOMB, 16000);
                         break;
                     case POINT_LAND:
                         me->SetFlying(false);

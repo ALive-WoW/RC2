@@ -282,10 +282,13 @@ public:
             switch (pInstance->GetData(DATA_MAIN_EVENT_PHASE))
             {
                 case NOT_STARTED:
-                case FAIL: // Allow to start event if not started or wiped
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                    player->SEND_GOSSIP_MENU(13853, creature->GetGUID());
+                case FAIL: // Allow to start event if not started or wiped and door integrity is bigger than 0
+                    if (pInstance->GetData(DATA_DOOR_INTEGRITY) > 0)
+                    {
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                        player->SEND_GOSSIP_MENU(13853, creature->GetGUID());
+                    }
                     break;
                 case IN_PROGRESS: // Allow to teleport inside if event is in progress
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_I_WANT_IN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
@@ -582,6 +585,7 @@ public:
 
             if (pInstance->GetData(DATA_REMOVE_NPC) == 1)
             {
+                listOfMobs.DespawnAll();
                 me->DespawnOrUnsummon();
                 pInstance->SetData(DATA_REMOVE_NPC, 0);
             }

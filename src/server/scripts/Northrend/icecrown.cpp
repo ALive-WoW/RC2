@@ -202,7 +202,7 @@ enum eArgentValiant
     SPELL_CHARGE                = 63010,
     SPELL_SHIELD_BREAKER        = 65147,
 
-    NPC_ARGENT_VALIANT_CREDIT   = 24108
+    NPC_ARGENT_VALIANT_CREDIT   = 38595,
 };
 
 class npc_argent_valiant : public CreatureScript
@@ -272,6 +272,144 @@ public:
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_argent_valiantAI(creature);
+    }
+};
+
+/*######
+## npc_squire_danny
+######*/
+
+enum eSquireDanny
+{
+    QUEST_THE_VALIANT_S_CHALLENGE_H_1                    = 13726,
+    QUEST_THE_VALIANT_S_CHALLENGE_H_2                    = 13727,
+    QUEST_THE_VALIANT_S_CHALLENGE_H_3                    = 13728,
+    QUEST_THE_VALIANT_S_CHALLENGE_H_4                    = 13729,
+    QUEST_THE_VALIANT_S_CHALLENGE_H_5                    = 13731,
+
+    QUEST_THE_VALIANT_S_CHALLENGE_A_1                    = 13699,
+    QUEST_THE_VALIANT_S_CHALLENGE_A_2                    = 13713,
+    QUEST_THE_VALIANT_S_CHALLENGE_A_3                    = 13723,
+    QUEST_THE_VALIANT_S_CHALLENGE_A_4                    = 13724,
+    QUEST_THE_VALIANT_S_CHALLENGE_A_5                    = 13725,
+
+    NPC_ARGENT_CHAMPION                                  = 33707,
+
+    GOSSIP_TEXTID_DANNY                                  = 10343,
+};
+
+#define GOSSIP_SQUIRE_ITEM_1 "I am ready to fight!"
+#define GOSSIP_SQUIRE_ITEM_2 "How do the Argent Crusader raiders fight?"
+
+class npc_squire_danny : public CreatureScript
+{
+public:
+    npc_squire_danny() : CreatureScript("npc_squire_danny") { }
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        if (player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_H_1) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_H_2) == QUEST_STATUS_INCOMPLETE ||
+            player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_H_3) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_H_4) == QUEST_STATUS_INCOMPLETE ||
+            player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_H_5) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_A_1) == QUEST_STATUS_INCOMPLETE ||
+            player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_A_2) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_A_3) == QUEST_STATUS_INCOMPLETE ||
+            player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_A_4) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_A_5) == QUEST_STATUS_INCOMPLETE)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+        }
+
+        player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_DANNY, creature->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        player->PlayerTalkClass->ClearMenus();
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        {
+            player->CLOSE_GOSSIP_MENU();
+            creature->SummonCreature(NPC_ARGENT_CHAMPION, 8556.857422f, 1111.314697f, 556.787476f, 1.8527f);
+        }
+        return true;
+    }
+};
+
+/*######
+## npc_argent_champion
+######*/
+
+enum eArgentChampion
+{
+    NPC_ARGENT_CHAMPION_CREDIT   = 33708,
+};
+
+class npc_argent_champion : public CreatureScript
+{
+public:
+    npc_argent_champion() : CreatureScript("npc_argent_champion") { }
+
+    struct npc_argent_championAI : public ScriptedAI
+    {
+        npc_argent_championAI(Creature* creature) : ScriptedAI(creature)
+        {
+            creature->GetMotionMaster()->MovePoint(0, 8556.120117f, 1123.979980f, 556.787659f);
+            creature->setFaction(35); //wrong faction in db?
+        }
+
+        uint32 uiChargeTimer;
+        uint32 uiShieldBreakerTimer;
+
+        void Reset()
+        {
+            uiChargeTimer = 7000;
+            uiShieldBreakerTimer = 10000;
+        }
+
+        void MovementInform(uint32 uiType, uint32 /*uiId*/)
+        {
+            if (uiType != POINT_MOTION_TYPE)
+                return;
+
+            me->setFaction(14);
+        }
+
+        void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
+        {
+            if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
+            {
+                uiDamage = 0;
+                CAST_PLR(pDoneBy)->KilledMonsterCredit(NPC_ARGENT_CHAMPION_CREDIT, 0);
+                me->setFaction(35);
+                me->DespawnOrUnsummon(5000);
+                me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+                EnterEvadeMode();
+            }
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (uiChargeTimer <= uiDiff)
+            {
+                DoCastVictim(SPELL_CHARGE);
+                uiChargeTimer = 7000;
+            } else uiChargeTimer -= uiDiff;
+
+            if (uiShieldBreakerTimer <= uiDiff)
+            {
+                DoCastVictim(SPELL_SHIELD_BREAKER);
+                uiShieldBreakerTimer = 10000;
+            } else uiShieldBreakerTimer -= uiDiff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_argent_championAI(creature);
     }
 };
 
@@ -432,6 +570,8 @@ void AddSC_icecrown()
     new npc_dame_evniki_kapsalis;
     new npc_squire_david;
     new npc_argent_valiant;
+    new npc_squire_danny;
+    new npc_argent_champion;
     new npc_alorah_and_grimmin;
     new npc_guardian_pavilion;
     new npc_vereth_the_cunning;

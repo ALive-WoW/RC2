@@ -1109,7 +1109,13 @@ public:
 
         void Reset()
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+        }
+
+        
+        void MoveInLineOfSight(Unit* who)
+        {
+            DoCast(who, SPELL_DEATHTOUCH, true);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -1121,11 +1127,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (me->isAttackReady())
-            {
                 DoCast(me->getVictim(), SPELL_DEATHTOUCH, true);
-                me->resetAttackTimer();
-            }
         }
     };
 

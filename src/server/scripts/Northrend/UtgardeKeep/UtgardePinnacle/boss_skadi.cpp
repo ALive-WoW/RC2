@@ -287,18 +287,10 @@ public:
 
                 if (uiHarpoonstack >= 3)
                 {
-                    Phase = SKADI;
                     me->SetFlying(false);
                     me->Unmount();
 					SetCombatMovement(true);
-                    if(Creature* pGrauf = me->SummonCreature(CREATURE_GRAUF, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3*IN_MILLISECONDS))
-                    {
-                        pGrauf->GetMotionMaster()->MoveFall(0);
-                        pGrauf->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);
-						pGrauf->SetReactState(REACT_PASSIVE);
-                    }
-                    // me->GetMotionMaster()->MoveJump(Location[4].GetPositionX(), Location[4].GetPositionY(), Location[4].GetPositionZ(), 5.0f, 10.0f);
-					me->NearTeleportTo(479.849915f, -512.391846f, 104.722984f, 3.057364f, false); 
+                    me->GetMotionMaster()->MoveJump(Location[4].GetPositionX(), Location[4].GetPositionY(), Location[4].GetPositionZ(), 5.0f, 10.0f);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                     DoScriptText(SAY_DRAKE_DEATH, me);
 					me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
@@ -306,11 +298,12 @@ public:
                     m_uiPoisonedSpearTimer = 10000;
                     m_uiWhirlwindTimer = 20000;
                     me->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
+                    Phase = SKADI;
                 }
 		}
-	//	void SpellHit(Unit* /*caster*/, const SpellInfo *spell)
-     /* {
-            if (spell->Id == SPELL_HARPOON_DAMAGE)
+        //void SpellHit(Unit* /*caster*/, const SpellInfo *spell)
+        /*{
+            if (spell->Id == SPELL_RAPID_FIRE)
             {
                 m_uiSpellHitCount++;
                 if (m_uiSpellHitCount >= 3)
@@ -332,7 +325,7 @@ public:
                     me->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
                 }
             }
-        } */
+        }*/
 
         void UpdateAI(const uint32 diff)
         {
@@ -342,7 +335,7 @@ public:
                     if (!UpdateVictim())
                         return;
 
-					Check();
+                    Check();
 
                     if (me->GetPositionX() >= 519)
                     {
@@ -415,7 +408,10 @@ public:
                 case SKADI:
                     //Return since we have no target
                     if (!UpdateVictim())
-                        return;
+                      return;
+
+                    if(me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE))
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
 
                     if (m_uiCrushTimer <= diff)
                     {
@@ -497,14 +493,16 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* pGO)
     {
-        InstanceScript* m_pInstance = pGO->GetInstanceScript();
-        if (!m_pInstance) return false;
+        InstanceScript* m_pInstance;
+        m_pInstance = pGO->GetInstanceScript();
+        if (!m_pInstance)
+            return false;
 
         if (Creature* pSkadi = Unit::GetCreature((*pGO), m_pInstance->GetData64(DATA_SKADI_THE_RUTHLESS)))
         {
         	player->CastSpell(pSkadi, SPELL_RAPID_FIRE, true);
-		m_pInstance->SetData(DATA_HARPOON_EVENT,1);
-		pGO->RemoveFromWorld();
+            m_pInstance->SetData(DATA_HARPOON_EVENT, 1);
+            //pGO->RemoveFromWorld();
         }
         return false;
     }
