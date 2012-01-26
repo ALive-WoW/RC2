@@ -9015,11 +9015,15 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             Player* player = ToPlayer();
             if (player->GetQuestStatus(24749) == QUEST_STATUS_INCOMPLETE)       // Unholy Infusion
             {
+                if (!player->GetMap()->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL || !player->GetMap()->GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
+                    return false;
                 if (!player->HasAura(71516) || victim->GetEntry() != 36678)    // Shadow Infusion && Professor Putricide
                     return false;
             }
             else if (player->GetQuestStatus(24756) == QUEST_STATUS_INCOMPLETE)  // Blood Infusion
             {
+                if (!player->GetMap()->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL || !player->GetMap()->GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
+                    return false;
                 if (!player->HasAura(72154) || victim->GetEntry() != 37955)    // Thirst Quenched && Blood-Queen Lana'thel
                     return false;
             }
