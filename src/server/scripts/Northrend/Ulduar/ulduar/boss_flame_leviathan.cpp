@@ -270,7 +270,10 @@ class boss_flame_leviathan : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                _EnterCombat();
+                me->setActive(true);
+                DoZoneInCombat();
+                if(instance)
+                    instance->SetBossState(TYPE_LEVIATHAN, IN_PROGRESS);
                 me->SetReactState(REACT_AGGRESSIVE);
                 events.ScheduleEvent(EVENT_PURSUE, 30*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_MISSILE, urand(1500, 4*IN_MILLISECONDS));
