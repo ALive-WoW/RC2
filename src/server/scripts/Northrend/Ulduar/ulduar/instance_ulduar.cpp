@@ -63,6 +63,7 @@ public:
         uint64 uiXT002GUID;
         uint64 uiXT002DoorGUID;
         uint64 XTToyPileGUIDs[4];
+		uint64 uiXT002HeartGUID;
 
         // Assembly of Iron
         uint64 uiAssemblyGUIDs[3];
@@ -165,6 +166,7 @@ public:
             uiRazorscaleController    = 0;
             uiExpCommanderGUID        = 0;
             uiXT002GUID               = 0;
+			uiXT002HeartGUID		  = 0;
             IronCouncilEntranceGUID   = 0;
             ArchivumDoorGUID          = 0;
             uiKologarnGUID            = 0;
@@ -277,8 +279,8 @@ public:
 
                 uint32 achievement = instance->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL? ACHIEVEMENT_CHAMPION_OF_ULDUAR : ACHIEVEMENT_CONQUEROR_OF_ULDUAR;
 
-                if (!player->HasAchieved(achievement))
-                   player->GetAchievementMgr().RemoveAchievement(achievement);
+                //if (!player->HasAchieved(achievement))
+                //   player->GetAchievementMgr().RemoveAchievement(achievement);
             }
         }
 
@@ -405,6 +407,9 @@ public:
                         if (!XTToyPileGUIDs[i])
                             XTToyPileGUIDs[i] = creature->GetGUID();
                     break;
+				case NPC_HEART_XT:
+					uiXT002HeartGUID = creature->GetGUID();
+					break;
                 // Assembly of Iron
                 case NPC_STEELBREAKER:
                     uiAssemblyGUIDs[0] = creature->GetGUID();
@@ -665,7 +670,7 @@ public:
                 case GO_ALGALON_CONSOLE:
                     if (AlgalonIntroDone)
                     {
-                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }          
                     break;
             }
@@ -802,7 +807,7 @@ public:
 						{
                             if (GetData(DATA_HODIR_RARE_CHEST))
 							{
-                                HodirRareCache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                                HodirRareCache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 								HodirRareCache->SetRespawnTime(HodirRareCache->GetRespawnDelay());
 							}
 						}
@@ -965,6 +970,7 @@ public:
                 case TYPE_RAZORSCALE:           return uiRazorscaleGUID;
                 case DATA_RAZORSCALE_CONTROL:   return uiRazorscaleController;
                 case TYPE_XT002:                return uiXT002GUID;
+				case DATA_XT002_HEART:			return uiXT002HeartGUID;
                 case TYPE_KOLOGARN:             return uiKologarnGUID;
                 case DATA_LEFT_ARM:             return uiLeftArmGUID;
                 case DATA_RIGHT_ARM:            return uiRightArmGUID;

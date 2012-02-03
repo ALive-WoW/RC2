@@ -1901,13 +1901,13 @@ public:
             {
                 if (IsHeroic())
             	{
-                    m_pInstance->DoCompleteAchievement(ACHIEV_HOR_H);
+                    DoCast(me, ACHIEV_HOR_H, true);
                     if (EncounterTime <= MAX_ENCOUNTER_TIME)
-                    m_pInstance->DoCompleteAchievement(ACHIEV_NOT_RETREATING);
+                    DoCast(me, ACHIEV_NOT_RETREATING, true);
             	}
 		else
             	{
-                    m_pInstance->DoCompleteAchievement(ACHIEV_HOR);
+                    DoCast(me, ACHIEV_HOR, true);
             	}
             }
                     break;

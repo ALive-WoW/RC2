@@ -19,6 +19,7 @@
  * Comment: Complete - BUT THE TRIGGER NEEDS DATA WHETHER THE PRISON OF TALDARAM IS OFFLINE !
  */
 
+
 #include "ScriptPCH.h"
 #include "ahnkahet.h"
 

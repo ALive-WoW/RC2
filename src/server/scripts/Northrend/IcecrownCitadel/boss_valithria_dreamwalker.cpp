@@ -17,6 +17,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -100,12 +101,12 @@ enum Spells
     SPELL_TWISTED_NIGHTMARE             = 71941,
 };
 
-#define SUMMON_PORTAL DIFFICULTY<uint32>(SPELL_PRE_SUMMON_DREAM_PORTAL, SPELL_PRE_SUMMON_DREAM_PORTAL, \
+#define SUMMON_PORTAL RAID_MODE<uint32>(SPELL_PRE_SUMMON_DREAM_PORTAL, SPELL_PRE_SUMMON_DREAM_PORTAL, \
                                         SPELL_PRE_SUMMON_NIGHTMARE_PORTAL, SPELL_PRE_SUMMON_NIGHTMARE_PORTAL)
 
-#define EMERALD_VIGOR DIFFICULTY<uint32>(SPELL_EMERALD_VIGOR, SPELL_EMERALD_VIGOR, \
+#define EMERALD_VIGOR RAID_MODE<uint32>(SPELL_EMERALD_VIGOR, SPELL_EMERALD_VIGOR, \
                                         SPELL_TWISTED_NIGHTMARE, SPELL_TWISTED_NIGHTMARE)
-                                        
+										
 enum Events
 {
     // Valithria Dreamwalker
@@ -120,26 +121,27 @@ enum Events
     EVENT_BLISTERING_ZOMBIE_SUMMONER        = 7,
     EVENT_RISEN_ARCHMAGE_SUMMONER           = 8,
     EVENT_BLAZING_SKELETON_SUMMONER         = 9,
+	EVENT_CHECK_WIPE						= 10,
 
     // Risen Archmage
-    EVENT_FROSTBOLT_VOLLEY                  = 10,
-    EVENT_MANA_VOID                         = 11,
-    EVENT_COLUMN_OF_FROST                   = 12,
+    EVENT_FROSTBOLT_VOLLEY                  = 11,
+    EVENT_MANA_VOID                         = 12,
+    EVENT_COLUMN_OF_FROST                   = 13,
 
     // Blazing Skeleton
-    EVENT_FIREBALL                          = 13,
-    EVENT_LEY_WASTE                         = 14,
+    EVENT_FIREBALL                          = 14,
+    EVENT_LEY_WASTE                         = 15,
 
     // Suppresser
-    EVENT_SUPPRESSION                       = 15,
+    EVENT_SUPPRESSION                       = 16,
 
     // Gluttonous Abomination
-    EVENT_GUT_SPRAY                         = 16,
+    EVENT_GUT_SPRAY                         = 17,
 
     // Dream Cloud
     // Nightmare Cloud
-    EVENT_CHECK_PLAYER                      = 17,
-    EVENT_EXPLODE                           = 18,
+    EVENT_CHECK_PLAYER                      = 18,
+    EVENT_EXPLODE                           = 19,
 };
 
 enum Actions
@@ -150,10 +152,6 @@ enum Actions
 };
 
 Position const ValithriaSpawnPos = {4210.813f, 2484.443f, 364.9558f, 0.01745329f};
-Position const ValithriaSpawnFrontRight = {4243.304199f, 2571.607910f, 364.868011f, 0.01745329f};
-Position const ValithriaSpawnFrontLeft  = {4241.145020f, 2401.896484f, 364.867981f, 0.01745329f};
-Position const ValithriaSpawnBackRight  = {4166.388672f, 2571.607910f, 364.867981f, 0.01745329f};
-Position const ValithriaSpawnBackLeft   = {4166.388672f, 2401.896484f, 364.867981f, 0.01745329f};
 
 class RisenArchmageCheck
 {
@@ -246,7 +244,7 @@ class ValithriaDespawner : public BasicEvent
             switch (creature->GetEntry())
             {
                 case NPC_VALITHRIA_DREAMWALKER:
-                    if (InstanceScript* instance = creature->LoadInstanceScript())
+                    if (InstanceScript* instance = creature->GetInstanceScript())
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, creature);
                     break;
                 case NPC_BLAZING_SKELETON:
@@ -295,7 +293,7 @@ class boss_valithria_dreamwalker : public CreatureScript
         struct boss_valithria_dreamwalkerAI : public ScriptedAI
         {
             boss_valithria_dreamwalkerAI(Creature* creature) : ScriptedAI(creature),
-                _instance(creature->LoadInstanceScript()), _portalCount(DIFFICULTY<uint32>(3, 8, 3, 8))
+                _instance(creature->GetInstanceScript()), _portalCount(RAID_MODE<uint32>(3, 8, 3, 8))
             {
             }
 
@@ -317,6 +315,11 @@ class boss_valithria_dreamwalker : public CreatureScript
                 // immune to percent heals
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_OBS_MOD_HEALTH, true);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL_PCT, true);
+                // Glyph of Dispel Magic - not a percent heal by effect, its cast with custom basepoints
+                me->ApplySpellImmune(0, IMMUNITY_ID, 56131, true);
+                // Allow Beacon of Light cast
+                me->ApplySpellImmune(0, IMMUNITY_ID, 53563, false);
+                
                 _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 _missedPortals = 0;
                 _under25PercentTalkDone = false;
@@ -352,10 +355,8 @@ class boss_valithria_dreamwalker : public CreatureScript
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                     me->RemoveAurasDueToSpell(SPELL_CORRUPTION_VALITHRIA);
                     DoCast(me, SPELL_ACHIEVEMENT_CHECK);
-                    float x, y, z;
-                    me->GetPosition(x, y, z);
-                    me->CastSpell(x, y, z, SPELL_DREAMWALKERS_RAGE, false);
-                    _events.ScheduleEvent(EVENT_DREAM_SLIP, 3500);
+		            DoCast(me, SPELL_DREAM_SLIP, false);
+                    _instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, DONE);
                     if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VALITHRIA_LICH_KING)))
                         lichKing->AI()->EnterEvadeMode();
                 }
@@ -403,12 +404,13 @@ class boss_valithria_dreamwalker : public CreatureScript
                     // this display id was found in sniff instead of the one on aura
                     me->SetDisplayId(11686);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+					DoCast(me, SPELL_DREAMWALKERS_RAGE, true);
                     me->DespawnOrUnsummon(4000);
                     //if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VALITHRIA_LICH_KING)))
                     //    lichKing->CastSpell(lichKing, SPELL_SPAWN_CHEST, false);
 
                     if (Creature* trigger = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VALITHRIA_TRIGGER)))
-                        me->UnitKill(trigger);
+                        me->Kill(trigger);
                 }
             }
 
@@ -462,7 +464,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                             _events.ScheduleEvent(EVENT_DREAM_PORTAL, urand(45000, 48000));
                             break;
                         case EVENT_DREAM_SLIP:
-                            DoCast(me, SPELL_DREAM_SLIP);
+                            DoCast(me, SPELL_DREAM_SLIP, true);
                             break;
                         default:
                             break;
@@ -515,11 +517,16 @@ class npc_green_dragon_combat_trigger : public CreatureScript
 
             void EnterCombat(Unit* /*target*/)
             {
-                me->setActive(true);
-                DoZoneInCombat();
-                instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, IN_PROGRESS);
-                if (Creature* valithria = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VALITHRIA_DREAMWALKER)))
-                    valithria->AI()->DoAction(ACTION_ENTER_COMBAT);
+                if(instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == DONE)
+                    EnterEvadeMode();
+                else
+                {
+                    me->setActive(true);
+                    DoZoneInCombat();
+                    instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, IN_PROGRESS);
+                    if (Creature* valithria = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VALITHRIA_DREAMWALKER)))
+                        valithria->AI()->DoAction(ACTION_ENTER_COMBAT);
+                }
             }
 
             void AttackStart(Unit* target)
@@ -535,7 +542,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
 
             void JustReachedHome()
             {
-                BossAI::JustReachedHome();
+                _JustReachedHome();
                 DoAction(ACTION_DEATH);
             }
 
@@ -543,7 +550,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
             {
                 if (action == ACTION_DEATH)
                 {
-                    instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, FAIL);
+                    instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, NOT_STARTED);
                     me->m_Events.AddEvent(new ValithriaDespawner(me), me->m_Events.CalculateTime(5000));
                 }
             }
@@ -592,26 +599,27 @@ class npc_the_lich_king_controller : public CreatureScript
         struct npc_the_lich_king_controllerAI : public ScriptedAI
         {
             npc_the_lich_king_controllerAI(Creature* creature) : ScriptedAI(creature),
-                _instance(creature->LoadInstanceScript())
+                _instance(creature->GetInstanceScript())
             {
             }
 
             void Reset()
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_GLUTTONOUS_ABOMINATION_SUMMONER, 5000);
-                _events.ScheduleEvent(EVENT_SUPPRESSER_SUMMONER, 10000);
-                _events.ScheduleEvent(EVENT_BLISTERING_ZOMBIE_SUMMONER, 15000);
-                _events.ScheduleEvent(EVENT_RISEN_ARCHMAGE_SUMMONER, 20000);
-                _events.ScheduleEvent(EVENT_BLAZING_SKELETON_SUMMONER, 30000);
+                _events.ScheduleEvent(EVENT_GLUTTONOUS_ABOMINATION_SUMMONER, 20000);
+                _events.ScheduleEvent(EVENT_SUPPRESSER_SUMMONER, 30000);
+                _events.ScheduleEvent(EVENT_BLISTERING_ZOMBIE_SUMMONER, 40000);
+                _events.ScheduleEvent(EVENT_RISEN_ARCHMAGE_SUMMONER, 60000);
+                _events.ScheduleEvent(EVENT_BLAZING_SKELETON_SUMMONER, 50000);
+				_events.ScheduleEvent(EVENT_CHECK_WIPE, 10000);
                 
                 me->SetReactState(REACT_PASSIVE);
                 _timerGluttonousAbomination = 60000;
-                _timerSuppressor = 60000;
-                _timerBlisteringZombie = 30000;
-                _timerRisenArchmage = 60000;
-                _timerBlazingSkeleton = 60000;
-                
+                _timerSuppressor = 45000;
+                _timerBlisteringZombie = 45000;
+                _timerRisenArchmage = 45000;
+                _timerBlazingSkeleton = 45000;
+				
             }
 
             void JustReachedHome()
@@ -643,6 +651,9 @@ class npc_the_lich_king_controller : public CreatureScript
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
+                if(_instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == DONE)
+                    return;
+
                 while (uint32 eventId = _events.ExecuteEvent())
                 {
                     // Defines where the creature will be summoned
@@ -652,124 +663,149 @@ class npc_the_lich_king_controller : public CreatureScript
                         3: Back Right
                         4: Back Left
                     */
-                    uint32 rand = urand(1, DIFFICULTY(2, 4, 2, 4));
+                    uint32 rand = urand(1, RAID_MODE(2, 4, 2, 4));
                     
                     switch (eventId)
                     {
                         case EVENT_GLUTTONOUS_ABOMINATION_SUMMONER:
-                        {
+						{
                             //DoCast(me, SPELL_TIMER_GLUTTONOUS_ABOMINATION);
-                            switch (rand)
-                            {
-                                case 1:
-                                    me->SummonCreature(NPC_GLUTTONOUS_ABOMINATION, ValithriaSpawnFrontRight);
-                                    break;
-                                case 2:
-                                    me->SummonCreature(NPC_GLUTTONOUS_ABOMINATION, ValithriaSpawnFrontLeft);
-                                    break;
-                                case 3:
-                                    me->SummonCreature(NPC_GLUTTONOUS_ABOMINATION, ValithriaSpawnBackRight);
-                                    break;
-                                case 4:
-                                    me->SummonCreature(NPC_GLUTTONOUS_ABOMINATION, ValithriaSpawnBackLeft);
-                                    break;
-                            }
+							switch (rand)
+							{
+								case 1:
+									me->SummonCreature(NPC_GLUTTONOUS_ABOMINATION, 4243.304199f, 2571.607910f, 364.868011f);
+									break;
+								case 2:
+									me->SummonCreature(NPC_GLUTTONOUS_ABOMINATION, 4241.145020f,2401.896484f,364.867981f);
+									break;
+								case 3:
+									me->SummonCreature(NPC_GLUTTONOUS_ABOMINATION, 4166.388672f, 2571.607910f, 364.867981f);
+									break;
+								case 4:
+									me->SummonCreature(NPC_GLUTTONOUS_ABOMINATION, 4166.388672f, 2401.896484f, 364.867981f);
+									break;
+							}
                             _events.ScheduleEvent(EVENT_GLUTTONOUS_ABOMINATION_SUMMONER, _timerGluttonousAbomination);
                             if(_timerGluttonousAbomination > 5000)
-                                _timerGluttonousAbomination -= 4000;
-                            break;
-                        }
+                                _timerGluttonousAbomination -= 5000;
+							break;
+						}
                         case EVENT_SUPPRESSER_SUMMONER:
-                        {
+						{
                             //DoCast(me, SPELL_TIMER_SUPPRESSER);
-                            switch (rand)
-                            {
-                                case 1:
-                                    me->SummonCreature(NPC_SUPPRESSER, ValithriaSpawnFrontRight);
-                                    break;
-                                case 2:
-                                    me->SummonCreature(NPC_SUPPRESSER, ValithriaSpawnFrontLeft);
-                                    break;
-                                case 3:
-                                    me->SummonCreature(NPC_SUPPRESSER, ValithriaSpawnBackRight);
-                                    break;
-                                case 4:
-                                    me->SummonCreature(NPC_SUPPRESSER, ValithriaSpawnBackLeft);
-                                    break;
-                            }
-                            _events.ScheduleEvent(EVENT_SUPPRESSER_SUMMONER, _timerSuppressor);
+							switch (rand)
+							{
+								case 1:
+									me->SummonCreature(NPC_SUPPRESSER, 4243.304199f, 2571.607910f, 364.868011f);
+									break;
+								case 2:
+									me->SummonCreature(NPC_SUPPRESSER, 4241.145020f,2401.896484f,364.867981f);
+									break;
+								case 3:
+									me->SummonCreature(NPC_SUPPRESSER, 4166.388672f, 2571.607910f, 364.867981f);
+									break;
+								case 4:
+									me->SummonCreature(NPC_SUPPRESSER, 4166.388672f, 2401.896484f, 364.867981f);
+									break;
+							}
+							_events.ScheduleEvent(EVENT_SUPPRESSER_SUMMONER, _timerSuppressor);
                             if(_timerSuppressor > 5000)
-                                _timerSuppressor -= 3000;
-                            break;
-                        }
+                                _timerSuppressor -= 5000;
+							break;
+						}
                         case EVENT_BLISTERING_ZOMBIE_SUMMONER:
-                        {
+						{
                             //DoCast(me, SPELL_TIMER_BLISTERING_ZOMBIE);
-                            switch (rand)
-                            {
-                                case 1:
-                                    me->SummonCreature(NPC_BLISTERING_ZOMBIE, ValithriaSpawnFrontRight);
-                                    break;
-                                case 2:
-                                    me->SummonCreature(NPC_BLISTERING_ZOMBIE, ValithriaSpawnFrontLeft);
-                                    break;
-                                case 3:
-                                    me->SummonCreature(NPC_BLISTERING_ZOMBIE, ValithriaSpawnBackRight);
-                                    break;
-                                case 4:
-                                    me->SummonCreature(NPC_BLISTERING_ZOMBIE, ValithriaSpawnBackLeft);
-                                    break;
-                            }
+							switch (rand)
+							{
+								case 1:
+									me->SummonCreature(NPC_BLISTERING_ZOMBIE, 4243.304199f, 2571.607910f, 364.868011f);
+									break;
+								case 2:
+									me->SummonCreature(NPC_BLISTERING_ZOMBIE, 4241.145020f,2401.896484f,364.867981f);
+									break;
+								case 3:
+									me->SummonCreature(NPC_BLISTERING_ZOMBIE, 4166.388672f, 2571.607910f, 364.867981f);
+									break;
+								case 4:
+									me->SummonCreature(NPC_BLISTERING_ZOMBIE, 4166.388672f, 2401.896484f, 364.867981f);
+									break;
+							}
                             _events.ScheduleEvent(EVENT_BLISTERING_ZOMBIE_SUMMONER, _timerBlisteringZombie);
                             if(_timerBlisteringZombie > 5000)
-                                _timerBlisteringZombie -= 500;
-                            break;
-                        }
+                                _timerBlisteringZombie -= 1000;
+							break;
+						}
                         case EVENT_RISEN_ARCHMAGE_SUMMONER:
-                        {
+						{
                             //DoCast(me, SPELL_TIMER_RISEN_ARCHMAGE);
-                            switch (rand)
-                            {
-                                case 1:
-                                    me->SummonCreature(NPC_RISEN_ARCHMAGE, ValithriaSpawnFrontRight);
-                                    break;
-                                case 2:
-                                    me->SummonCreature(NPC_RISEN_ARCHMAGE, ValithriaSpawnFrontLeft);
-                                    break;
-                                case 3:
-                                    me->SummonCreature(NPC_RISEN_ARCHMAGE, ValithriaSpawnBackRight);
-                                    break;
-                                case 4:
-                                    me->SummonCreature(NPC_RISEN_ARCHMAGE, ValithriaSpawnBackLeft);
-                                    break;
-                            }
+							switch (rand)
+							{
+								case 1:
+									me->SummonCreature(NPC_RISEN_ARCHMAGE, 4243.304199f, 2571.607910f, 364.868011f);
+									break;
+								case 2:
+									me->SummonCreature(NPC_RISEN_ARCHMAGE, 4241.145020f,2401.896484f,364.867981f);
+									break;
+								case 3:
+									me->SummonCreature(NPC_RISEN_ARCHMAGE, 4166.388672f, 2571.607910f, 364.867981f);
+									break;
+								case 4:
+									me->SummonCreature(NPC_RISEN_ARCHMAGE, 4166.388672f, 2401.896484f, 364.867981f);
+									break;
+							}
                             _events.ScheduleEvent(EVENT_RISEN_ARCHMAGE_SUMMONER, _timerRisenArchmage);
                             if(_timerRisenArchmage > 5000)
-                                _timerRisenArchmage -= 1000;
-                            break;
-                        }
+                                _timerRisenArchmage -= 2000;
+							break;
+						}
                         case EVENT_BLAZING_SKELETON_SUMMONER:
-                        {
+						{
                             //DoCast(me, SPELL_TIMER_BLAZING_SKELETON);
-                            switch (rand)
-                            {
-                                case 1:
-                                    me->SummonCreature(NPC_BLAZING_SKELETON, ValithriaSpawnFrontRight);
-                                    break;
-                                case 2:
-                                    me->SummonCreature(NPC_BLAZING_SKELETON, ValithriaSpawnFrontLeft);
-                                    break;
-                                case 3:
-                                    me->SummonCreature(NPC_BLAZING_SKELETON, ValithriaSpawnBackRight);
-                                    break;
-                                case 4:
-                                    me->SummonCreature(NPC_BLAZING_SKELETON, ValithriaSpawnBackLeft);
-                                    break;
-                            }
+							switch (rand)
+							{
+								case 1:
+									me->SummonCreature(NPC_BLAZING_SKELETON, 4243.304199f, 2571.607910f, 364.868011f);
+									break;
+								case 2:
+									me->SummonCreature(NPC_BLAZING_SKELETON, 4241.145020f, 2401.896484f,364.867981f);
+									break;
+								case 3:
+									me->SummonCreature(NPC_BLAZING_SKELETON, 4166.388672f, 2571.607910f, 364.867981f);
+									break;
+								case 4:
+									me->SummonCreature(NPC_BLAZING_SKELETON, 4166.388672f, 2401.896484f, 364.867981f);
+									break;
+							}
                             _events.ScheduleEvent(EVENT_BLAZING_SKELETON_SUMMONER, _timerBlazingSkeleton);
                             if(_timerBlazingSkeleton > 5000)
-                                _timerBlazingSkeleton -= 1000;
-                            break;
+                                _timerBlazingSkeleton -= RAID_MODE(1000, 5000, 1000, 5000);
+							break;
+                        }
+                        case EVENT_CHECK_WIPE:
+                        {
+                            sLog->outString("EVENT_CHECK_WIPE");
+                            Map::PlayerList const &pList = me->GetMap()->GetPlayers();
+                            if (pList.isEmpty())
+                            {
+                                sLog->outString("- no one found");
+                                return;
+                            }
+
+                            for (Map::PlayerList::const_iterator i = pList.begin(); i != pList.end(); ++i)
+                            {
+                                if (Player* pPlayer = i->getSource())
+                                {
+                                    if (pPlayer->isAlive() && !pPlayer->isGameMaster())
+                                    {
+                                        sLog->outString("- Player found - reschedule");
+                                        _events.ScheduleEvent(EVENT_CHECK_WIPE, 10000);
+                                        return;
+                                    }
+                                }
+                            }
+                            sLog->outString("- Evade");
+                            me->AI()->EnterEvadeMode();
                         }
                         default:
                             break;
@@ -801,7 +837,7 @@ class npc_risen_archmage : public CreatureScript
         struct npc_risen_archmageAI : public ScriptedAI
         {
             npc_risen_archmageAI(Creature* creature) : ScriptedAI(creature),
-                _instance(creature->LoadInstanceScript())
+                _instance(creature->GetInstanceScript())
             {
             }
 
@@ -977,7 +1013,7 @@ class npc_suppresser : public CreatureScript
         struct npc_suppresserAI : public ScriptedAI
         {
             npc_suppresserAI(Creature* creature) : ScriptedAI(creature),
-                _instance(creature->LoadInstanceScript())
+                _instance(creature->GetInstanceScript())
             {
             }
 
@@ -1010,15 +1046,17 @@ class npc_suppresser : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SUPPRESSION:
-                            DoCast(me, SPELL_SUPPRESSION);
+                            DoCastAOE(SPELL_SUPPRESSION);
                             _events.ScheduleEvent(EVENT_SUPPRESSION, 5000);
                             break;
                         default:
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
+                // this creature has REACT_PASSIVE so it does not always have victim here
+                if (Unit* victim = me->getVictim())
+                    if (victim->GetEntry() != NPC_VALITHRIA_DREAMWALKER)
+                        DoMeleeAttackIfReady();
             }
 
         private:
@@ -1170,7 +1208,7 @@ class npc_dream_cloud : public CreatureScript
         struct npc_dream_cloudAI : public ScriptedAI
         {
             npc_dream_cloudAI(Creature* creature) : ScriptedAI(creature),
-                _instance(creature->LoadInstanceScript())
+                _instance(creature->GetInstanceScript())
             {
             }
 
@@ -1303,22 +1341,38 @@ class spell_dreamwalker_summoner : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dreamwalker_summoner_SpellScript);
 
+            bool Load()
+            {
+                if (!GetCaster()->GetInstanceScript())
+                    return false;
+                return true;
+            }
+
             void FilterTargets(std::list<Unit*>& targets)
             {
-                targets.remove_if(SummonTargetSelector());
+                targets.remove_if (Trinity::UnitAuraCheck(true, SPELL_RECENTLY_SPAWNED));
                 if (targets.empty())
                     return;
 
-                std::list<Unit*>::iterator itr = targets.begin();
-                std::advance(itr, urand(0, targets.size() - 1));
-                Unit* target = *itr;
+                Unit* target = SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
             }
 
+            void HandleForceCast(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                if (!GetHitUnit())
+                    return;
+
+                GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->Effects[effIndex].TriggerSpell, true, NULL, NULL, GetCaster()->GetInstanceScript()->GetData64(DATA_VALITHRIA_LICH_KING));
+            }
+
+
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_dreamwalker_summoner_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENTRY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_dreamwalker_summoner_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnEffectHitTarget += SpellEffectFn(spell_dreamwalker_summoner_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
             }
         };
 
@@ -1345,8 +1399,8 @@ class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
                     return;
 
                 std::list<Creature*> summoners;
-                GetCreatureListWithEntryInGrid(summoners, caster, 22515, 100.0f);
-                summoners.remove_if(SummonTargetSelector());
+                GetCreatureListWithEntryInGrid(summoners, caster, NPC_WORLD_TRIGGER, 100.0f);
+                summoners.remove_if (Trinity::UnitAuraCheck(true, SPELL_RECENTLY_SPAWNED));
                 Trinity::RandomResizeList(summoners, 2);
                 if (summoners.empty())
                     return;
@@ -1371,6 +1425,43 @@ class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
         }
 };
 
+class spell_dreamwalker_summon_suppresser_effect : public SpellScriptLoader
+{
+    public:
+        spell_dreamwalker_summon_suppresser_effect() : SpellScriptLoader("spell_dreamwalker_summon_suppresser_effect") { }
+
+        class spell_dreamwalker_summon_suppresser_effect_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dreamwalker_summon_suppresser_effect_SpellScript);
+
+            bool Load()
+            {
+                if (!GetCaster()->GetInstanceScript())
+                    return false;
+                return true;
+            }
+
+            void HandleForceCast(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                if (!GetHitUnit())
+                    return;
+
+                GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->Effects[effIndex].TriggerSpell, true, NULL, NULL, GetCaster()->GetInstanceScript()->GetData64(DATA_VALITHRIA_LICH_KING));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dreamwalker_summon_suppresser_effect_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dreamwalker_summon_suppresser_effect_SpellScript();
+        }
+};
+
 class spell_dreamwalker_summon_dream_portal : public SpellScriptLoader
 {
     public:
@@ -1392,7 +1483,7 @@ class spell_dreamwalker_summon_dream_portal : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_dreamwalker_summon_dream_portal_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_dreamwalker_summon_dream_portal_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1423,7 +1514,7 @@ class spell_dreamwalker_summon_nightmare_portal : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_dreamwalker_summon_nightmare_portal_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_dreamwalker_summon_nightmare_portal_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1444,7 +1535,7 @@ class spell_dreamwalker_nightmare_cloud : public SpellScriptLoader
 
             bool Load()
             {
-                _instance = GetOwner()->LoadInstanceScript();
+                _instance = GetOwner()->GetInstanceScript();
                 return _instance != NULL;
             }
 
@@ -1465,6 +1556,38 @@ class spell_dreamwalker_nightmare_cloud : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_dreamwalker_nightmare_cloud_AuraScript();
+        }
+};
+
+class spell_dreamwalker_twisted_nightmares : public SpellScriptLoader
+{
+    public:
+        spell_dreamwalker_twisted_nightmares() : SpellScriptLoader("spell_dreamwalker_twisted_nightmares") { }
+
+        class spell_dreamwalker_twisted_nightmares_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dreamwalker_twisted_nightmares_SpellScript);
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                // impossible with TARGET_UNIT_CASTER
+                //if (!GetHitUnit())
+                //    return;
+
+                if (InstanceScript* instance = GetHitUnit()->GetInstanceScript())
+                    GetHitUnit()->CastSpell((Unit*)NULL, GetSpellInfo()->Effects[effIndex].TriggerSpell, true, NULL, NULL, instance->GetData64(DATA_VALITHRIA_DREAMWALKER));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dreamwalker_twisted_nightmares_SpellScript::HandleScript, EFFECT_2, SPELL_EFFECT_FORCE_CAST);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dreamwalker_twisted_nightmares_SpellScript();
         }
 };
 
@@ -1495,8 +1618,10 @@ void AddSC_boss_valithria_dreamwalker()
     new spell_dreamwalker_decay_periodic_timer();
     new spell_dreamwalker_summoner();
     new spell_dreamwalker_summon_suppresser();
+    new spell_dreamwalker_summon_suppresser_effect();
     new spell_dreamwalker_summon_dream_portal();
     new spell_dreamwalker_summon_nightmare_portal();
     new spell_dreamwalker_nightmare_cloud();
+    new spell_dreamwalker_twisted_nightmares();
     new achievement_portal_jockey();
 }

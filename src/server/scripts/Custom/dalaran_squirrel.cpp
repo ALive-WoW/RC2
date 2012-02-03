@@ -33,7 +33,6 @@ public:
 
 		void EnterCombat(Unit* /*who*/)
         {
-			me->MonsterSay("Das haette ich an deiner Stelle nicht getan...", LANG_UNIVERSAL, 0);
 			for(int i = 0; i < 19; i++)
 				{
 					me->SummonCreature(NPC_DALARAN_SQUIRREL_SUMMON, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());

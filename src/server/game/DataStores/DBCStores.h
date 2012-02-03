@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2011-2012 ALiveCore <http://www-wow-alive.de/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -175,7 +174,7 @@ void LoadDBCStores(const std::string& dataPath);
 
 // script support functions
  DBCStorage <SoundEntriesEntry>          const* GetSoundEntriesStore();
- DBCStorage <SpellEntry>                 const* GetSpellStore();
+ DBCStorage <SpellEntry>				 const* GetSpellStore();
  DBCStorage <SpellRangeEntry>            const* GetSpellRangeStore();
  DBCStorage <FactionEntry>               const* GetFactionStore();
  DBCStorage <ItemEntry>                  const* GetItemDisplayStore();

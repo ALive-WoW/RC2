@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ulduar.h"
+#include "CellImpl.h"
 
 /*
 Entwicklungsnotizen:
@@ -182,13 +183,13 @@ enum Entrys
     OBJECT_FLEE_TO_SURFACE                      = 194625,
 };
 
-//enum ModelIds
-//{
-//    SARA_NORMAL                                 = 29117,
-//    SARA_TRANSFORM                              = 29182,
-//    YOGGSARON_NORMAL                            = 28817,
-//    YOGGSARON_TRANSFORM                         = 28945
-//};
+enum ModelIds
+{
+    SARA_NORMAL                                 = 29117,
+    SARA_TRANSFORM                              = 29182,
+    YOGGSARON_NORMAL                            = 28817,
+    YOGGSARON_TRANSFORM                         = 28945
+};
 
 enum MindlessSpell
 {
@@ -553,7 +554,7 @@ public:
         {
             m_pInstance = c->GetInstanceScript();
             me->SetFlying(true);
-            SetImmuneToPushPullEffects(true);
+           SetImmuneToPushPullEffects(true);
         }
 
         InstanceScript* m_pInstance;
@@ -638,13 +639,13 @@ public:
             // Reset Display
             me->setFaction(35);
             me->SetVisible(true);
-            //me->SetDisplayId(me->GetNativeDisplayId());
+            me->SetDisplayId(me->GetNativeDisplayId());
             me->RemoveAurasDueToSpell(SPELL_SARA_TRANSFORMATION);
             // Reset Health
             me->SetHealth(me->GetMaxHealth());
             // Remove Not Attackable Flags
-            //me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            //me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
             // Reset Phase
             m_Phase = PHASE_NONE;
@@ -679,14 +680,14 @@ public:
             if(m_pInstance)
 			{
 				uint64 AlgalonDoorGUID = m_pInstance->GetData64(GO_ALGALON_DOOR);
-				//uint64 AlgalonGUID = m_pInstance->GetData64(TYPE_ALGALON);
+				uint64 AlgalonGUID = m_pInstance->GetData64(TYPE_ALGALON);
 
-				//Creature* Algalon = Creature::GetCreature(*me, AlgalonGUID);
+				Creature* Algalon = Creature::GetCreature(*me, AlgalonGUID);
 
                 m_pInstance->SetBossState(TYPE_YOGGSARON,DONE);
 				m_pInstance->HandleGameObject(AlgalonDoorGUID, true);
-				/*if (Algalon)
-					Algalon->SetVisible(true);*/
+				if (Algalon)
+					Algalon->SetVisible(true);
 
 			}
 
@@ -711,7 +712,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/)			
         {
             uiSarasHelp_Timer = urand(5000,6000);
             uiGuardianSummon_Timer = 10000;
@@ -927,7 +928,7 @@ public:
                 uiSpeaking_Timer = 1000;
                 IsEventSpeaking = false;
                 EventSpeakingPhase = 0;
-                //me->SetDisplayId(SARA_TRANSFORM);
+                me->SetDisplayId(SARA_TRANSFORM);
                 CloudHandling(true);
                 uiRandomYell_Timer = 35000;
                 uiBrainEvents_Count = 0;
@@ -1023,7 +1024,7 @@ public:
                 guidYogg = pSummoned->GetGUID();
                 pSummoned->SetReactState(REACT_PASSIVE);
                 pSummoned->setFaction(14);
-                //pSummoned->SetVisible(false);
+                pSummoned->SetVisible(false);
                 pSummoned->SetStandState(UNIT_STAND_STATE_SUBMERGED);
                 pSummoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 pSummoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1417,8 +1418,8 @@ public:
                             switch(SpeakingPhase)
                             {
                             case 0:
-                                //if(Creature* yogg = me->GetCreature(*me,guidYogg))
-                                //    yogg->SetVisible(true);
+                                if(Creature* yogg = me->GetCreature(*me,guidYogg))
+                                    yogg->SetVisible(true);
 
                                 DoScriptText(SAY_PHASE2_1,me);
                                 uiSpeaking_Timer = 5000;
@@ -1436,13 +1437,13 @@ public:
                                 uiSpeaking_Timer = 4000;
                                 break;
                             case 4:
-                                //me->SetDisplayId(SARA_TRANSFORM);
+                                me->SetDisplayId(SARA_TRANSFORM);
                                 me->AddAura(SPELL_SARA_TRANSFORMATION,me);
                                 DoCast(me,SPELL_SARA_SHADOWY_BARRIER,false);
                                 me->GetMotionMaster()->MovePoint(1,me->GetPositionX(),me->GetPositionY(),me->GetPositionZ()+20);
                                 if(Creature* yogg = me->GetCreature(*me,guidYogg))
                                 {
-                                    //yogg->SetDisplayId(YOGGSARON_NORMAL);
+                                    yogg->SetDisplayId(YOGGSARON_NORMAL);
                                     yogg->CastSpell(yogg,SPELL_SHADOWY_BARRIER,false);
                                     yogg->SetStandState(UNIT_STAND_STATE_STAND);
                                     yogg->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -1452,8 +1453,8 @@ public:
                                     yogg->CastSpell(yogg,SPELL_SUMMON_CURRUPTOR_TENTACLE,true);
                                 }
                                 me->setFaction(14);
-                                //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 uiSpeaking_Timer = 5000;
                                 IsSpeaking = false;
                                 break;
@@ -1692,7 +1693,7 @@ public:
     {
         npc_ominous_cloudAI(Creature *c) : ScriptedAI(c) 
         {
-            SetImmuneToPushPullEffects(true);
+           SetImmuneToPushPullEffects(true);
             m_pInstance = c->GetInstanceScript();
         }
 
@@ -1705,7 +1706,7 @@ public:
                     TriggerGuardianSpawn();
         }
 
-        void AttackStart(Unit* /*attacker*/) {}
+        void AttackStart(Unit* /*attacker*/)       {}
 
         void DoAction(const int32 action)
         {
@@ -1735,7 +1736,7 @@ public:
             me->RemoveAurasDueToSpell(SPELL_SUMMON_GUARDIAN);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            //me->SetReactState(REACT_PASSIVE); //Prevent MoveInLineOfSight
+            me->SetReactState(REACT_PASSIVE); //Prevent MoveInLineOfSight
 
             me->GetMotionMaster()->MoveRandom(25.0f);
         }
@@ -1761,10 +1762,10 @@ public:
             m_pInstance = c->GetInstanceScript();
             me->setFaction(14);
 
-            //SpellEntry *TempSpell;
-            //TempSpell = GET_SPELL(SPELL_SHADOW_NOVA);
-            //if (TempSpell)
-            //    TempSpell->Effect[1] = 0;
+            SpellEntry *TempSpell;
+            TempSpell = GET_SPELL(SPELL_SHADOW_NOVA);
+            if (TempSpell)
+                TempSpell->Effect[1] = 0;
         }
 
         InstanceScript* m_pInstance;
@@ -2496,7 +2497,7 @@ public:
 
         void GetAliveSaronitCreatureListInGrid(std::list<Creature*>& lList, float fMaxSearchRange)
         {
-            CellPair pair(Trinity::ComputeCellPair(me->GetPositionX(), me->GetPositionY()));
+            CellCoord pair(Trinity::ComputeCellCoord(me->GetPositionX(), me->GetPositionY()));
             Cell cell(pair);
             cell.data.Part.reserved = ALL_DISTRICT;
             cell.SetNoCreate();
@@ -2505,7 +2506,7 @@ public:
             Trinity::CreatureListSearcher<AllSaronitCreaturesInRange> searcher(me, lList, check);
             TypeContainerVisitor<Trinity::CreatureListSearcher<AllSaronitCreaturesInRange>, GridTypeMapContainer> visitor(searcher);
 
-            cell.Visit(pair, visitor, *(me->GetMap()));
+            cell.Visit(pair, visitor, *(me->GetMap()), fMaxSearchRange, me->GetPositionX(), me->GetPositionY());
         }
 
         void UpdateAI(const uint32 diff)
@@ -2621,7 +2622,7 @@ public:
 
             if(uiSanityTick_Timer <= diff)
             {
-                std::list<Player*> plrList = me->GetNearestPlayersList(10);
+                std::list<Player*> plrList = me->GetNearestPlayerList(10);
                 for (std::list<Player*>::const_iterator itr = plrList.begin(); itr != plrList.end(); ++itr)
                 {
                     if((*itr))
@@ -2911,8 +2912,8 @@ class spell_lunatic_gaze_targeting : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_lunatic_gaze_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_lunatic_gaze_targeting_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_lunatic_gaze_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_lunatic_gaze_targeting_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -3001,7 +3002,7 @@ class spell_titanic_storm_targeting : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_titanic_storm_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENTRY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_titanic_storm_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
             }
         };
 
@@ -3059,7 +3060,7 @@ class spell_summon_tentacle_position : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_summon_tentacle_position_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectHitTarget += SpellEffectFn(spell_summon_tentacle_position_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 
@@ -3099,7 +3100,7 @@ class spell_empowering_shadows : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_empowering_shadows_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_empowering_shadows_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -3313,7 +3314,6 @@ public:
         return true;
     }
 };
-
 /*
 UPDATE creature_template SET scriptname = 'boss_sara' WHERE entry = 33134;
 UPDATE script_texts SET npc_entry = 33134 WHERE npc_entry = 33288 AND entry IN (-1603330,-1603331,-1603332,-1603333);

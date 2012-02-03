@@ -281,7 +281,7 @@ public:
             {
                 go->SetGoState(GO_STATE_READY);
                 go->SetLootState(GO_JUST_DEACTIVATED);
-                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
             }
         }
 
@@ -320,7 +320,7 @@ public:
             JumpToNextStep(100);
 
             if (GameObject* go = me->FindNearestGameObject(GO_BIG_RED_BUTTON, 200))
-                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
         }
 
         void JumpToNextStep(uint32 uiTimer)
@@ -334,7 +334,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            _DoAggroPulse(diff);
+           _DoAggroPulse(diff);
 
             if (EnrageTimer <= diff && !Enraged)
             {
@@ -859,7 +859,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            _DoAggroPulse(diff);
+           _DoAggroPulse(diff);
             events.Update(diff);
 
             if (me->HasUnitState(UNIT_STAT_CASTING))
@@ -909,7 +909,7 @@ class boss_leviathan_mk_turret : public CreatureScript
         {
             boss_leviathan_mk_turretAI(Creature* c) : ScriptedAI(c) 
             {
-                SetImmuneToPushPullEffects(true);
+//               SetImmuneToPushPullEffects(true);
                 me->SetReactState(REACT_PASSIVE);
                 _NapalmShell = urand(8000, 12000);
             }
@@ -1208,7 +1208,7 @@ public:
                 else spinTimer -= diff;
             }
 
-            _DoAggroPulse(diff);
+           _DoAggroPulse(diff);
             events.Update(diff);
 
             if (me->HasUnitState(UNIT_STAT_CASTING))
@@ -1468,7 +1468,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            _DoAggroPulse(diff);
+           _DoAggroPulse(diff);
             events.Update(diff);
 
             if (me->HasUnitState(UNIT_STAT_CASTING))
@@ -1682,7 +1682,7 @@ class npc_emergency_bot : public CreatureScript
             npc_emergency_botAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->setFaction(14);
-                SetImmuneToPushPullEffects(true);
+               SetImmuneToPushPullEffects(true);
                 me->SetReactState(REACT_PASSIVE);
                 me->GetMotionMaster()->MoveRandom(15);
                 _sprayTimer = 5000;
@@ -1826,7 +1826,7 @@ class npc_mimiron_flame_trigger : public CreatureScript
             {
                 if (_flameTimer <= diff)
                 {
-                    DoAttackerAreaInCombat(me, 100.0f);
+                   DoAttackerAreaInCombat(me, 100.0f);
 
                     if (Player* nearest = me->SelectNearestPlayer(100.0f))
                     {

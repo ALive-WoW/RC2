@@ -153,9 +153,9 @@ bool ChatHandler::HandleSummonCommand(const char* args)
             return false;
         }
 
-        Map* pMap = m_session->GetPlayer()->GetMap();
+        Map* map = m_session->GetPlayer()->GetMap();
 
-        if (pMap->IsBattlegroundOrArena())
+        if (map->IsBattlegroundOrArena())
         {
             // only allow if gm mode is on
             if (!_player->isGameMaster())
@@ -175,12 +175,12 @@ bool ChatHandler::HandleSummonCommand(const char* args)
             if (!target->GetMap()->IsBattlegroundOrArena())
                 target->SetBattlegroundEntryPoint();
         }
-        else if (pMap->IsDungeon())
+        else if (map->IsDungeon())
         {
             Map* cMap = target->GetMap();
 
-            if (cMap->Instanceable() && cMap->GetInstanceId() != pMap->GetInstanceId())
-                target->UnbindInstance(pMap->GetInstanceId(), target->GetDungeonDifficulty(), true);
+            if (cMap->Instanceable() && cMap->GetInstanceId() != map->GetInstanceId())
+                target->UnbindInstance(map->GetInstanceId(), target->GetDungeonDifficulty(), true);
 
             // we are in instance, and can summon only player in our group with us as lead
             if (!m_session->GetPlayer()->GetGroup() || !target->GetGroup() ||
@@ -311,14 +311,14 @@ bool ChatHandler::HandleAppearCommand(const char* args)
 
             // if the player or the player's group is bound to another instance
             // the player will not be bound to another one
-            InstancePlayerBind *pBind = _player->GetBoundInstance(target->GetMapId(), target->GetDifficulty(cMap->IsRaid()));
+            InstancePlayerBind* pBind = _player->GetBoundInstance(target->GetMapId(), target->GetDifficulty(cMap->IsRaid()));
             if (!pBind)
             {
                 Group* group = _player->GetGroup();
                 // if no bind exists, create a solo bind
-                InstanceGroupBind *gBind = group ? group->GetBoundInstance(target) : NULL;                // if no bind exists, create a solo bind
+                InstanceGroupBind* gBind = group ? group->GetBoundInstance(target) : NULL;                // if no bind exists, create a solo bind
                 if (!gBind)
-                    if (InstanceSave *save = sInstanceSaveMgr->GetInstanceSave(target->GetInstanceId()))
+                    if (InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(target->GetInstanceId()))
                         _player->BindToInstance(save, !save->CanReset());
             }
 
@@ -421,7 +421,7 @@ bool ChatHandler::HandleTaxiCheatCommand(const char* args)
 
     std::string argstr = (char*)args;
 
-    Player *chr = getSelectedPlayer();
+    Player* chr = getSelectedPlayer();
     if (!chr)
     {
         chr=m_session->GetPlayer();
@@ -476,7 +476,7 @@ bool ChatHandler::HandleLookupAreaCommand(const char* args)
     // Search in AreaTable.dbc
     for (uint32 areaflag = 0; areaflag < sAreaStore.GetNumRows (); ++areaflag)
     {
-        AreaTableEntry const *areaEntry = sAreaStore.LookupEntry (areaflag);
+        AreaTableEntry const* areaEntry = sAreaStore.LookupEntry (areaflag);
         if (areaEntry)
         {
             int loc = GetSessionDbcLocale ();
@@ -610,6 +610,8 @@ bool ChatHandler::HandleWhispersCommand(const char* args)
     // whisper off
     if (argstr == "off")
     {
+        // Remove all players from the Gamemaster's whisper whitelist
+        m_session->GetPlayer()->ClearWhisperWhiteList();
         m_session->GetPlayer()->SetAcceptWhispers(false);
         SendSysMessage(LANG_COMMAND_WHISPEROFF);
         return true;
@@ -684,7 +686,7 @@ bool ChatHandler::HandleGroupSummonCommand(const char* args)
     if (HasLowerSecurity(target, 0))
         return false;
 
-    Group *grp = target->GetGroup();
+    Group* grp = target->GetGroup();
 
     std::string nameLink = GetNameLink(target);
 
@@ -709,9 +711,9 @@ bool ChatHandler::HandleGroupSummonCommand(const char* args)
         return false;
     }
 
-    for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+    for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        Player *pl = itr->getSource();
+        Player* pl = itr->getSource();
 
         if (!pl || pl == m_session->GetPlayer() || !pl->GetSession())
             continue;

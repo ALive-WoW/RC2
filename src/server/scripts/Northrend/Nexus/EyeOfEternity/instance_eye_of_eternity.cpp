@@ -98,7 +98,7 @@ public:
                 return;
             }
 
-            instance->Add(go);
+            instance->AddToMap(go);
         }
 
         void OnGameObjectCreate(GameObject* go)

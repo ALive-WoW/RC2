@@ -20,7 +20,7 @@
 #include "Player.h"
 #include "World.h"
 
-Quest::Quest(Field * questRecord)
+Quest::Quest(Field* questRecord)
 {
     QuestId = questRecord[0].GetUInt32();
     QuestMethod = questRecord[1].GetUInt32();
@@ -166,16 +166,16 @@ Quest::Quest(Field * questRecord)
             ++m_rewchoiceitemscount;
 }
 
-uint32 Quest::XPValue(Player *pPlayer) const
+uint32 Quest::XPValue(Player* player) const
 {
-    if (pPlayer)
+    if (player)
     {
-        int32 quest_level = (QuestLevel == -1 ? pPlayer->getLevel() : QuestLevel);
-        const QuestXPEntry *xpentry = sQuestXPStore.LookupEntry(quest_level);
+        int32 quest_level = (QuestLevel == -1 ? player->getLevel() : QuestLevel);
+        const QuestXPEntry* xpentry = sQuestXPStore.LookupEntry(quest_level);
         if (!xpentry)
             return 0;
 
-        int32 diffFactor = 2 * (quest_level - pPlayer->getLevel()) + 20;
+        int32 diffFactor = 2 * (quest_level - player->getLevel()) + 20;
         if (diffFactor < 1)
             diffFactor = 1;
         else if (diffFactor > 10)
@@ -203,6 +203,11 @@ int32  Quest::GetRewOrReqMoney() const
         return RewOrReqMoney;
 
     return int32(RewOrReqMoney * sWorld->getRate(RATE_DROP_MONEY));
+}
+
+bool Quest::IsAutoComplete() const
+{
+    return QuestMethod == 0 || HasFlag(QUEST_FLAGS_AUTOCOMPLETE);
 }
 
 bool Quest::IsAllowedInRaid() const

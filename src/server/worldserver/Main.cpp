@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2010-2011 ALiveCore <http://www.wow-alive.de/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -76,7 +75,7 @@ extern int main(int argc, char **argv)
     ///- Command line parsing to get the configuration file name
     char const* cfg_file = _TRINITY_CORE_CONFIG;
     int c = 1;
-    while( c < argc )
+    while ( c < argc )
     {
         if (strcmp(argv[c], "-c") == 0)
         {
@@ -130,7 +129,7 @@ extern int main(int argc, char **argv)
         ++c;
     }
 
-    if (!sConfig->SetSource(cfg_file))
+    if (!ConfigMgr::Load(cfg_file))
     {
         sLog->outError("Invalid or missing configuration file : %s", cfg_file);
         sLog->outError("Verify that the file exists and has \'[worldserver]' written in the top of the file!");

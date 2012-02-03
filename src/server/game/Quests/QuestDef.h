@@ -40,6 +40,7 @@ class ObjectMgr;
 #define QUEST_DEPLINK_COUNT 10
 #define QUEST_REPUTATIONS_COUNT 5
 #define QUEST_EMOTE_COUNT 4
+#define QUEST_PVP_KILL_SLOT 0
 
 enum QuestFailedReasons
 {
@@ -157,6 +158,7 @@ enum __QuestFlags
     QUEST_TRINITY_FLAGS_SPEAKTO              = 0x08000000,   // Internal flag computed only
     QUEST_TRINITY_FLAGS_KILL_OR_CAST         = 0x10000000,   // Internal flag computed only
     QUEST_TRINITY_FLAGS_TIMED                = 0x20000000,   // Internal flag computed only
+    QUEST_TRINITY_FLAGS_PLAYER_KILL          = 0x40000000,   // Internal flag computed only
 };
 
 struct QuestLocale
@@ -180,8 +182,8 @@ class Quest
 {
     friend class ObjectMgr;
     public:
-        Quest(Field * questRecord);
-        uint32 XPValue(Player *pPlayer) const;
+        Quest(Field* questRecord);
+        uint32 XPValue(Player* player) const;
 
         bool HasFlag(uint32 flag) const { return (QuestFlags & flag) != 0; }
         void SetFlag(uint32 flag) { QuestFlags |= flag; }
@@ -244,7 +246,7 @@ class Quest
         uint32 GetQuestStartScript() const { return QuestStartScript; }
         uint32 GetQuestCompleteScript() const { return QuestCompleteScript; }
         bool   IsRepeatable() const { return QuestFlags & QUEST_TRINITY_FLAGS_REPEATABLE; }
-        bool   IsAutoComplete() const { return QuestMethod ? false : true; }
+        bool   IsAutoComplete() const;
         uint32 GetFlags() const { return QuestFlags; }
         bool   IsDaily() const { return QuestFlags & QUEST_FLAGS_DAILY; }
         bool   IsWeekly() const { return QuestFlags & QUEST_FLAGS_WEEKLY; }
@@ -355,7 +357,7 @@ class Quest
 
 struct QuestStatusData
 {
-    QuestStatusData(): m_status(QUEST_STATUS_NONE), m_explored(false), m_timer(0)
+    QuestStatusData(): m_status(QUEST_STATUS_NONE), m_explored(false), m_timer(0), m_playercount(0)
     {
         memset(m_itemcount, 0, QUEST_ITEM_OBJECTIVES_COUNT * sizeof(uint16));
         memset(m_creatureOrGOcount, 0, QUEST_OBJECTIVES_COUNT * sizeof(uint16));
@@ -366,5 +368,6 @@ struct QuestStatusData
     uint32 m_timer;
     uint16 m_itemcount[QUEST_ITEM_OBJECTIVES_COUNT];
     uint16 m_creatureOrGOcount[QUEST_OBJECTIVES_COUNT];
+    uint16 m_playercount;
 };
 #endif

@@ -30,15 +30,15 @@ typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const* aurApp, uin
 class AuraEffect
 {
     friend void Aura::_InitEffects(uint8 effMask, Unit* caster, int32 *baseAmount);
-    friend Aura * Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID);
+    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID);
     friend Aura::~Aura();
     private:
         ~AuraEffect();
-        explicit AuraEffect(Aura * base, uint8 effIndex, int32 *baseAmount, Unit* caster);
+        explicit AuraEffect(Aura* base, uint8 effIndex, int32 *baseAmount, Unit* caster);
     public:
         Unit* GetCaster() const { return GetBase()->GetCaster(); }
         uint64 GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
-        Aura * GetBase() const { return m_base; }
+        Aura* GetBase() const { return m_base; }
         void GetTargetList(std::list<Unit*> & targetList) const;
         void GetApplicationList(std::list<AuraApplication*> & applicationList) const;
         SpellModifier* GetSpellModifier() const { return m_spellmod; }
@@ -48,12 +48,6 @@ class AuraEffect
         uint32 GetEffIndex() const { return m_effIndex; }
         int32 GetBaseAmount() const { return m_baseAmount; }
         int32 GetAmplitude() const { return m_amplitude; }
-
-		SpellEntry const* GetSpellProto() const { return m_spellProto; }
-        uint32 GetIdbyEntry() const { return m_spellProto->Id; }
-        uint32 GetEffIndexbyEntry() const { return m_effIndex; }
-        int32 GetBaseAmountbyEntry() const { return m_baseAmount; }
-        int32 GetAmplitudebyEntry() const { return m_amplitude; }
 
         int32 GetMiscValueB() const { return m_spellInfo->Effects[m_effIndex].MiscValueB; }
         int32 GetMiscValue() const { return m_spellInfo->Effects[m_effIndex].MiscValue; }
@@ -85,9 +79,9 @@ class AuraEffect
 
         bool IsPeriodic() const { return m_isPeriodic; }
         void SetPeriodic(bool isPeriodic) { m_isPeriodic = isPeriodic; }
-        bool IsAffectedOnSpell(SpellInfo const *spell) const;
+        bool IsAffectedOnSpell(SpellInfo const* spell) const;
 
-        void SendTickImmune(Unit* target, Unit *caster) const;
+        void SendTickImmune(Unit* target, Unit* caster) const;
         void PeriodicTick(AuraApplication * aurApp, Unit* caster) const;
 
         void HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
@@ -97,7 +91,7 @@ class AuraEffect
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(Unit* target, bool apply) const;
     private:
-        Aura * const m_base;
+        Aura* const m_base;
 
         SpellInfo const* const m_spellInfo;
 		SpellEntry const* const m_spellProto;
@@ -107,7 +101,7 @@ class AuraEffect
         int32 m_amount;
         bool m_canBeRecalculated;
 
-        SpellModifier *m_spellmod;
+        SpellModifier* m_spellmod;
 
         bool m_isPeriodic;
         int32 m_periodicTimer;
@@ -118,10 +112,6 @@ class AuraEffect
 
     public:
         // aura effect apply/remove handlers
-		bool Get_m_baseAmount()
-		{
-			return AuraEffect::m_baseAmount;
-		}
         void HandleNULL(AuraApplication const* /*aurApp*/, uint8 /*mode*/, bool /*apply*/) const
         {
             // not implemented
@@ -288,6 +278,7 @@ class AuraEffect
         void HandleAuraModFakeInebriation(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraOverrideSpells(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandlePreventResurrection(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
         // aura effect periodic tick handlers
         void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const;
@@ -300,7 +291,7 @@ class AuraEffect
         void HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) const;
         void HandleObsModPowerAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) const;
-        void HandlePeriodicPowerBurnManaAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) const;
 
         // aura effect proc handlers
         void HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
@@ -317,7 +308,7 @@ namespace Trinity
     {
         public:
             AbsorbAuraOrderPred() { }
-            bool operator() (AuraEffect * aurEffA, AuraEffect * aurEffB) const
+            bool operator() (AuraEffect* aurEffA, AuraEffect* aurEffB) const
             {
                 SpellInfo const* spellProtoA = aurEffA->GetSpellInfo();
                 SpellInfo const* spellProtoB = aurEffB->GetSpellInfo();

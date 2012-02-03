@@ -39,7 +39,7 @@ BattlegroundDS::BattlegroundDS()
     m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
 	
 	m_knockback = 5000;
-    m_knockbackCheck = true;
+	m_knockbackCheck = true;
 }
 
 BattlegroundDS::~BattlegroundDS()
@@ -66,34 +66,33 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
             setWaterFallActive(true);
         }
     }
-    else
-        setWaterFallTimer(getWaterFallTimer() - diff);
+    else setWaterFallTimer(getWaterFallTimer() - diff);
 		
 	if (GetStatus() == STATUS_IN_PROGRESS)
+    {
+        if(m_knockback < diff && m_knockbackCheck)
         {
-                if(m_knockback < diff && m_knockbackCheck)
-                {
-                        for(BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end();itr++)
-                        {
-                                Player * plr = ObjectAccessor::FindPlayer(itr->first);
-                                if (plr->GetTeam() == ALLIANCE && plr->GetDistance2d(1214, 765) <= 50 && plr->GetPositionZ() > 10)
-                                        KnockBackPlayer(plr, 6.15f, 50.00f, 7.00f);
-                                if (plr->GetTeam() == HORDE && plr->GetDistance2d(1369, 817) <= 50 && plr->GetPositionZ() > 10)
-                                        KnockBackPlayer(plr, 3.10f, 50.00f, 7.00f);
-                                plr->RemoveAurasDueToSpell(48018);
-                        }
-                        m_knockbackCheck = false;
-                 } else m_knockback -= diff;
-        }
+            for(BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end();itr++)
+            {
+                Player * plr = ObjectAccessor::FindPlayer(itr->first);
+                if (plr->GetTeam() == ALLIANCE && plr->GetDistance2d(1214, 765) <= 50 && plr->GetPositionZ() > 10)
+                    KnockBackPlayer(plr, 6.15f, 50.00f, 7.00f);
+                if (plr->GetTeam() == HORDE && plr->GetDistance2d(1369, 817) <= 50 && plr->GetPositionZ() > 10)
+                    KnockBackPlayer(plr, 3.10f, 50.00f, 7.00f);
+                plr->RemoveAurasDueToSpell(48018);
+            }
+            m_knockbackCheck = false;
+        } else m_knockback -= diff;
+    }
 }
 
 void BattlegroundDS::StartingEventCloseDoors()
 {
     for (uint32 i = BG_DS_OBJECT_DOOR_1; i <= BG_DS_OBJECT_DOOR_2; ++i)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
-		
-	m_knockback = 5000;
-	m_knockbackCheck = true;
+    
+    m_knockback = 5000;
+    m_knockbackCheck = true;
 }
 
 void BattlegroundDS::StartingEventOpenDoors()
@@ -111,7 +110,7 @@ void BattlegroundDS::StartingEventOpenDoors()
         SpawnBGObject(i, getWaterFallTimer());
 }
 
-void BattlegroundDS::AddPlayer(Player *plr)
+void BattlegroundDS::AddPlayer(Player* plr)
 {
     Battleground::AddPlayer(plr);
     //create score and add it to map, default values are set in constructor
@@ -148,7 +147,7 @@ void BattlegroundDS::HandleKillPlayer(Player* player, Player* killer)
     CheckArenaWinConditions();
 }
 
-void BattlegroundDS::HandleAreaTrigger(Player *Source, uint32 Trigger)
+void BattlegroundDS::HandleAreaTrigger(Player* Source, uint32 Trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;

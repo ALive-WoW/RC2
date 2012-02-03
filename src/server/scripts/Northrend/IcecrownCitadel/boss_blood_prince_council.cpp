@@ -23,6 +23,7 @@
 
 enum Texts
 {
+
     // Blood Queen Lana'Thel
     SAY_INTRO_1                 = 0,
     SAY_INTRO_2                 = 1,
@@ -224,6 +225,12 @@ class boss_blood_council_controller : public CreatureScript
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ADD, valanar);
                     DoZoneInCombat(valanar);
+                    valanar->SetHealth(me->GetHealth());
+                    valanar->RemoveAurasDueToSpell(SPELL_FEIGN_DEATH);
+                    valanar->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    valanar->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                    valanar->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+                    valanar->ForceValuesUpdateAtIndex(UNIT_NPC_FLAGS);
                 }
 
                 events.ScheduleEvent(EVENT_INVOCATION_OF_BLOOD, 46500);
@@ -333,7 +340,11 @@ class boss_blood_council_controller : public CreatureScript
                             {
                                 newPrince->SetHealth(me->GetHealth());
                                 newPrince->AI()->Talk(uint8(_invocationOrder[_invocationStage].textId));
+                                newPrince->RemoveAurasDueToSpell(SPELL_FEIGN_DEATH);
                                 newPrince->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                                newPrince->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                                newPrince->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+                                newPrince->ForceValuesUpdateAtIndex(UNIT_NPC_FLAGS);   // was in sniff. don't ask why
                             }
 
                             DoCast(me, _invocationOrder[_invocationStage].spellId);
@@ -1362,6 +1373,10 @@ class npc_dark_nucleus : public CreatureScript
                 if (attacker == me)
                     return;
 
+				// Don't take damage from other effects of the battle
+				if(attacker->GetTypeId() != TYPEID_PLAYER)
+					return;
+
                 if (!_lockedTarget)
                     if (me->getVictim() == attacker)
                         _lockedTarget = true;
@@ -1432,7 +1447,7 @@ class spell_taldaram_glittering_sparks : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_taldaram_glittering_sparks_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_taldaram_glittering_sparks_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1459,7 +1474,7 @@ class spell_taldaram_summon_flame_ball : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_taldaram_summon_flame_ball_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_taldaram_summon_flame_ball_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -1559,7 +1574,7 @@ class spell_valanar_kinetic_bomb : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_valanar_kinetic_bomb_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectHit += SpellEffectFn(spell_valanar_kinetic_bomb_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 

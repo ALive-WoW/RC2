@@ -24,13 +24,13 @@
 #include "CreatureAIImpl.h"
 #include "InstanceScript.h"
 
-#define MAX_AGGRO_PULSE_TIMER            5000
+#define MAX_AGGRO_PULSE_TIMER 5000
 
 #define CAST_PLR(a)     (dynamic_cast<Player*>(a))
 #define CAST_CRE(a)     (dynamic_cast<Creature*>(a))
 #define CAST_AI(a, b)   (dynamic_cast<a*>(b))
 
-#define GET_SPELL(a)    (const_cast<SpellEntry*>(GetSpellStore()->LookupEntry(a)))
+#define GET_SPELL(a) (const_cast<SpellEntry*>(GetSpellStore()->LookupEntry(a)))
 
 class InstanceScript;
 
@@ -80,12 +80,10 @@ struct ScriptedAI : public CreatureAI
     void SummonedCreatureDespawn(Creature* /*summon*/) {}
 
     // Called when hit by a spell
-    //void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) {}
-    void SpellHit(Unit* /*caster*/, SpellEntry const* /*spell*/) {}
+    void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) {}
 
     // Called when spell hits a target
-    //void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) {}
-	void SpellHitTarget(Unit* /*target*/, SpellEntry const* /*spell*/) {}
+    void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) {}
 
     //Called at waypoint reached or PointMovement end
     void MovementInform(uint32 /*type*/, uint32 /*id*/) {}
@@ -166,17 +164,11 @@ struct ScriptedAI : public CreatureAI
     //Returns spells that meet the specified criteria from the creatures spell list
     SpellInfo const* SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, uint32 powerCostMin, uint32 powerCostMax, float rangeMin, float rangeMax, SelectEffect effect);
 
-    //Checks if you can cast the specified spell
-    bool CanCast(Unit* target, SpellInfo const* spell, bool triggered = false);
-
     void SetEquipmentSlots(bool loadDefault, int32 mainHand = EQUIP_NO_CHANGE, int32 offHand = EQUIP_NO_CHANGE, int32 ranged = EQUIP_NO_CHANGE);
 
     //Generally used to control if MoveChase() is to be used or not in AttackStart(). Some creatures does not chase victims
     void SetCombatMovement(bool allowMovement);
     bool IsCombatMovementAllowed() { return _isCombatMovementAllowed; }
-
-	void AttackPlayerInMap(MapRefManager::const_iterator itr);
-	void AttackPlayerInMapIfNoGM(MapRefManager::const_iterator itr);
 
     bool EnterEvadeIfOutOfCombatArea(uint32 const diff);
 
@@ -191,7 +183,7 @@ struct ScriptedAI : public CreatureAI
     Difficulty GetDifficulty() { return _difficulty; }
 
     // return true for 25 man or 25 man heroic mode
-    bool Is25ManRaid() { return _difficulty & 1; }
+    bool Is25ManRaid() { return _difficulty & RAID_DIFFICULTY_MASK_25MAN; }
 
     template<class T> inline
     const T& DUNGEON_MODE(const T& normal5, const T& heroic10)
@@ -245,47 +237,11 @@ struct ScriptedAI : public CreatureAI
         return heroic25;
     }
 
-	    template<class T> inline
-    const T& DIFFICULTY(const T& normal10, const T& normal25)
-    {
-        switch (_difficulty)
-        {
-            case RAID_DIFFICULTY_10MAN_NORMAL:
-                return normal10;
-            case RAID_DIFFICULTY_25MAN_NORMAL:
-                return normal25;
-            default:
-                break;
-        }
-
-        return normal25;
-    }
-
-    template<class T> inline
-    const T& DIFFICULTY(const T& normal10, const T& normal25, const T& heroic10, const T& heroic25)
-    {
-        switch (_difficulty)
-        {
-            case RAID_DIFFICULTY_10MAN_NORMAL:
-                return normal10;
-            case RAID_DIFFICULTY_25MAN_NORMAL:
-                return normal25;
-            case RAID_DIFFICULTY_10MAN_HEROIC:
-                return heroic10;
-            case RAID_DIFFICULTY_25MAN_HEROIC:
-                return heroic25;
-            default:
-                break;
-        }
-
-        return heroic25;
-    }
-
 	void SetImmuneToPushPullEffects(bool set)
-    {
-        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, set);
-        me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, set);
-    }
+	{
+		me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, set);
+		me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, set);
+	}
 
     private:
         Difficulty _difficulty;

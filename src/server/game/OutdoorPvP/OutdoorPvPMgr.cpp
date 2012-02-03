@@ -16,11 +16,11 @@
  */
 
 #include "OutdoorPvPMgr.h"
-#include "OutdoorPvPWG.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "DisableMgr.h"
 #include "ScriptMgr.h"
+#include "OutdoorPvPWG.h"
 
 OutdoorPvPMgr::OutdoorPvPMgr()
 {
@@ -61,7 +61,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 
         typeId = fields[0].GetUInt32();
 
-        if (sDisableMgr->IsDisabledFor(DISABLE_TYPE_OUTDOORPVP, typeId, NULL))
+        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_OUTDOORPVP, typeId, NULL))
             continue;
 
         if (typeId >= MAX_OUTDOORPVP_TYPES)

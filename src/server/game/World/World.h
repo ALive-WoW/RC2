@@ -158,6 +158,8 @@ enum WorldBoolConfigs
     CONFIG_ALLOW_TICKETS,
     CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES,
     CONFIG_PRESERVE_CUSTOM_CHANNELS,
+    CONFIG_PDUMP_NO_PATHS,
+    CONFIG_PDUMP_NO_OVERWRITE,
     CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED,
     CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR,
     CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ENABLE,
@@ -546,7 +548,7 @@ class World
         ~World();
 
         WorldSession* FindSession(uint32 id) const;
-        void AddSession(WorldSession *s);
+        void AddSession(WorldSession* s);
         void SendAutoBroadcast();
         bool RemoveSession(uint32 id);
         /// Get the number of current active sessions
@@ -737,10 +739,11 @@ class World
 
         LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const { if (m_availableDbcLocaleMask & (1 << locale)) return locale; else return m_defaultDbcLocale; }
 
-        //used World DB version
+
+        // used World DB version
         void LoadDBVersion();
         char const* GetDBVersion() const { return m_DBVersion.c_str(); }
-        char const* GetCreatureEventAIVersion() const { return m_CreatureEventAIVersion.c_str(); }
+		char const* GetCreatureEventAIVersion() const { return m_CreatureEventAIVersion.c_str(); }
 
         void RecordTimeDiff(const char * text, ...);
 
@@ -754,10 +757,13 @@ class World
 
         bool isEventKillStart;
 
-		CharacterNameData *GetCharacterNameData(uint32 guid);
-        void ReloadSingleCharacterNameData(uint32 guid);
-
-        // Wintergrasp
+        CharacterNameData const* GetCharacterNameData(uint32 guid) const;
+        void AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass);
+        void UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
+        void DeleteCharaceterNameData(uint32 guid) { _characterNameDataMap.erase(guid); }
+		void ReloadSingleCharacterNameData(uint32 guid);
+		
+		// Wintergrasp
         uint32 GetWintergrapsTimer() { return m_WintergrapsTimer; }
         uint32 GetWintergrapsState() { return m_WintergrapsState; }
         uint32 m_WintergrapsTimer;
@@ -846,18 +852,18 @@ class World
         //Player Queue
         Queue m_QueuedPlayer;
 
-        //sessions that are added async
+        // sessions that are added async
         void AddSession_(WorldSession* s);
         ACE_Based::LockedQueue<WorldSession*, ACE_Thread_Mutex> addSessQueue;
 
-        //used versions
+        // used versions
         std::string m_DBVersion;
-        std::string m_CreatureEventAIVersion;
+		std::string m_CreatureEventAIVersion;
 
         std::list<std::string> m_Autobroadcasts;
 
-        std::map<uint32, CharacterNameData*> m_CharacterNameDataMap;
-        ACE_Thread_Mutex m_CharacterNameDataMapMutex;
+        std::map<uint32, CharacterNameData> _characterNameDataMap;
+		ACE_Thread_Mutex m_CharacterNameDataMapMutex;
         void LoadCharacterNameData();
 
         void ProcessQueryCallbacks();

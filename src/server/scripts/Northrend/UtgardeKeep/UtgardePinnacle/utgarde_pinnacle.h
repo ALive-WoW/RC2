@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #ifndef DEF_PINNACLE_H
 #define DEF_PINNACLE_H
 

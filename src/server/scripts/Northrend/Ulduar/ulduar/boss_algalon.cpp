@@ -1363,7 +1363,7 @@ class go_celestial_console : public GameObjectScript
 			{
 				if (Creature* Brann = go->SummonCreature(NPC_BRANN_ALGALON, WPs_ulduar[0][0],WPs_ulduar[0][1], WPs_ulduar[0][2])) 
 				{
-					go->SetFlag(GAMEOBJECT_FLAGS,  GO_FLAG_UNK1);
+					go->SetFlag(GAMEOBJECT_FLAGS,  GO_FLAG_NOT_SELECTABLE);
 					Brann->AI()->DoAction(ACTION_BRANN_INTRO);
 					if (GameObject* Door = ObjectAccessor::GetGameObject(*go, go->GetInstanceScript()->GetData64((GO_ALGALON_DOOR))))
 						Door->SetGoState(GO_STATE_ACTIVE);
@@ -1407,8 +1407,8 @@ class spell_algalon_cosmic_smash_initial : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_algalon_cosmic_smash_initial_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_algalon_cosmic_smash_initial_SpellScript::FillTargetsSubsequential, EFFECT_1, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_algalon_cosmic_smash_initial_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_algalon_cosmic_smash_initial_SpellScript::FillTargetsSubsequential, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
 
             std::list<Unit*> m_unitList; 
@@ -1514,7 +1514,7 @@ class spell_algalon_summon_asteroid_stalkers : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_algalon_summon_asteroid_stalkers_SpellScript::SpellEffect, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectHitTarget += SpellEffectFn(spell_algalon_summon_asteroid_stalkers_SpellScript::SpellEffect, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 
@@ -1545,7 +1545,7 @@ class spell_algalon_cosmic_smash_damage : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_algalon_cosmic_smash_damage_SpellScript::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(spell_algalon_cosmic_smash_damage_SpellScript::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 

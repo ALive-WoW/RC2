@@ -17,6 +17,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #ifndef ICECROWN_CITADEL_H_
 #define ICECROWN_CITADEL_H_
 
@@ -73,6 +74,11 @@ enum DataTypes
     DATA_LORD_MARROWGAR             = 0,
     DATA_LADY_DEATHWHISPER          = 1,
     DATA_GUNSHIP_EVENT              = 2,
+    DATA_GUNSHIP_CANNON_1           = 44,
+    DATA_GUNSHIP_CANNON_2           = 45,
+    DATA_GUNSHIP_CANNON_3           = 46,
+    DATA_GUNSHIP_CANNON_4           = 47,
+    DATA_GUNSHIP_BOAT_COUNT         = 48,
     DATA_DEATHBRINGER_SAURFANG      = 3,
     DATA_FESTERGUT                  = 4,
     DATA_ROTFACE                    = 5,
@@ -112,6 +118,8 @@ enum DataTypes
     DATA_HIGHLORD_TIRION_FORDRING   = 37,
     DATA_ARTHAS_PLATFORM            = 38,
     DATA_TERENAS_MENETHIL           = 39,
+    DATA_PUTRICIDE_GREEN_STALKER    = 40,
+    DATA_PUTRICIDE_RED_STALKER      = 41,
 };
 
 enum CreaturesIds
@@ -168,6 +176,29 @@ enum CreaturesIds
     NPC_EMPOWERED_ADHERENT                      = 38136,
     NPC_REANIMATED_ADHERENT                     = 38010,
     NPC_VENGEFUL_SHADE                          = 38222,
+
+    // Gunship Battle
+    NPC_MURADIN_GS                              = 36948,
+    NPC_SAURFANG_GS                             = 36939,
+
+    NPC_SKYBREAKER_CANNON                       = 36838,
+    NPC_ORGRIMS_HAMMER_CANNON                   = 36839,
+
+    NPC_SKYBREAKER_SERGEANT                     = 36961,
+    NPC_SKYBREAKER_MORTAR_SOLDIER               = 36978,
+    NPC_SKYBREAKER_MARINE                       = 36950,
+    NPC_SKYBREAKER_SORCERER                     = 37026,
+    NPC_SKYBREAKER_RIFLEMAN                     = 36969,
+
+    NPC_KORKRON_SERGEANT                        = 36960,
+    NPC_KORKRON_ROCKETEER                       = 36982,
+    NPC_KORKRON_REAVER                          = 36957,
+    NPC_KORKRON_BATTLE_MAGE                     = 37117,
+    NPC_KORKRON_AXETHROWER                      = 36968,
+
+    NPC_GUNSHIP_LIFE_TRIGGER_ALLIANCE           = 0,
+    NPC_GUNSHIP_LIFE_TRIGGER_HORDE              = 0,
+    NPC_GUNSHIP_FIGHT_TRIGGER                   = 0,
 
     // Deathbringer Saurfang
     NPC_DEATHBRINGER_SAURFANG                   = 37813,
@@ -261,6 +292,7 @@ enum CreaturesIds
     NPC_ICY_BLAST                               = 38223,
     NPC_FROST_BOMB                              = 37186,
     NPC_ICE_TOMB                                = 36980,
+    NPC_TRIGGER                                 = 38667,
 
     // The Lich King
     NPC_THE_LICH_KING                           = 36597,
@@ -280,7 +312,7 @@ enum CreaturesIds
     NPC_WORLD_TRIGGER                           = 22515,
     NPC_WORLD_TRIGGER_INFINITE_AOI              = 36171,
     NPC_SPIRIT_BOMB                             = 39189,
-    NPC_FROSTMOURNE_TRIGGER                     = 38584,
+    NPC_FROSTMOURNE_TRIGGER                     = 38584,    
 };
 
 enum GameObjectsIds
@@ -299,6 +331,18 @@ enum GameObjectsIds
     // Lady Deathwhisper
     GO_ORATORY_OF_THE_DAMNED_ENTRANCE       = 201563,
     GO_LADY_DEATHWHISPER_ELEVATOR           = 202220,
+	
+    // GunShip Battle
+    GO_HORDE_GUNSHIP                        = 1915002,
+    GO_ALLI_GUNSHIP                         = 1914902,
+    GO_HORDE_GUNSHIP_2                      = 1915001,
+    GO_ALLI_GUNSHIP_2                       = 1914901,
+    GO_GUNSHIP_CACHE_10N                    = 202239,
+    GO_GUNSHIP_CACHE_25N                    = 202240,
+    GO_GUNSHIP_CACHE_10H                    = 202238,
+    GO_GUNSHIP_CACHE_25H                    = 202241,
+    GO_GUNSHIP_SKYBREAKER_PORTAL            = 195371,
+    GO_GUNSHIP_ORGRIMS_HAMMER_PORTAL        = 196413,
 
     // Deathbringer Saurfang
     GO_SAURFANG_S_DOOR                      = 201825,

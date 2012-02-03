@@ -2044,7 +2044,7 @@ Rate.Drop.Item.ReferencedAmount = 1
 #        Description: Experience rates.
 #        Default:     1 - (Rate.XP.Kill)
 #                     1 - (Rate.XP.Quest)
-#                     1 - ( Rate.XP.Explore)
+#                     1 - (Rate.XP.Explore)
 
 Rate.XP.Kill    = 1
 Rate.XP.Quest   = 1
@@ -2156,8 +2156,10 @@ Rate.MoveSpeed = 1
 
 #
 #    Rate.InstanceResetTime
-#        Description: Multiplier for the number of days in between global raid/heroic instance
-#                     resets.
+#        Description: Multiplier for the rate between global raid/heroic instance resets 
+#                     (dbc value). Higher value increases the time between resets, 
+#                     lower value lowers the time, you need clean instance_reset in 
+#                     characters db in order to let new values work.
 #        Default:     1
 
 Rate.InstanceResetTime = 1
@@ -2768,9 +2770,24 @@ LevelReq.Auction = 1
 LevelReq.Mail = 1
 
 #
-##################################################################################################
+#     PlayerDump.DisallowPaths
+#        Description: Disallow using paths in PlayerDump output files
+#        Default:     1
 
-######################################################################
+PlayerDump.DisallowPaths = 1
+
+#
+#     PlayerDump.DisallowOverwrite
+#        Description: Disallow overwriting existing files with PlayerDump
+#        Default:     1
+
+PlayerDump.DisallowOverwrite = 1
+
+#
+###################################################################################################
+
+
+#######################################################################
 #   OutdoorPvP.Wintergrasp.Enabled
 #       Determines whether the Wintergrasp battle is enabled or not.
 #        Default: 0 = Disable
@@ -2862,6 +2879,6 @@ OutdoorPvP.Wintergrasp.CustomHonorDamageTower = 750
 OutdoorPvP.Wintergrasp.CustomHonorDestroyedTower = 750
 OutdoorPvP.Wintergrasp.CustomHonorDamagedBuilding = 750
 OutdoorPvP.Wintergrasp.CustomHonorIntactBuilding = 1500
-OutdoorPvP.Wintergrasp.Antifarm.Enable = 0
-OutdoorPvP.Wintergrasp.Antifarm.Atk = 5
-OutdoorPvP.Wintergrasp.Antifarm.Def = 5
+OutdoorPvP.Wintergrasp.Antifarm.Enable = 1
+OutdoorPvP.Wintergrasp.Antifarm.Atk = 1
+OutdoorPvP.Wintergrasp.Antifarm.Def = 1

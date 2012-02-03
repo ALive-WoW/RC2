@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -26,6 +27,8 @@
 #include "SpellAuraEffects.h"
 #include "SmartAI.h"
 #include "icecrown_citadel.h"
+#include "ScriptPCH.h"
+#include "Spell.h"
 
 // Weekly quest support
 // * Deprogramming                (DONE)
@@ -355,15 +358,11 @@ enum EventTypes
     EVENT_RENEW                         = 82,
 };
 
-enum eData
-{
-    DATA_PLAYER_CLASS                   = 2,
-    DATA_CLONED_PLAYER                  = 3,
-};
-
 enum DataTypesICC
 {
-    DATA_DAMNED_KILLS       = 1,
+    DATA_DAMNED_KILLS                   = 1,
+    DATA_PLAYER_CLASS                   = 2,
+    DATA_CLONED_PLAYER                  = 3,
 };
 
 enum Actions
@@ -907,6 +906,7 @@ class boss_sister_svalna : public CreatureScript
             {
                 _JustReachedHome();
                 me->SetReactState(REACT_PASSIVE);
+                me->SetFlying(false);
             }
 
             void DoAction(int32 const action)
@@ -954,6 +954,7 @@ class boss_sister_svalna : public CreatureScript
                 _isEventInProgress = false;
                 me->setActive(false);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_PASSIVE);
+                me->SetFlying(false);
             }
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
@@ -977,7 +978,7 @@ class boss_sister_svalna : public CreatureScript
                         if (TempSummon* summon = target->SummonCreature(NPC_IMPALING_SPEAR, *target))
                         {
                             Talk(EMOTE_SVALNA_IMPALE, target->GetGUID());
-                            summon->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK1 | 0x4000);
+                            summon->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK1 | UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
                             summon->CastCustomSpell(VEHICLE_SPELL_RIDE_HARDCODED, SPELLVALUE_BASE_POINT0, 1, target, false);
                         }
                         break;
@@ -1013,7 +1014,10 @@ class boss_sister_svalna : public CreatureScript
                             break;
                         case EVENT_IMPALING_SPEAR:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_IMPALING_SPEAR))
+                            {
+                                DoCast(me, SPELL_AETHER_SHIELD);
                                 DoCast(target, SPELL_IMPALING_SPEAR);
+                            }
                             events.ScheduleEvent(EVENT_IMPALING_SPEAR, urand(20000, 25000));
                             break;
                         default:
@@ -1782,85 +1786,6 @@ class npc_impaling_spear : public CreatureScript
         }
 };
 
-class npc_valkyr_herald : public CreatureScript
-{
-    public:
-        npc_valkyr_herald() : CreatureScript("npc_valkyr_herald") { }
-
-        struct npc_valkyr_heraldAI : public ScriptedAI
-        {
-            npc_valkyr_heraldAI(Creature* creature) : ScriptedAI(creature), summons(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
-            
-            void Reset()
-            {
-                events.Reset();
-            }
-
-            void EnterCombat(Unit* /*who*/)
-            {
-                events.Reset();
-                events.ScheduleEvent(EVENT_SEVERED_ESSENCE, 8000);
-            }
-
-            void JustSummoned(Creature* summon)
-            {
-                summons.Summon(summon);
-            }
-
-            void JustDied (Unit *killer)
-            {
-                summons.DespawnAll();
-            }
-            
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim())
-                    return;
-                if (me->HasUnitState(UNIT_STAT_CASTING))
-                    return;
-                events.Update(diff);
-                
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_SEVERED_ESSENCE:
-                        {
-                            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                            {
-                                DoCast(me, SPELL_SEVERED_ESSENCE, true);
-                                if (TempSummon* summon = me->SummonCreature(NPC_SEVERED_ESSENCE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0))
-                                {
-                                    summon->AI()->SetGUID(target->GetGUID(), DATA_CLONED_PLAYER);
-                                }
-                                me->MonsterSay("Severe Essence", LANG_UNIVERSAL, 0);
-                                
-                            }
-                            events.ScheduleEvent(EVENT_SEVERED_ESSENCE, 20000);
-                            break;
-                        }
-                        default:
-                            break;
-                    }
-                }
-            
-                DoMeleeAttackIfReady();
-            }
-        private:
-            InstanceScript *instance;
-            EventMap events;
-            SummonList summons;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_valkyr_heraldAI(creature);
-        }
-};
-
 class npc_severed_essence : public CreatureScript
 {
 public:
@@ -1871,30 +1796,36 @@ public:
         npc_severed_essenceAI(Creature *c) : ScriptedAI(c)
         {
             instance = me->GetInstanceScript();
-            playerClass = 0;
-            clonedPlayerGUID = 0;
         }
 
         void Reset()
         {
             events.Reset();
+            playerClass = 0;
+            clonedPlayerGUID = 0;
         }
 
-        void DoAction(int32 const action, uint64 const data)
+        /*void DoAction(int32 type, uint64 data)
         {
-            if (action == DATA_CLONED_PLAYER)
+            if (type == DATA_CLONED_PLAYER)
             {
                 clonedPlayerGUID = data;
             }
+            if (type == DATA_PLAYER_CLASS)
+            {
+                playerClass = data;
+            }
+        }*/
+        void SetMyClass(uint8 myClass)
+        {
+            playerClass = myClass;
+            //sLog->outString("Class: %i"), playerClass;
         }
 
         void IsSummonedBy(Unit* owner)
         {
             if (owner->GetTypeId() != TYPEID_UNIT || owner->GetEntry() != NPC_VALKYR_HERALD)
-            {
-                me->MonsterSay("no valid summon", LANG_UNIVERSAL, 0);
                 return;
-            }
             uiOwnerId = owner->GetGUID();
         }
 
@@ -1905,35 +1836,13 @@ public:
                 AttackStart(newVictim);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* who)
         {
-            if(clonedPlayerGUID == 0)
-            {
-                Unit *newVictim = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
-                if (!newVictim || newVictim->isDead())
-                {
-                    clonedPlayerGUID = newVictim->GetGUID();
-                }
-            }
-
-            if(clonedPlayerGUID != 0)
-            {             
-                if (Player* player = ObjectAccessor::GetPlayer(*me, clonedPlayerGUID))
-                {
-                    player->CastSpell(me, SPELL_CLONE_PLAYER, true);
-                    SetData(DATA_PLAYER_CLASS, player->getClass());
-                    me->MonsterSay("SE: Cloned %d", LANG_UNIVERSAL, 0), player->getClass();
-                }
-            }
-            else
-            {
-                me->MonsterSay("SE: Despawn", LANG_UNIVERSAL, 0);
-                me->DespawnOrUnsummon();
-                return;
-            }
-            ASSERT(playerClass != 0);
+            //ASSERT(playerClass != 0);
             events.Reset();
 
+            //sLog->outString("SE: Copy Player"), playerClass;
+            
             switch (playerClass)
             {
                 case CLASS_DRUID:
@@ -2050,12 +1959,6 @@ public:
                     break;
                 }
             }
-        }
-
-        void SetData(uint32 type, uint32 data)
-        {
-            if (type == DATA_PLAYER_CLASS)
-                playerClass = data;
         }
 
         void HandleDruidEvents()
@@ -2310,12 +2213,31 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!UpdateVictim())
-                return;
             if (me->HasUnitState(UNIT_STAT_CASTING))
                 return;
-            events.Update(diff);
+            
+            //me->MonsterSay("SE: Enter Combat", LANG_UNIVERSAL, 0);
+            if(playerClass == 0){
+                //sLog->outString("SE: Copy Player"), playerClass;
+                if (Unit *newVictim = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f))
+                {
+                    newVictim->CastSpell(me, SPELL_CLONE_PLAYER, true);
+                    playerClass = newVictim->getClass();
+                    //sLog->outString("Class: %i"), playerClass;
+                }
+                else
+                {
+                    me->DespawnOrUnsummon();
+                    return;
+                }
+            }        
+            
+            if (!UpdateVictim())
+                return;
+            
 
+            events.Update(diff);
+            
             switch (playerClass)
             {
                 case CLASS_DRUID:
@@ -2360,6 +2282,83 @@ public:
         return new npc_severed_essenceAI (pCreature);
     }
 
+};
+
+class npc_valkyr_herald : public CreatureScript
+{
+    public:
+        npc_valkyr_herald() : CreatureScript("npc_valkyr_herald") { }
+
+        struct npc_valkyr_heraldAI : public ScriptedAI
+        {
+            npc_valkyr_heraldAI(Creature* creature) : ScriptedAI(creature), summons(creature)
+            {
+                instance = creature->GetInstanceScript();
+            }
+            
+            void Reset()
+            {
+                events.Reset();
+            }
+
+            void EnterCombat(Unit* /*who*/)
+            {
+                events.Reset();
+                events.ScheduleEvent(EVENT_SEVERED_ESSENCE, 8000);
+            }
+
+            void JustSummoned(Creature* summon)
+            {
+                summons.Summon(summon);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim()){
+                    summons.DespawnAll();
+                    return;
+                }
+                if (me->HasUnitState(UNIT_STAT_CASTING))
+                    return;
+                events.Update(diff);
+                
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SEVERED_ESSENCE:
+                        {
+                            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            {
+                                DoCast(me, SPELL_SEVERED_ESSENCE, true);
+                                if (TempSummon* summon = me->SummonCreature(NPC_SEVERED_ESSENCE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0))
+                                {
+                                    CAST_AI(npc_severed_essence::npc_severed_essenceAI, summon->AI())->SetMyClass(target->getClass());
+                                    summon->AI()->AttackStart(target);
+                                    target->CastSpell(summon, SPELL_CLONE_PLAYER, true);
+                                    //summon->AI()->SetGUID(target->GetGUID(), DATA_CLONED_PLAYER);
+                                }
+                            }
+                            events.ScheduleEvent(EVENT_SEVERED_ESSENCE, 15000);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+            
+                DoMeleeAttackIfReady();
+            }
+        private:
+            InstanceScript *instance;
+            EventMap events;
+            SummonList summons;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_valkyr_heraldAI(creature);
+        }
 };
 
 class spell_icc_stoneform : public SpellScriptLoader
@@ -2456,7 +2455,7 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_icc_sprit_alarm_SpellScript::HandleEvent, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
+                OnEffectHit += SpellEffectFn(spell_icc_sprit_alarm_SpellScript::HandleEvent, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
             }
         };
 
@@ -2537,9 +2536,9 @@ class spell_frost_giant_death_plague : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_frost_giant_death_plague_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_AREA_ALLY_SRC);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_frost_giant_death_plague_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_AREA_ALLY_SRC);
-                OnEffect += SpellEffectFn(spell_frost_giant_death_plague_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_frost_giant_death_plague_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_frost_giant_death_plague_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
+                OnEffectHitTarget += SpellEffectFn(spell_frost_giant_death_plague_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
 
             bool _failed;
@@ -2573,8 +2572,8 @@ class spell_icc_harvest_blight_specimen : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_icc_harvest_blight_specimen_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-                OnEffect += SpellEffectFn(spell_icc_harvest_blight_specimen_SpellScript::HandleQuestComplete, EFFECT_1, SPELL_EFFECT_QUEST_COMPLETE);
+                OnEffectHitTarget += SpellEffectFn(spell_icc_harvest_blight_specimen_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_icc_harvest_blight_specimen_SpellScript::HandleQuestComplete, EFFECT_1, SPELL_EFFECT_QUEST_COMPLETE);
             }
         };
 
@@ -2608,10 +2607,27 @@ class spell_svalna_revive_champion : public SpellScriptLoader
                 Trinity::RandomResizeList(unitList, 2);
             }
 
+            void Land(SpellEffIndex /*effIndex*/)
+            {
+                Creature* caster = GetCaster()->ToCreature();
+                if (!caster)
+                    return;
+
+                Position pos;
+                caster->GetPosition(&pos);
+                caster->GetNearPosition(pos, 5.0f, 0.0f);
+                pos.m_positionZ = caster->GetBaseMap()->GetHeight(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true, 20.0f);
+                pos.m_positionZ += 0.05f;
+                caster->SetHomePosition(pos);
+                caster->GetMotionMaster()->MovePoint(POINT_LAND, pos);
+            }
+
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_svalna_revive_champion_SpellScript::RemoveAliveTarget, EFFECT_0, TARGET_UNIT_AREA_ENTRY_DST);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_svalna_revive_champion_SpellScript::RemoveAliveTarget, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+                OnEffectHit += SpellEffectFn(spell_svalna_revive_champion_SpellScript::Land, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
+
         };
 
         SpellScript* GetSpellScript() const
@@ -2633,12 +2649,16 @@ class spell_svalna_remove_spear : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
                 if (Creature* target = GetHitCreature())
-                    target->DespawnOrUnsummon();
+                {
+                    if (Unit* vehicle = target->GetVehicleBase())
+                        vehicle->RemoveAurasDueToSpell(SPELL_IMPALING_SPEAR);
+                    target->DespawnOrUnsummon(1);
+                }
             }
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_svalna_remove_spear_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_svalna_remove_spear_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -2737,8 +2757,8 @@ void AddSC_icecrown_citadel()
     new npc_captain_rupert();
     new npc_frostwing_vrykul();
     new npc_impaling_spear();
-    new npc_valkyr_herald();
     new npc_severed_essence();
+    new npc_valkyr_herald();
     new spell_icc_stoneform();
     new spell_icc_sprit_alarm();
     new spell_frost_giant_death_plague();

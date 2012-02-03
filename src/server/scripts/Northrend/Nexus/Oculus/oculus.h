@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #ifndef DEF_OCULUS_H
 #define DEF_OCULUS_H
 

@@ -32,7 +32,14 @@ EndScriptData */
 // Scarab   - Kill credit isn't crediting?
 // FrostSph - often they are casting Permafrost a little above the ground
 
+
 #include "ScriptPCH.h"
+#include "ObjectMgr.h"
+#include "UnitAI.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellAuras.h"
 #include "trial_of_the_crusader.h"
 
 enum Yells
@@ -133,14 +140,14 @@ public:
         return new boss_anubarak_trialAI(creature);
     };
 
-    struct boss_anubarak_trialAI : public ScriptedAI
+    struct boss_anubarak_trialAI : public BossAI
     {
-        boss_anubarak_trialAI(Creature* creature) : ScriptedAI(creature), Summons(me)
+        boss_anubarak_trialAI(Creature* creature) : BossAI(creature, DATA_ANUB_ARAK), Summons(me)
         {
-            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
+            m_instance = (InstanceScript*)creature->GetInstanceScript();
         }
 
-        InstanceScript* m_pInstance;
+        InstanceScript* m_instance;
 
         SummonList Summons;
         std::list<uint64> m_vBurrowGUID;
@@ -191,8 +198,8 @@ public:
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
                 DoScriptText(urand(0, 1) ? SAY_KILL1 : SAY_KILL2, me);
-                if (m_pInstance)
-                    m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
+                if (m_instance)
+                    m_instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
             }
         }
 
@@ -207,20 +214,20 @@ public:
 
         void JustReachedHome()
         {
-            if (m_pInstance)
-                m_pInstance->SetData(TYPE_ANUBARAK, FAIL);
+            if (m_instance)
+                m_instance->SetData(TYPE_ANUBARAK, FAIL);
             //Summon Scarab Swarms neutral at random places
             for (int i=0; i < 10; i++)
-                if (Creature* pTemp = me->SummonCreature(NPC_SCARAB, AnubarakLoc[1].GetPositionX()+urand(0, 50)-25, AnubarakLoc[1].GetPositionY()+urand(0, 50)-25, AnubarakLoc[1].GetPositionZ()))
-                    pTemp->setFaction(31);
+                if (Creature* temp = me->SummonCreature(NPC_SCARAB, AnubarakLoc[1].GetPositionX()+urand(0, 50)-25, AnubarakLoc[1].GetPositionY()+urand(0, 50)-25, AnubarakLoc[1].GetPositionZ()))
+                    temp->setFaction(31);
         }
 
         void JustDied(Unit* /*killer*/)
         {
             Summons.DespawnAll();
             DoScriptText(SAY_DEATH, me);
-            if (m_pInstance)
-                m_pInstance->SetData(TYPE_ANUBARAK, DONE);
+            if (m_instance)
+                m_instance->SetData(TYPE_ANUBARAK, DONE);
         }
 
         void JustSummoned(Creature* summoned)
@@ -235,7 +242,6 @@ public:
                     break;
                 case NPC_SPIKE:
                     summoned->CombatStart(target);
-                    DoScriptText(EMOTE_SPIKE, me, target);
                     break;
             }
             Summons.Summon(summoned);
@@ -256,8 +262,8 @@ public:
             DoScriptText(SAY_AGGRO, me);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             me->SetInCombatWithZone();
-            if (m_pInstance)
-                m_pInstance->SetData(TYPE_ANUBARAK, IN_PROGRESS);
+            if (m_instance)
+                m_instance->SetData(TYPE_ANUBARAK, IN_PROGRESS);
             //Despawn Scarab Swarms neutral
             Summons.DoAction(NPC_SCARAB, ACTION_SCARAB_SUBMERGE);
             //Spawn Burrow
@@ -422,10 +428,10 @@ public:
     {
         mob_swarm_scarabAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
+            m_instance = (InstanceScript*)creature->GetInstanceScript();
         }
 
-        InstanceScript* m_pInstance;
+        InstanceScript* m_instance;
 
         uint32 m_uiDeterminationTimer;
 
@@ -489,10 +495,10 @@ public:
     {
         mob_nerubian_burrowerAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
+            m_instance = (InstanceScript*)creature->GetInstanceScript();
         }
 
-        InstanceScript* m_pInstance;
+        InstanceScript* m_instance;
 
         uint32 m_uiSpiderFrenzyTimer;
         uint32 m_uiSubmergeTimer;
@@ -578,7 +584,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
             me->SetFlying(true);
             me->SetDisplayId(25144);
-            me->SetSpeed(MOVE_RUN, 0.5, false);
+            me->SetSpeed(MOVE_RUN, 0.5f, false);
             me->GetMotionMaster()->MoveRandom(20.0f);
             DoCast(SPELL_FROST_SPHERE);
         }
@@ -646,10 +652,10 @@ public:
     {
         mob_anubarak_spikeAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
+            m_instance = (InstanceScript*)creature->GetInstanceScript();
         }
 
-        InstanceScript* m_pInstance;
+        InstanceScript* m_instance;
         uint32 m_uiIncreaseSpeedTimer;
         uint8  m_uiSpeed;
         uint64 m_uiTargetGUID;
@@ -661,14 +667,29 @@ public:
             m_uiTargetGUID = 0;
         }
 
+        void SetGUID(uint64 guid)
+        {
+            m_uiTargetGUID = guid;
+        
+            if(Unit* target = ObjectAccessor::GetPlayer(*me, m_uiTargetGUID))
+            {
+                if(target)
+                {
+                    DoCast(target, SPELL_MARK);
+                    me->SetSpeed(MOVE_RUN, 0.5f);
+                    m_uiSpeed = 0;
+                    m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
+                    me->TauntApply(target);
+                    me->CombatStart(target);
+                    
+                    DoScriptText(EMOTE_SPIKE, me, target);
+                }
+            }
+        }
+
+
         void EnterCombat(Unit* who)
         {
-            m_uiTargetGUID = who->GetGUID();
-            DoCast(who, SPELL_MARK);
-            me->SetSpeed(MOVE_RUN, 0.5f);
-            m_uiSpeed = 0;
-            m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
-            me->TauntApply(who);
         }
 
         void DamageTaken(Unit* /*who*/, uint32& uiDamage)
@@ -678,22 +699,46 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-			if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-			{
-				while (!target || !target->isAlive() || !target->HasAura(SPELL_MARK) || target->isTotem())
-				{
-					target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-				}
-			}
+            if(!me->getVictim())
+                return;
+            
+            Unit* target = me->getVictim();
 
-            /*Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID);
-            if (!target || !target->isAlive() || !target->HasAura(SPELL_MARK) || target->isTotem())
+            if(target && target->isTotem() || target->isPet() || target->GetTypeId() != TYPEID_PLAYER)
             {
-                if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK)))
+                DoCast(me, SPELL_SPIKE_TRAIL);
+                me->Kill(target, false);
+                Unit* newTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true);
+                SetGUID(newTarget->GetGUID());
+                return;
+            }
+
+            // Safety check
+            if (m_uiTargetGUID == 0)
+            {
+                std::list<Unit*> unitList;
+                SelectTargetList(unitList, 10, SELECT_TARGET_RANDOM, -5.0f, true);
+                for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
+                {
+                    if ((*itr)->GetTypeId() != TYPEID_PLAYER || (*itr)->isTotem() || (*itr)->isPet())
+                        unitList.erase(itr++);
+                    else
+                        ++itr;
+                }
+                std::list<Unit*>::iterator itr = unitList.begin();
+                std::advance(itr, urand(0, unitList.size()-1));
+                Unit* target = *itr;
+
+                SetGUID(target->GetGUID());
+            }
+        
+            if (!target || !target->isAlive() || !target->HasAura(SPELL_MARK))
+            {
+                if (Creature* pAnubarak = Unit::GetCreature((*me), m_instance->GetData64(NPC_ANUBARAK)))
                     pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);
                 me->DisappearAndDie();
                 return;
-            }*/
+            }
 
             if (m_uiIncreaseSpeedTimer)
             {

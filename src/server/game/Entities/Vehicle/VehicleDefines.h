@@ -20,6 +20,9 @@
 #define __TRINITY_VEHICLEDEFINES_H
 
 #include "Define.h"
+#include <vector>
+#include <map>
+
 struct VehicleSeatEntry;
 
 enum PowerType
@@ -52,8 +55,8 @@ enum VehicleSpells
 
 struct VehicleSeat
 {
-    explicit VehicleSeat(VehicleSeatEntry const *seatInfo) : SeatInfo(seatInfo), Passenger(0) {}
-    VehicleSeatEntry const *SeatInfo;
+    explicit VehicleSeat(VehicleSeatEntry const* seatInfo) : SeatInfo(seatInfo), Passenger(0) {}
+    VehicleSeatEntry const* SeatInfo;
     uint64 Passenger;
 };
 

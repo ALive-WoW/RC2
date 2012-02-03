@@ -327,7 +327,7 @@ public:
                 me->SummonCreature(preAddLocations[i].entry,preAddLocations[i].x,preAddLocations[i].y,preAddLocations[i].z,preAddLocations[i].o,TEMPSUMMON_CORPSE_TIMED_DESPAWN,3000);
 
             if (GameObject* go = me->FindNearestGameObject(GO_LEVER, 500))
-                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -350,7 +350,7 @@ public:
                 // Lose Your Illusion
                 if (HardMode)
                 {
-                    instance->DoCompleteAchievement(ACHIEVEMENT_LOSE_ILLUSION);
+                    DoCast(me, ACHIEVEMENT_LOSE_ILLUSION, true);
                     me->SummonGameObject(RAID_MODE(CACHE_OF_STORMS_HARDMODE_10, CACHE_OF_STORMS_HARDMODE_25), 2134.58f, -286.908f, 419.495f, 1.55988f, 0, 0, 1, 1, 604800);
                 }
                 else
@@ -384,7 +384,7 @@ public:
                 runic->AI()->DoAction(ACTION_RUNIC_SMASH);
             
             if (GameObject* go = me->FindNearestGameObject(GO_LEVER, 500))
-                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
         }
 
         void UpdateAI(uint32 const diff)
@@ -399,7 +399,7 @@ public:
             }
             
             events.Update(diff);
-            _DoAggroPulse(diff);
+//            _DoAggroPulse(diff);
             EncounterTime += diff;
 
             if (me->HasUnitState(UNIT_STAT_CASTING))
@@ -1192,9 +1192,9 @@ class spell_stormhammer_targeting : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_stormhammer_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_stormhammer_targeting_SpellScript::SetTarget, EFFECT_1, TARGET_UNIT_AREA_ENEMY_SRC);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_stormhammer_targeting_SpellScript::SetTarget, EFFECT_2, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_stormhammer_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_stormhammer_targeting_SpellScript::SetTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_stormhammer_targeting_SpellScript::SetTarget, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
             }
 
             Unit* _target;

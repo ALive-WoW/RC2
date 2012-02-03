@@ -61,7 +61,9 @@ class instance_zulaman : public InstanceMapScript
 
         struct instance_zulaman_InstanceMapScript : public InstanceScript
         {
-            instance_zulaman_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+            instance_zulaman_InstanceMapScript(Map* map) : InstanceScript(map) {}
+
+            uint64 MassiveDoorGUID;
 
             uint64 HarkorsSatchelGUID;
             uint64 TanzarsTrunkGUID;
@@ -85,6 +87,8 @@ class instance_zulaman : public InstanceMapScript
             void Initialize()
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
+                MassiveDoorGUID = 0;
 
                 HarkorsSatchelGUID = 0;
                 TanzarsTrunkGUID = 0;
@@ -116,7 +120,7 @@ class instance_zulaman : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature)
             {
-                switch(creature->GetEntry())
+                switch (creature->GetEntry())
                 {
                 case 23578://janalai
                 case 23863://zuljin
@@ -129,8 +133,9 @@ class instance_zulaman : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go)
             {
-                switch(go->GetEntry())
+                switch (go->GetEntry())
                 {
+                case 186728: MassiveDoorGUID = go->GetGUID(); break;
                 case 186303: HalazziDoorGUID = go->GetGUID(); break;
                 case 186304: ZulJinGateGUID  = go->GetGUID(); break;
                 case 186305: HexLordGateGUID = go->GetGUID(); break;
@@ -205,8 +210,14 @@ class instance_zulaman : public InstanceMapScript
 
             void SetData(uint32 type, uint32 data)
             {
-                switch(type)
+                switch (type)
                 {
+                case DATA_OPEN_DOOR:
+                    if (data == DONE)
+                    {
+                        HandleGameObject(MassiveDoorGUID, true);
+                    }
+                    break;
                 case DATA_NALORAKKEVENT:
                     m_auiEncounter[0] = data;
                     if (data == DONE)
@@ -279,7 +290,7 @@ class instance_zulaman : public InstanceMapScript
 
             uint32 GetData(uint32 type)
             {
-                switch(type)
+                switch (type)
                 {
                 case DATA_NALORAKKEVENT: return m_auiEncounter[0];
                 case DATA_AKILZONEVENT:  return m_auiEncounter[1];
@@ -314,9 +325,9 @@ class instance_zulaman : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
-            return new instance_zulaman_InstanceMapScript(pMap);
+            return new instance_zulaman_InstanceMapScript(map);
         }
 };
 

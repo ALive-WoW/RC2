@@ -103,6 +103,7 @@ enum Spells
     SPELL_BLOOD_LINK_POWER              = 72195,
     SPELL_BLOOD_LINK_DUMMY              = 72202,
     SPELL_MARK_OF_THE_FALLEN_CHAMPION   = 72293,
+	SPELL_EFFECT_MARK_DMG				= 69189,
     SPELL_BOILING_BLOOD                 = 72385,
     SPELL_RUNE_OF_BLOOD                 = 72410,
 	SPELL_DAMAGE_BUFF					= 64036, // Buff adds 5% more DMG
@@ -251,6 +252,8 @@ class boss_deathbringer_saurfang : public CreatureScript
                 _fallenChampionCastCount = 0;
             }
 
+	     uint32 cpower;
+
             void Reset()
             {
                 _Reset();
@@ -265,6 +268,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 DoCast(me, SPELL_RUNE_OF_BLOOD_S, true);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
                 me->RemoveAurasDueToSpell(SPELL_FRENZY);
+                cpower = 0;
             }
 
             void EnterCombat(Unit* who)
@@ -297,7 +301,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 events.ScheduleEvent(EVENT_BERSERK, 480000, 0, PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_BOILING_BLOOD, 15500, 0, PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_BLOOD_NOVA, 17000, 0, PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, 20000, 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, 3000, 0, PHASE_COMBAT);
 
                 _fallenChampionCastCount = 0;
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
@@ -345,31 +349,10 @@ class boss_deathbringer_saurfang : public CreatureScript
 				if (victim->HasAura(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
 				{
 					if (me->GetMap()->GetDifficulty() == 0 || me->GetMap()->GetDifficulty() == 1)
-					{
-						//victim->CastSpell(me, 72260, true);	// Heal the Boss 5%
-						if(uint32 health = me->GetHealth())
-							if(uint32 health2 = (me->GetMaxHealth()*0.05))
-								me->SetHealth((health + health2));
-					}
+						victim->CastSpell(me, 72260, true);	// Heal the Boss 5%
 					if (me->GetMap()->GetDifficulty() == 2 || me->GetMap()->GetDifficulty() == 3)
-					{
-						//victim->CastSpell(me, 72279, true);	// Heal the Boss 20%
-						if(uint32 health = me->GetHealth())
-							if(uint32 health2 = (me->GetMaxHealth()*0.2))
-								me->SetHealth((health + health2));
-					}
+						victim->CastSpell(me, 72279, true);	// Heal the Boss 20%
 				}
-				
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
-            {
-                if (!_frenzied && HealthBelowPct(31)) // AT 30%, not below
-                {
-                    _frenzied = true;
-                    DoCast(me, SPELL_FRENZY);
-                    Talk(SAY_FRENZY);
-                }
             }
 
             void JustSummoned(Creature* summon)
@@ -432,85 +415,77 @@ class boss_deathbringer_saurfang : public CreatureScript
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
-				uint32 power = me->GetPower(POWER_ENERGY);
-				if (power == 100 || power > 100)
-				{
-					DoAction(ACTION_MARK_OF_THE_FALLEN_CHAMPION);
-				}
+                if (!_frenzied && HealthBelowPct(31)) // AT 30%, not below
+                {
+                    DoCast(me, SPELL_FRENZY);
+                    Talk(SAY_FRENZY);
+                    _frenzied = true;
+                }
 
-				else if (power >= 90 && power < 100)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.90f);
-					me->SetAuraStack(SPELL_DAMAGE_BUFF,me,18);
-					if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
-						bloodPower->RecalculateAmountOfEffects();
-				}
-				else if (power >= 80 && power < 90)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.80f);
-					me->SetAuraStack(SPELL_DAMAGE_BUFF,me,16);
-					if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
-						bloodPower->RecalculateAmountOfEffects();
-				}
-				else if (power >= 70 && power < 80)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.70f);
-					me->SetAuraStack(SPELL_DAMAGE_BUFF,me,14);
-					if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
-						bloodPower->RecalculateAmountOfEffects();
-				}
-				else if (power >= 60 && power < 70)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.60f);
-					me->SetAuraStack(SPELL_DAMAGE_BUFF,me,12);
-					if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
-						bloodPower->RecalculateAmountOfEffects();
-				}
-				else if (power >= 50 && power < 60)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.50f);
-					me->SetAuraStack(SPELL_DAMAGE_BUFF,me,10);
-					if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
-						bloodPower->RecalculateAmountOfEffects();
-				}
-				else if (power >= 40 && power < 50)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.40f);
-					me->SetAuraStack(SPELL_DAMAGE_BUFF,me,8);
-					if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
-						bloodPower->RecalculateAmountOfEffects();
-				}
-				else if (power >= 30 && power < 40)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.30f);
-					me->SetAuraStack(SPELL_DAMAGE_BUFF,me,6);
-					if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
-						bloodPower->RecalculateAmountOfEffects();
-				}
-				else if (power >= 20 && power < 30)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.20f);
-					me->SetAuraStack(SPELL_DAMAGE_BUFF,me,4);
-					if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
-						bloodPower->RecalculateAmountOfEffects();
-				}
-				else if (power >= 10 && power < 20)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.10f);
-					me->SetAuraStack(SPELL_DAMAGE_BUFF,me,2);
-					if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
-						bloodPower->RecalculateAmountOfEffects();
-				}
-				else if (power >= 0 && power < 10)
-				{
-					me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.00f);
-					me->RemoveAurasDueToSpell(SPELL_DAMAGE_BUFF);
-					if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
-						bloodPower->RecalculateAmountOfEffects();
-				}
+                uint32 power = me->GetPower(POWER_ENERGY);
+                if (power >= 100)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 20);																											
+                else if (power >= 95 && power < 100)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 19);
+                else if (power >= 90 && power < 95)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 18);
+                else if (power >= 85 && power < 90)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 17);
+                else if (power >= 80 && power < 85)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 16);
+                else if (power >= 75 && power < 80)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 15);
+                else if (power >= 70 && power < 75)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 14);
+                else if (power >= 65 && power < 70)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 13);
+                else if (power >= 60 && power < 65)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 12);
+                else if (power >= 55 && power < 60)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 11);
+                else if (power >= 50 && power < 55)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 10);
+                else if (power >= 45 && power < 50)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 9);
+                else if (power >= 40 && power < 45)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 8);
+                else if (power >= 35 && power < 40)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 7);
+                else if (power >= 30 && power < 35)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 6);
+                else if (power >= 25 && power < 30)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 5);
+                else if (power >= 20 && power < 25)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 4);
+                else if (power >= 15 && power < 20)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 3);
+                else if (power >= 10 && power < 15)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 2);
+                else if (power >= 5 && power < 10)
+                    me->SetAuraStack(SPELL_DAMAGE_BUFF, me, 1);
+                else if (power >= 0 && power < 5)
+                    me->RemoveAurasDueToSpell(SPELL_DAMAGE_BUFF);
 
-                while (uint32 eventId = events.ExecuteEvent())
-				{
+                // Male aufgreifen und Schaden am Spieler mit Mal verursachen
+                if(me->isAttackReady())
+                {
+                    uint32 Markdmg;
+                    Markdmg =  urand(5700,6300);
+                    int Markdamage = Markdmg;
+
+                    Map::PlayerList const &pList = me->GetMap()->GetPlayers();
+                    if (pList.isEmpty()) return;
+
+                    for (Map::PlayerList::const_iterator i = pList.begin(); i != pList.end(); ++i)
+                        if (Player* pPlayer = i->getSource())
+                            if (pPlayer->isAlive())
+                                if (pPlayer->HasAura(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
+                                    me->CastCustomSpell(pPlayer, SPELL_EFFECT_MARK_DMG,&Markdamage, 0, 0, true);
+
+                }
+
+				while (uint32 eventId = events.ExecuteEvent())
+                {					
                     switch (eventId)
                     {
                         case EVENT_INTRO_ALLIANCE_2:
@@ -1072,24 +1047,24 @@ class npc_bloodbeast : public CreatureScript
 
         struct npc_bloodbeastAI : public ScriptedAI
         {
-  		 npc_bloodbeastAI(Creature* creature) : ScriptedAI(creature) {}
+  		    npc_bloodbeastAI(Creature* creature) : ScriptedAI(creature) {}
 
-   		void UpdateAI(uint32 const diff)
-   		{
-    			if (!UpdateVictim())
-     				return;
+   		    void UpdateAI(uint32 const diff)
+   		    {
+                if (!UpdateVictim())
+     			    return;
 
-    			if (!me->HasAura(SPELL_BLOOD_LINK_BEAST))
-     			DoCast(me, SPELL_BLOOD_LINK_BEAST, true);
+        		if (!me->HasAura(SPELL_BLOOD_LINK_BEAST))
+         		    DoCast(me, SPELL_BLOOD_LINK_BEAST, true);
 
-    			DoMeleeAttackIfReady();
-   		}
-  	};
+        		DoMeleeAttackIfReady();
+   	    	}
+  	    };
 
-  	CreatureAI* GetAI(Creature* creature) const
-  	{
-  		return GetIcecrownCitadelAI<npc_bloodbeastAI>(creature);
-  	}
+      	CreatureAI* GetAI(Creature* creature) const
+  	    {
+  		    return GetIcecrownCitadelAI<npc_bloodbeastAI>(creature);
+  	    }
 };
 
 class spell_deathbringer_blood_link : public SpellScriptLoader
@@ -1120,7 +1095,7 @@ class spell_deathbringer_blood_link : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_deathbringer_blood_link_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_deathbringer_blood_link_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -1151,9 +1126,7 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
                 PreventDefaultAction();
                 if (GetUnitOwner()->getPowerType() == POWER_ENERGY && GetUnitOwner()->GetPower(POWER_ENERGY) == GetUnitOwner()->GetMaxPower(POWER_ENERGY))
                     if (Creature* saurfang = GetUnitOwner()->ToCreature())
-					{
-					}
-                      //  saurfang->AI()->DoAction(ACTION_MARK_OF_THE_FALLEN_CHAMPION);
+					    saurfang->AI()->DoAction(ACTION_MARK_OF_THE_FALLEN_CHAMPION);
             }
 
             void Register()
@@ -1249,7 +1222,7 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_deathbringer_rune_of_blood_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_deathbringer_rune_of_blood_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1284,7 +1257,7 @@ class spell_deathbringer_blood_nova : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_deathbringer_blood_nova_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_deathbringer_blood_nova_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1343,8 +1316,8 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_deathbringer_blood_nova_targeting_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_deathbringer_blood_nova_targeting_SpellScript::FilterTargetsSubsequent, EFFECT_1, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_deathbringer_blood_nova_targeting_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_deathbringer_blood_nova_targeting_SpellScript::FilterTargetsSubsequent, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
 
             Unit* target;
@@ -1383,7 +1356,7 @@ class spell_deathbringer_boiling_blood : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_deathbringer_boiling_blood_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_deathbringer_boiling_blood_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 

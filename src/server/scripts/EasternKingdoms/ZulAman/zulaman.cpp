@@ -51,10 +51,10 @@ class npc_forest_frog : public CreatureScript
         {
             npc_forest_frogAI(Creature* c) : ScriptedAI(c)
             {
-                pInstance = c->GetInstanceScript();
+                instance = c->GetInstanceScript();
             }
 
-            InstanceScript *pInstance;
+            InstanceScript* instance;
 
             void Reset() {}
 
@@ -62,10 +62,10 @@ class npc_forest_frog : public CreatureScript
 
             void DoSpawnRandom()
             {
-                if (pInstance)
+                if (instance)
                 {
                     uint32 cEntry = 0;
-                    switch(rand()%10)
+                    switch (rand()%10)
                     {
                         case 0: cEntry = 24397; break;          //Mannuth
                         case 1: cEntry = 24403; break;          //Deez
@@ -79,19 +79,19 @@ class npc_forest_frog : public CreatureScript
                         case 9: cEntry = 24455; break;          //Hollee
                     }
 
-                    if (!pInstance->GetData(TYPE_RAND_VENDOR_1))
+                    if (!instance->GetData(TYPE_RAND_VENDOR_1))
                         if (rand()%10 == 1) cEntry = 24408;      //Gunter
-                    if (!pInstance->GetData(TYPE_RAND_VENDOR_2))
+                    if (!instance->GetData(TYPE_RAND_VENDOR_2))
                         if (rand()%10 == 1) cEntry = 24409;      //Kyren
 
                     if (cEntry) me->UpdateEntry(cEntry);
 
-                    if (cEntry == 24408) pInstance->SetData(TYPE_RAND_VENDOR_1, DONE);
-                    if (cEntry == 24409) pInstance->SetData(TYPE_RAND_VENDOR_2, DONE);
+                    if (cEntry == 24408) instance->SetData(TYPE_RAND_VENDOR_1, DONE);
+                    if (cEntry == 24409) instance->SetData(TYPE_RAND_VENDOR_2, DONE);
                 }
             }
 
-            void SpellHit(Unit* caster, const SpellInfo *spell)
+            void SpellHit(Unit* caster, const SpellInfo* spell)
             {
                 if (spell->Id == SPELL_REMOVE_AMANI_CURSE && caster->GetTypeId() == TYPEID_PLAYER && me->GetEntry() == ENTRY_FOREST_FROG)
                 {
@@ -167,11 +167,11 @@ class npc_zulaman_hostage : public CreatureScript
                 return true;
             creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-            InstanceScript* pInstance = creature->GetInstanceScript();
-            if (pInstance)
+            InstanceScript* instance = creature->GetInstanceScript();
+            if (instance)
             {
-                //uint8 progress = pInstance->GetData(DATA_CHESTLOOTED);
-                pInstance->SetData(DATA_CHESTLOOTED, 0);
+                //uint8 progress = instance->GetData(DATA_CHESTLOOTED);
+                instance->SetData(DATA_CHESTLOOTED, 0);
                 float x, y, z;
                 creature->GetPosition(x, y, z);
                 uint32 entry = creature->GetEntry();
@@ -188,9 +188,51 @@ class npc_zulaman_hostage : public CreatureScript
         }
 };
 
+/*######
+## npc_harrison_jones
+######*/
+
+#define GOSSIP_HARRISON_JONES "Please open the gate."
+
+class npc_harrison_jones : public CreatureScript
+{
+    public:
+
+        npc_harrison_jones()
+            : CreatureScript("npc_harrison_jones")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HARRISON_JONES, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+        {
+            player->PlayerTalkClass->ClearMenus();
+            if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
+                player->CLOSE_GOSSIP_MENU();
+
+            if (!creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+                return true;
+            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+            InstanceScript* instance = creature->GetInstanceScript();
+            if (instance)
+            {
+                instance->SetData(DATA_OPEN_DOOR, DONE);
+            }
+            return true;
+        }
+};
+
 void AddSC_zulaman()
 {
     new npc_forest_frog();
     new npc_zulaman_hostage();
+    new npc_harrison_jones();
 }
 

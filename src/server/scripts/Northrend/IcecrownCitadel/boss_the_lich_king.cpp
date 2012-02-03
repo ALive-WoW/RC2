@@ -17,6 +17,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -294,17 +295,17 @@ enum Phases
 
 #define PHASE_TWO_THREE  (events.GetPhaseMask() & PHASE_MASK_TWO ? PHASE_TWO : PHASE_THREE)
 
-Position const CenterPosition     = {503.6282f, -2124.655f, 1040.8602f, 0.0f};
-Position const TirionIntro        = {489.2970f, -2124.840f, 1040.8602f, 0.0f};
-Position const TirionCharge       = {482.9019f, -2124.479f, 1040.8602f, 0.0f};
+Position const CenterPosition     = {503.6282f, -2124.655f, 840.8569f, 0.0f};
+Position const TirionIntro        = {489.2970f, -2124.840f, 840.8569f, 0.0f};
+Position const TirionCharge       = {482.9019f, -2124.479f, 840.8570f, 0.0f};
 Position const LichKingIntro[3]   =
 {
-    {432.0851f, -2123.673f, 1064.6615f, 0.0f},
-    {457.8351f, -2123.423f, 1041.1615f, 0.0f},
-    {465.0730f, -2123.470f, 1040.8602f, 0.0f},
+    {432.0851f, -2123.673f, 864.6582f, 0.0f},
+    {457.8351f, -2123.423f, 841.1582f, 0.0f},
+    {465.0730f, -2123.470f, 840.8569f, 0.0f},
 };
-Position const OutroPosition1     = {493.6286f, -2124.569f, 1040.8602f, 0.0f};
-Position const OutroFlying        = {508.9897f, -2124.561f, 1045.8598f, 0.0f};
+Position const OutroPosition1     = {493.6286f, -2124.569f, 840.8569f, 0.0f};
+Position const OutroFlying        = {508.9897f, -2124.561f, 845.3565f, 0.0f};
 Position const TerenasSpawn       = {495.5542f, -2517.012f, 1050.000f, 4.6993f};
 Position const TerenasSpawnHeroic = {495.7080f, -2523.760f, 1050.000f, 0.0f};
 Position const SpiritWardenSpawn  = {495.3406f, -2529.983f, 1050.000f, 1.5592f};
@@ -501,8 +502,7 @@ class boss_the_lich_king : public CreatureScript
             {
                 _JustDied();
                 DoCastAOE(SPELL_PLAY_MOVIE, false);
-
-				me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                 me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x03);
                 float x, y, z;
                 me->GetPosition(x, y, z);
@@ -512,11 +512,6 @@ class boss_the_lich_king : public CreatureScript
                     return;
 
                 me->GetMotionMaster()->MoveFall(ground_Z);
-				me->SetPosition(503.160187f, -2124.901123f, 1040.860107f, 3.084139f, false);
-
-				Creature *m_father = me->FindNearestCreature(DIFFICULTY(36823, 39217, 36823, 39217), 100, true);
-				if (m_father && m_father->isAlive())
-					m_father->SetVisible(false);
             }
 
             void EnterCombat(Unit* target)
@@ -719,10 +714,6 @@ class boss_the_lich_king : public CreatureScript
                     case NPC_DEFILE:
                         summon->SetReactState(REACT_PASSIVE);
                         summon->CastSpell(summon, SPELL_DEFILE_AURA, false);
-                        break;
-                    case NPC_VALKYR_SHADOWGUARD:
-                        summon->CastSpell(summon, SPELL_WINGS_OF_THE_DAMNED, true);
-                        summon->CastSpell(summon, SPELL_VALKYR_TARGET_SEARCH, true);
                         break;
                     case NPC_FROSTMOURNE_TRIGGER:
                     {
@@ -1489,6 +1480,7 @@ class npc_valkyr_shadowguard : public CreatureScript
             {
                 _events.Reset();
                 me->SetReactState(REACT_PASSIVE);
+                DoCast(me, SPELL_WINGS_OF_THE_DAMNED, false);
                 me->SetSpeed(MOVE_FLIGHT, 0.642857f, true);
             }
 
@@ -1498,6 +1490,28 @@ class npc_valkyr_shadowguard : public CreatureScript
                 _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2500);
             }
 
+            void SpellHit(Unit* attacker, const SpellEntry* spellEntry)
+            {
+                if (spellEntry)
+                    switch (spellEntry->Id)
+                    {
+                        case SPELL_VALKYR_CARRY:
+                        {
+                            sLog->outString("SpellHit - SPELL_VALKYR_CARRY");
+                            float speedRate = me->GetSpeedRate(MOVE_RUN);
+                            speedRate = 0.25f;
+                            me->SetSpeed(MOVE_FLIGHT, speedRate);
+                            me->SetSpeed(MOVE_RUN, speedRate);
+
+                            me->SetReactState(REACT_PASSIVE);
+                            me->AttackStop();
+                            SetCombatMovement(false);
+                            
+                            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        }
+                    }
+            }
+            
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
                 if (!IsHeroic())
@@ -1511,6 +1525,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                     _events.Reset();
                     DoCastAOE(SPELL_EJECT_ALL_PASSENGERS);
                     me->GetMotionMaster()->MoveTargetedHome();
+                    me->SetSpeed(MOVE_FLIGHT, 0.642857f, true);
                     me->ClearUnitState(UNIT_STAT_EVADE);
                 }
             }
@@ -1568,7 +1583,7 @@ class npc_valkyr_shadowguard : public CreatureScript
             void SetGUID(uint64 guid, int32 /* = 0*/)
             {
                 _grabbedPlayer = guid;
-                _events.Reset();
+                //_events.Reset();
             }
 
             void UpdateAI(uint32 const diff)
@@ -1586,8 +1601,11 @@ class npc_valkyr_shadowguard : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_GRAB_PLAYER:
-                            DoCastAOE(SPELL_VALKYR_TARGET_SEARCH);
-                            _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2000);
+                            if (!_grabbedPlayer)
+                            {
+                                DoCastAOE(SPELL_VALKYR_TARGET_SEARCH);
+                                _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2000);
+                            }
                             break;
                         case EVENT_MOVE_TO_DROP_POS:
                             me->GetMotionMaster()->MovePoint(POINT_DROP_PLAYER, _dropPoint);
@@ -1641,6 +1659,13 @@ class npc_strangulate_vehicle : public CreatureScript
                 // this will let us easily access all creatures of this entry on heroic mode when its time to teleport back
                 if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING)))
                     lichKing->AI()->JustSummoned(me);
+            }
+
+            void HealReceived(Unit* healer, uint32& heal)
+            {
+                if (TempSummon* summ = me->ToTempSummon())
+                    if (Unit* summoner = summ->GetSummoner())
+                        summoner->SetHealth(std::min(summoner->GetHealth() + heal, summoner->GetMaxHealth()));
             }
 
             void DoAction(int32 const action)
@@ -1942,7 +1967,7 @@ class npc_spirit_bomb : public CreatureScript
             {
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 float destX, destY, destZ;
                 me->GetPosition(destX, destY);
@@ -1965,7 +1990,7 @@ class npc_spirit_bomb : public CreatureScript
             {
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*diff*/)
             {
                 UpdateVictim();
                 // no melee attacks
@@ -1994,7 +2019,7 @@ class npc_broken_frostmourne : public CreatureScript
                 _events.Reset();
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 _events.SetPhase(PHASE_OUTRO);
                 _events.ScheduleEvent(EVENT_OUTRO_KNOCK_BACK, 3000, 0, PHASE_OUTRO);
@@ -2098,7 +2123,6 @@ class spell_the_lich_king_necrotic_plague : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Unit* newCaster = GetTarget();
                 switch (GetTargetApplication()->GetRemoveMode())
                 {
                     case AURA_REMOVE_BY_ENEMY_SPELL:
@@ -2261,7 +2285,7 @@ class spell_the_lich_king_shadow_trap_visual : public SpellScriptLoader
         {
             PrepareAuraScript(spell_the_lich_king_shadow_trap_visual_AuraScript);
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
                     GetTarget()->CastSpell(GetTarget(), SPELL_SHADOW_TRAP_AURA, TRIGGERED_NONE);
@@ -2298,7 +2322,7 @@ class spell_the_lich_king_shadow_trap_periodic : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_shadow_trap_periodic_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_shadow_trap_periodic_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -2336,8 +2360,8 @@ class spell_the_lich_king_quake : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_quake_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENTRY_SRC);
-                OnEffect += SpellEffectFn(spell_the_lich_king_quake_SpellScript::HandleSendEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_quake_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnEffectHit += SpellEffectFn(spell_the_lich_king_quake_SpellScript::HandleSendEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
             }
         };
 
@@ -2376,7 +2400,7 @@ class spell_the_lich_king_ice_burst_target_search : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_ice_burst_target_search_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_ice_burst_target_search_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -2410,7 +2434,7 @@ class spell_the_lich_king_raging_spirit : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_the_lich_king_raging_spirit_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_raging_spirit_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -2460,8 +2484,8 @@ class spell_the_lich_king_defile : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_defile_SpellScript::CorrectRange, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_defile_SpellScript::CorrectRange, EFFECT_1, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_defile_SpellScript::CorrectRange, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_defile_SpellScript::CorrectRange, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnHit += SpellHitFn(spell_the_lich_king_defile_SpellScript::ChangeDamageAndGrow);
             }
         };
@@ -2493,7 +2517,7 @@ class spell_the_lich_king_summon_into_air : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_the_lich_king_summon_into_air_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectLaunch += SpellEffectFn(spell_the_lich_king_summon_into_air_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 
@@ -2589,9 +2613,9 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_valkyr_target_search_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_valkyr_target_search_SpellScript::ReplaceTarget, EFFECT_1, TARGET_UNIT_AREA_ENEMY_SRC);
-                OnEffect += SpellEffectFn(spell_the_lich_king_valkyr_target_search_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_valkyr_target_search_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_valkyr_target_search_SpellScript::ReplaceTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_valkyr_target_search_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
 
             Unit* _target;
@@ -2625,7 +2649,7 @@ class spell_the_lich_king_eject_all_passengers : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_the_lich_king_eject_all_passengers_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_eject_all_passengers_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -2644,14 +2668,14 @@ class spell_the_lich_king_cast_back_to_caster : public SpellScriptLoader
         {
             PrepareSpellScript(spell_the_lich_king_cast_back_to_caster_SpellScript);
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
             }
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_the_lich_king_cast_back_to_caster_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_cast_back_to_caster_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -2746,7 +2770,7 @@ class spell_the_lich_king_vile_spirits_visual : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_the_lich_king_vile_spirits_visual_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectLaunch += SpellEffectFn(spell_the_lich_king_vile_spirits_visual_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -2792,8 +2816,8 @@ class spell_the_lich_king_vile_spirit_move_target_search : public SpellScriptLoa
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_vile_spirit_move_target_search_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
-                OnEffect += SpellEffectFn(spell_the_lich_king_vile_spirit_move_target_search_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_vile_spirit_move_target_search_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_vile_spirit_move_target_search_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
 
             Unit* _target;
@@ -2837,7 +2861,7 @@ class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScriptL
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_vile_spirit_damage_target_search_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_vile_spirit_damage_target_search_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
 
             Unit* _target;
@@ -2979,7 +3003,7 @@ class spell_the_lich_king_restore_soul : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_the_lich_king_restore_soul_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHit += SpellEffectFn(spell_the_lich_king_restore_soul_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
                 BeforeHit += SpellHitFn(spell_the_lich_king_restore_soul_SpellScript::RemoveAura);
             }
 
@@ -3042,7 +3066,7 @@ class spell_the_lich_king_summon_spirit_bomb : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_the_lich_king_summon_spirit_bomb_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_summon_spirit_bomb_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -3107,7 +3131,7 @@ class spell_the_lich_king_jump : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_the_lich_king_jump_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_jump_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -3134,7 +3158,7 @@ class spell_the_lich_king_jump_remove_aura : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_the_lich_king_jump_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_jump_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -3169,7 +3193,7 @@ class spell_the_lich_king_play_movie : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_the_lich_king_play_movie_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_play_movie_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

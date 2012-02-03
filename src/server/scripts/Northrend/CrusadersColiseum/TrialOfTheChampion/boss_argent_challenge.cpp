@@ -22,6 +22,7 @@ SDComment: AI from bosses need more improvements. Need AI for lightwell
 SDCategory: Trial of the Champion
 EndScriptData */
 
+
 #include "ScriptPCH.h"
 #include "trial_of_the_champion.h"
 #include "ScriptedEscortAI.h"
@@ -107,8 +108,8 @@ class spell_eadric_radiance : public SpellScriptLoader
             }
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
-				OnUnitTargetSelect += SpellUnitTargetFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+				OnUnitTargetSelect += SpellUnitTargetFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
         SpellScript *GetSpellScript() const
@@ -221,8 +222,8 @@ class boss_eadric : public CreatureScript
                 bDone = false;
 			    if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
                         pInstance->HandleGameObject(pGO->GetGUID(),false);
-                if (IsHeroic())
-                    pInstance->DoCompleteAchievement(ACHIEV_FACEROLLER);
+				if (IsHeroic())
+                    DoCast(me, ACHIEV_FACEROLLER, true);
             } else uiResetTimer -= uiDiff;
 
             if (!UpdateVictim())
@@ -375,7 +376,7 @@ class boss_paletress : public CreatureScript
                         pInstance->HandleGameObject(pGO->GetGUID(),true);		
                 pInstance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
                 if (IsHeroic())
-                    pInstance->DoCompleteAchievement(ACHIEV_CONF);
+                    DoCast(me, ACHIEV_CONF, true);
 		    }
         }
 

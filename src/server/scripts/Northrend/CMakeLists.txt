@@ -12,6 +12,7 @@ set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   Northrend/isle_of_conquest.cpp
   Northrend/storm_peaks.cpp
+  Northrend/wintergrasp.cpp
   Northrend/Ulduar/HallsOfLightning/instance_halls_of_lightning.cpp
   Northrend/Ulduar/HallsOfLightning/boss_bjarngrim.cpp
   Northrend/Ulduar/HallsOfLightning/halls_of_lightning.h
@@ -46,16 +47,15 @@ set(scripts_STAT_SRCS
   Northrend/ChamberOfAspects/ObsidianSanctum/boss_sartharion.cpp
   Northrend/ChamberOfAspects/RubySanctum/instance_ruby_sanctum.cpp
   Northrend/ChamberOfAspects/RubySanctum/ruby_sanctum.h
-  Northrend/ChamberOfAspects/RubySanctum/boss_baltharus.cpp
-  Northrend/ChamberOfAspects/RubySanctum/boss_ragefire.cpp
-  Northrend/ChamberOfAspects/RubySanctum/boss_zarithrian.cpp
-  Northrend/ChamberOfAspects/RubySanctum/boss_halion.cpp
+  Northrend/ChamberOfAspects/RubySanctum/ruby_sanctum.cpp
+  Northrend/ChamberOfAspects/RubySanctum/boss_baltharus_the_warborn.cpp
+  Northrend/ChamberOfAspects/RubySanctum/boss_saviana_ragefire.cpp
+  Northrend/ChamberOfAspects/RubySanctum/boss_general_zarithrian.cpp
   Northrend/FrozenHalls/HallsOfReflection/halls_of_reflection.h
   Northrend/FrozenHalls/HallsOfReflection/boss_falric.cpp
   Northrend/FrozenHalls/HallsOfReflection/instance_halls_of_reflection.cpp
   Northrend/FrozenHalls/HallsOfReflection/halls_of_reflection.cpp
   Northrend/FrozenHalls/HallsOfReflection/boss_marwyn.cpp
-  Northrend/FrozenHalls/HallsOfReflection/boss_the_lich_king_hor.cpp
   Northrend/FrozenHalls/PitOfSaron/boss_forgemaster_garfrost.cpp
   Northrend/FrozenHalls/PitOfSaron/boss_krickandick.cpp
   Northrend/FrozenHalls/PitOfSaron/pit_of_saron.cpp
@@ -160,24 +160,21 @@ set(scripts_STAT_SRCS
   Northrend/VioletHold/boss_xevozz.cpp
   Northrend/VioletHold/boss_erekem.cpp
   Northrend/VioletHold/violet_hold.cpp
-
-  Northrend/IcecrownCitadel/boss_blood_prince_council.cpp
-  Northrend/IcecrownCitadel/boss_blood_queen_lana_thel.cpp
-  Northrend/IcecrownCitadel/boss_deathbringer_saurfang.cpp
-  Northrend/IcecrownCitadel/boss_festergut.cpp
-  Northrend/IcecrownCitadel/boss_lady_deathwhisper.cpp
-  Northrend/IcecrownCitadel/boss_lord_marrowgar.cpp
-  Northrend/IcecrownCitadel/boss_professor_putricide.cpp
-  Northrend/IcecrownCitadel/boss_rotface.cpp
-  Northrend/IcecrownCitadel/boss_sindragosa.cpp
-  Northrend/IcecrownCitadel/boss_valithria_dreamwalker.cpp
+  Northrend/IcecrownCitadel/instance_icecrown_citadel.cpp
   Northrend/IcecrownCitadel/icecrown_citadel.cpp
   Northrend/IcecrownCitadel/icecrown_citadel.h
   Northrend/IcecrownCitadel/icecrown_citadel_teleport.cpp
-  Northrend/IcecrownCitadel/instance_icecrown_citadel.cpp
+  Northrend/IcecrownCitadel/boss_lord_marrowgar.cpp
+  Northrend/IcecrownCitadel/boss_lady_deathwhisper.cpp
+  Northrend/IcecrownCitadel/boss_deathbringer_saurfang.cpp
+  Northrend/IcecrownCitadel/boss_festergut.cpp
+  Northrend/IcecrownCitadel/boss_rotface.cpp
+  Northrend/IcecrownCitadel/boss_professor_putricide.cpp
+  Northrend/IcecrownCitadel/boss_blood_prince_council.cpp
+  Northrend/IcecrownCitadel/boss_blood_queen_lana_thel.cpp
+  Northrend/IcecrownCitadel/boss_valithria_dreamwalker.cpp
+  Northrend/IcecrownCitadel/boss_sindragosa.cpp
   Northrend/IcecrownCitadel/boss_the_lich_king.cpp
-  Northrend/IcecrownCitadel/boss_gunship_battle.cpp
-
   Northrend/zuldrak.cpp
   Northrend/icecrown.cpp
   Northrend/Gundrak/boss_slad_ran.cpp
@@ -196,7 +193,6 @@ set(scripts_STAT_SRCS
   Northrend/DraktharonKeep/drak_tharon_keep.h
   Northrend/DraktharonKeep/boss_tharon_ja.cpp
   Northrend/DraktharonKeep/boss_dred.cpp
-  Northrend/wintergrasp.cpp
 )
 
 message("  -> Prepared: Northrend")

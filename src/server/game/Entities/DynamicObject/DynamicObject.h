@@ -24,7 +24,6 @@
 class Unit;
 class Aura;
 class SpellInfo;
-class SpellEntry;
 
 enum DynamicObjectType
 {

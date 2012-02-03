@@ -15,12 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "Map.h"
 #include "PoolMgr.h"
+#include "AccountMgr.h"
 #include "icecrown_citadel.h"
 
 enum EventIds
@@ -102,6 +104,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                 TeamInInstance = 0;
                 HeroicAttempts = MaxHeroicAttempts;
                 LadyDeathwisperElevatorGUID = 0;
+				MuradinGUID = 0;
+                SaurfangGUID = 0;
+                memset(GSCannonGUIDs, 0, 4 * sizeof(uint64));
                 DeathbringerSaurfangGUID = 0;
                 DeathbringerSaurfangDoorGUID = 0;
                 DeathbringerSaurfangEventGUID = 0;
@@ -117,6 +122,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                 RotfaceGUID = 0;
                 ProfessorPutricideGUID = 0;
                 PutricideTableGUID = 0;
+                PutricideGreenStalkerGUID = 0;
+                PutricideRedStalkerGUID = 0;
                 memset(BloodCouncilGUIDs, 0, 3 * sizeof(uint64));
                 BloodCouncilControllerGUID = 0;
                 BloodQueenLanaThelGUID = 0;
@@ -213,6 +220,44 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_KING_VARIAN_WRYNN, ALLIANCE);
                         break;
+                    case NPC_MURADIN_GS:
+                        MuradinGUID = creature->GetGUID();
+                        break;
+                    case NPC_SAURFANG_GS:
+                        SaurfangGUID = creature->GetGUID();
+                        break;
+                    case NPC_SKYBREAKER_CANNON:
+                        if (GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
+                        {
+                            creature->SetVisible(true);
+                            if (GSCannonGUIDs[0] == 0)
+                                GSCannonGUIDs[0] = creature->GetGUID();
+                            else if (GSCannonGUIDs[1] == 0)
+                                GSCannonGUIDs[1] = creature->GetGUID();
+                            else if (GSCannonGUIDs[2] == 0)
+                                GSCannonGUIDs[2] = creature->GetGUID();
+                            else if (GSCannonGUIDs[3] == 0)
+                                GSCannonGUIDs[3] = creature->GetGUID();
+                        }
+                        else
+                            creature->SetVisible(false);
+                        break;
+                    case NPC_ORGRIMS_HAMMER_CANNON:
+                        if (GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                        {
+                            creature->SetVisible(true);
+                            if (GSCannonGUIDs[0] == 0)
+                                GSCannonGUIDs[0] = creature->GetGUID();
+                            else if (GSCannonGUIDs[1] == 0)
+                                GSCannonGUIDs[1] = creature->GetGUID();
+                            else if (GSCannonGUIDs[2] == 0)
+                                GSCannonGUIDs[2] = creature->GetGUID();
+                            else if (GSCannonGUIDs[3] == 0)
+                                GSCannonGUIDs[3] = creature->GetGUID();
+                        }
+                        else
+                            creature->SetVisible(false);
+                        break;
                     case NPC_DEATHBRINGER_SAURFANG:
                         DeathbringerSaurfangGUID = creature->GetGUID();
                         break;
@@ -237,6 +282,21 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_PROFESSOR_PUTRICIDE:
                         ProfessorPutricideGUID = creature->GetGUID();
                         break;
+                    case NPC_ABOMINATION_WING_MAD_SCIENTIST_STALKER:
+                    {
+                        if(creature->GetPositionX() > 4350.0f)
+                        {
+                            sLog->outString("Found Green Stalker: %u"), creature->GetGUID();
+                            PutricideGreenStalkerGUID = creature->GetGUID();
+                        }
+                        else
+                        {
+                            sLog->outString("Found Red Stalker: %u"), creature->GetGUID();
+                            PutricideRedStalkerGUID = creature->GetGUID();
+                        }
+                        sLog->outString("Green Stalker: %u / Red Stalker: %u"), PutricideGreenStalkerGUID, PutricideRedStalkerGUID;
+                        break;
+                    }
                     case NPC_PRINCE_KELESETH:
                         BloodCouncilGUIDs[0] = creature->GetGUID();
                         break;
@@ -560,6 +620,18 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 switch (type)
                 {
+					case NPC_MURADIN_GS:
+                        return MuradinGUID;
+                    case NPC_SAURFANG_GS:
+                        return SaurfangGUID;
+                    case DATA_GUNSHIP_CANNON_1:
+                        return GSCannonGUIDs[0];
+                    case DATA_GUNSHIP_CANNON_2:
+                        return GSCannonGUIDs[1];
+                    case DATA_GUNSHIP_CANNON_3:
+                        return GSCannonGUIDs[2];
+                    case DATA_GUNSHIP_CANNON_4:
+                        return GSCannonGUIDs[3];
                     case DATA_DEATHBRINGER_SAURFANG:
                         return DeathbringerSaurfangGUID;
                     case DATA_SAURFANG_EVENT_NPC:
@@ -576,6 +648,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return ProfessorPutricideGUID;
                     case DATA_PUTRICIDE_TABLE:
                         return PutricideTableGUID;
+                    case DATA_PUTRICIDE_GREEN_STALKER:
+                        return PutricideGreenStalkerGUID;
+                    case DATA_PUTRICIDE_RED_STALKER:
+                        return PutricideRedStalkerGUID;
                     case DATA_PRINCE_KELESETH_GUID:
                         return BloodCouncilGUIDs[0];
                     case DATA_PRINCE_TALDARAM_GUID:
@@ -796,6 +872,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case DATA_SINDRAGOSA_FROSTWYRMS:
                     {
+                        // 255 = Sindragoas has entered the stage
                         if (FrostwyrmCount == 255)
                             return;
 
@@ -811,8 +888,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 if (FrostwyrmCount)
                                 {
                                     --FrostwyrmCount;
+                                    sLog->outString("Sindragosa, Frostwyrm dead. FrostwyrmCount: %d"), FrostwyrmCount;
                                     if (!FrostwyrmCount)
                                     {
+                                        sLog->outString("Call Sindragosa");
                                         instance->LoadGrid(SindragosaSpawnPos.GetPositionX(), SindragosaSpawnPos.GetPositionY());
                                         if (Creature* boss = instance->SummonCreature(NPC_SINDRAGOSA, SindragosaSpawnPos))
                                             boss->AI()->DoAction(ACTION_START_FROSTWYRM);
@@ -821,6 +900,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 break;
                             case 1:
                                 ++FrostwyrmCount;
+                                break;
+                            case 5:
+                                sLog->outString("Force Call Sindragosa");
+                                instance->LoadGrid(SindragosaSpawnPos.GetPositionX(), SindragosaSpawnPos.GetPositionY());
+                                if (Creature* boss = instance->SummonCreature(NPC_SINDRAGOSA, SindragosaSpawnPos))
+                                    boss->AI()->DoAction(ACTION_START_FROSTWYRM);
                                 break;
                             default:
                                 FrostwyrmCount = data;
@@ -836,7 +921,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 spinestalk->AI()->DoAction(ACTION_START_FROSTWYRM);
                             return;
                         }
-                        
+
                         if (SpinestalkerTrashCount == 255)
                             return;
 
@@ -975,7 +1060,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
             {
-                if (player && player->isGameMaster())
+                if (player && AccountMgr::IsGMAccount(player->GetSession()->GetSecurity()))
                     return true;
 
                 switch (bossId)
@@ -1260,6 +1345,9 @@ class instance_icecrown_citadel : public InstanceMapScript
         protected:
             EventMap Events;
             uint64 LadyDeathwisperElevatorGUID;
+			uint64 MuradinGUID;
+            uint64 SaurfangGUID;
+            uint64 GSCannonGUIDs[4];
             uint64 DeathbringerSaurfangGUID;
             uint64 DeathbringerSaurfangDoorGUID;
             uint64 DeathbringerSaurfangEventGUID;   // Muradin Bronzebeard or High Overlord Saurfang
@@ -1275,6 +1363,8 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 RotfaceGUID;
             uint64 ProfessorPutricideGUID;
             uint64 PutricideTableGUID;
+            uint64 PutricideGreenStalkerGUID;
+            uint64 PutricideRedStalkerGUID;
             uint64 BloodCouncilGUIDs[3];
             uint64 BloodCouncilControllerGUID;
             uint64 BloodQueenLanaThelGUID;
@@ -1284,7 +1374,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 ValithriaDreamwalkerGUID;
             uint64 ValithriaLichKingGUID;
             uint64 ValithriaTriggerGUID;
-			uint64 ValithriaCacheGUID;
+            uint64 ValithriaCacheGUID;
             uint64 SindragosaGUID;
             uint64 SpinestalkerGUID;
             uint64 RimefangGUID;

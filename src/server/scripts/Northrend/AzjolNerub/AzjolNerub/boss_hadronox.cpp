@@ -28,6 +28,7 @@
 * Hadronox to make his way to you. When Hadronox enters the main room, she will web the doors, and no more non-elites will spawn.
 */
 
+
 #include "ScriptPCH.h"
 #include "azjol_nerub.h"
 
@@ -118,7 +119,7 @@ public:
                 return;
 
             float x=0.0f, y=0.0f, z=0.0f;
-            me->GetRespawnCoord(x, y, z);
+            me->GetRespawnPosition(x, y, z);
 
             if (uiCheckDistanceTimer <= uiDiff)
                 uiCheckDistanceTimer = 5*IN_MILLISECONDS;

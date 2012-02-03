@@ -1264,10 +1264,10 @@ enum Opcodes
     CMSG_START_BATTLEFIELD_CHEAT                    = 0x4CB,
     CMSG_END_BATTLEFIELD_CHEAT                      = 0x4CC,
     SMSG_MULTIPLE_PACKETS                           = 0x4CD,
-    SMSG_FORCE_UNK1_SPEED_CHANGE                    = 0x4CE,
-    CMSG_FORCE_UNK1_SPEED_CHANGE_ACK                = 0x4CF,
-    SMSG_FORCE_UNK2_SPEED_CHANGE                    = 0x4D0,
-    CMSG_FORCE_UNK2_SPEED_CHANGE_ACK                = 0x4D1,
+    SMSG_MOVE_GRAVITY_DISABLE                       = 0x4CE,
+    CMSG_MOVE_GRAVITY_DISABLE_ACK                   = 0x4CF,
+    SMSG_MOVE_GRAVITY_ENABLE                        = 0x4D0,
+    CMSG_MOVE_GRAVITY_ENABLE_ACK                    = 0x4D1,
     MSG_MOVE_GRAVITY_CHNG                           = 0x4D2,
     SMSG_SPLINE_MOVE_GRAVITY_DISABLE                = 0x4D3,
     SMSG_SPLINE_MOVE_GRAVITY_ENABLE                 = 0x4D4,
@@ -1282,7 +1282,7 @@ enum Opcodes
     CMSG_SET_PAID_SERVICE_CHEAT                     = 0x4DD,
     SMSG_BATTLEFIELD_MGR_ENTRY_INVITE               = 0x4DE, // uint32
     CMSG_BATTLEFIELD_MGR_ENTRY_INVITE_RESPONSE      = 0x4DF,
-    SMSG_BATTLEFIELD_MGR_ENTERED                    = 0x4E0, // uint32, uint8, uint8 
+    SMSG_BATTLEFIELD_MGR_ENTERED                    = 0x4E0, // uint32, uint8, uint8
     SMSG_BATTLEFIELD_MGR_QUEUE_INVITE               = 0x4E1, // uint32
     CMSG_BATTLEFIELD_MGR_QUEUE_INVITE_RESPONSE      = 0x4E2,
     CMSG_BATTLEFIELD_MGR_QUEUE_REQUEST              = 0x4E3,
@@ -1300,7 +1300,7 @@ enum Opcodes
     SMSG_GMRESPONSE_RECEIVED                        = 0x4EF, // uint32, uint32, string[2000], string[4000][4]
     CMSG_GMRESPONSE_RESOLVE                         = 0x4F0,
     SMSG_GMRESPONSE_STATUS_UPDATE                   = 0x4F1, // uint8 (1 - EVENT_GMSURVEY_DISPLAY, 0 - EVENT_UPDATE_TICKET)
-    SMSG_GMRESPONSE_CREATE_TICKET                   = 0x4F2, 
+    SMSG_GMRESPONSE_CREATE_TICKET                   = 0x4F2,
     CMSG_GMRESPONSE_CREATE_TICKET                   = 0x4F3,
     CMSG_SERVERINFO                                 = 0x4F4,
     SMSG_SERVERINFO                                 = 0x4F5,

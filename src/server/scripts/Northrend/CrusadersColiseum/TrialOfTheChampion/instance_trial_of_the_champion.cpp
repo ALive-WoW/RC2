@@ -21,6 +21,7 @@ SDComment:
 SDCategory: Trial Of the Champion
 EndScriptData */
 
+
 #include "ScriptPCH.h"
 #include "trial_of_the_champion.h"
 

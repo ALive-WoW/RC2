@@ -2,6 +2,7 @@
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
+
 #ifndef DEF_CRUSADER_H
 #define DEF_CRUSADER_H
 
@@ -28,7 +29,10 @@ enum
     DATA_MISTRESS_OF_PAIN_COUNT          = 302,
     DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE = 303,
 	
-	DATA_FACTION_CHAMPIONS		= 401,
+
+    // Encounter States/Boss GUIDs
+    DATA_FACTION_CHAMPIONS		= 401,
+    DATA_ANUB_ARAK              = 402,
 
     INCREASE                    = 501,
     DECREASE                    = 502,

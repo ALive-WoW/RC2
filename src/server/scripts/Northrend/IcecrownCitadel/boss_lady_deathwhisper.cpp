@@ -23,6 +23,7 @@
 #include "icecrown_citadel.h"
 #include "SpellInfo.h"
 
+
 enum ScriptTexts
 {
     // Lady Deathwhisper
@@ -1004,7 +1005,7 @@ class spell_cultist_dark_martyrdom : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_cultist_dark_martyrdom_SpellScript::HandleEffect, EFFECT_2, SPELL_EFFECT_FORCE_DESELECT);
+                OnEffectHitTarget += SpellEffectFn(spell_cultist_dark_martyrdom_SpellScript::HandleEffect, EFFECT_2, SPELL_EFFECT_FORCE_DESELECT);
             }
         };
 

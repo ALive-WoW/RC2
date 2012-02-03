@@ -29,6 +29,8 @@ alla porta di aprirsi. Questo approccio non è propriamente corretto
 perchè il cancello non deve aprirsi finchè TUTTI e 3 i boss non sono
 morti e non durante l'incontro (come può succedere ora)*/
 
+
+
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 #include "Vehicle.h"

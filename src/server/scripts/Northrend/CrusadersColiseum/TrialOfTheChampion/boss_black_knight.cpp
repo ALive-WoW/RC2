@@ -22,6 +22,7 @@ SDComment: not sure about timers.
 SDCategory: Trial of the Champion
 EndScriptData */
 
+
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 #include "trial_of_the_champion.h"
@@ -434,7 +435,7 @@ class boss_black_knight : public CreatureScript
                 pInstance->SetData(BOSS_BLACK_KNIGHT, DONE);
                 
                 if (IsHeroic())
-                    pInstance->DoCompleteAchievement(ACHIEV_WORSE);
+                    DoCast(me, ACHIEV_WORSE, true);
             }
 
             if (Map* instance = me->GetMap())

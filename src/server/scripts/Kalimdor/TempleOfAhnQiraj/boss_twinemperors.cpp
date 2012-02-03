@@ -63,10 +63,10 @@ struct boss_twinemperorsAI : public ScriptedAI
 {
     boss_twinemperorsAI(Creature* c): ScriptedAI(c)
     {
-        pInstance = c->GetInstanceScript();
+        instance = c->GetInstanceScript();
     }
 
-    InstanceScript *pInstance;
+    InstanceScript* instance;
 
     uint32 Heal_Timer;
     uint32 Teleport_Timer;
@@ -97,8 +97,8 @@ struct boss_twinemperorsAI : public ScriptedAI
 
     Creature* GetOtherBoss()
     {
-        if (pInstance)
-            return Unit::GetCreature(*me, pInstance->GetData64(IAmVeklor() ? DATA_VEKNILASH : DATA_VEKLOR));
+        if (instance)
+            return Unit::GetCreature(*me, instance->GetData64(IAmVeklor() ? DATA_VEKNILASH : DATA_VEKLOR));
         else
             return NULL;
     }
@@ -147,7 +147,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         {
             // TODO: we should activate the other boss location so he can start attackning even if nobody
             // is near I dont know how to do that
-            ScriptedAI *otherAI = CAST_AI(ScriptedAI, pOtherBoss->AI());
+            ScriptedAI* otherAI = CAST_AI(ScriptedAI, pOtherBoss->AI());
             if (!pOtherBoss->isInCombat())
             {
                 DoPlaySoundToSet(me, IAmVeklor() ? SOUND_VL_AGGRO : SOUND_VN_AGGRO);
@@ -157,7 +157,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* caster, const SpellInfo *entry)
+    void SpellHit(Unit* caster, const SpellInfo* entry)
     {
         if (caster == me)
             return;
@@ -204,7 +204,7 @@ struct boss_twinemperorsAI : public ScriptedAI
 
     void TeleportToMyBrother()
     {
-        if (!pInstance)
+        if (!instance)
             return;
 
         Teleport_Timer = TELEPORTTIME;
@@ -216,15 +216,12 @@ struct boss_twinemperorsAI : public ScriptedAI
         if (pOtherBoss)
         {
             //me->MonsterYell("Teleporting ...", LANG_UNIVERSAL, 0);
-            float other_x = pOtherBoss->GetPositionX();
-            float other_y = pOtherBoss->GetPositionY();
-            float other_z = pOtherBoss->GetPositionZ();
-            float other_o = pOtherBoss->GetOrientation();
-
-            Map *thismap = me->GetMap();
-            thismap->CreatureRelocation(pOtherBoss, me->GetPositionX(),
-                me->GetPositionY(),    me->GetPositionZ(), me->GetOrientation());
-            thismap->CreatureRelocation(me, other_x, other_y, other_z, other_o);
+            Position thisPos;
+            thisPos.Relocate(me);
+            Position otherPos;
+            otherPos.Relocate(pOtherBoss);
+            pOtherBoss->SetPosition(thisPos);
+            me->SetPosition(otherPos);
 
             SetAfterTeleport();
             CAST_AI(boss_twinemperorsAI,  pOtherBoss->AI())->SetAfterTeleport();
@@ -294,7 +291,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         if (!who || me->getVictim())
             return;
 
-        if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(me) && me->IsHostileTo(who))
+        if (me->canCreatureAttack(who))
         {
             float attackRadius = me->GetAttackDistance(who);
             if (attackRadius < PULL_RANGE)

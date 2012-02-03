@@ -19,6 +19,7 @@
 #ifndef DEF_ZULAMAN_H
 #define DEF_ZULAMAN_H
 
+#define DATA_OPEN_DOOR      0
 #define DATA_NALORAKKEVENT  1
 #define DATA_AKILZONEVENT   2
 #define DATA_JANALAIEVENT   3

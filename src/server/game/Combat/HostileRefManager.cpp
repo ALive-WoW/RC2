@@ -40,10 +40,9 @@ void HostileRefManager::threatAssist(Unit* victim, float baseThreat, SpellInfo c
     threat /= getSize();
     while (ref)
     {
-        if (victim == getOwner())
-            ref->addThreat(threat);          // It is faster to modify the threat durectly if possible
-        else
-            ref->getSource()->addThreat(victim, threat);
+        if (ThreatCalcHelper::isValidProcess(victim, ref->getSource()->getOwner(), threatSpell))
+            ref->getSource()->doAddThreat(victim, threat);
+
         ref = ref->next();
     }
 }
@@ -143,7 +142,7 @@ void HostileRefManager::deleteReferencesForFaction(uint32 faction)
 //=================================================
 // delete one reference, defined by Unit
 
-void HostileRefManager::deleteReference(Unit *creature)
+void HostileRefManager::deleteReference(Unit* creature)
 {
     HostileReference* ref = getFirst();
     while (ref)
@@ -162,7 +161,7 @@ void HostileRefManager::deleteReference(Unit *creature)
 //=================================================
 // set state for one reference, defined by Unit
 
-void HostileRefManager::setOnlineOfflineState(Unit *creature, bool isOnline)
+void HostileRefManager::setOnlineOfflineState(Unit* creature, bool isOnline)
 {
     HostileReference* ref = getFirst();
     while (ref)

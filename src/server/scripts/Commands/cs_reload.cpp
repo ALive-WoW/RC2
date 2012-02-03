@@ -226,7 +226,7 @@ public:
 
     static bool HandleReloadAllNpcCommand(ChatHandler* handler, const char* args)
     {
-        if(*args != 'a')                                          // will be reloaded from all_gossips
+        if (*args != 'a')                                          // will be reloaded from all_gossips
         HandleReloadNpcTrainerCommand(handler, "a");
         HandleReloadNpcVendorCommand(handler, "a");
         HandleReloadPointsOfInterestCommand(handler, "a");
@@ -298,7 +298,7 @@ public:
     {
         HandleReloadGossipMenuCommand(handler, "a");
         HandleReloadGossipMenuOptionCommand(handler, "a");
-        if(*args != 'a')                                          // already reload from all_scripts
+        if (*args != 'a')                                          // already reload from all_scripts
         HandleReloadPointsOfInterestCommand(handler, "a");
         return true;
     }
@@ -375,7 +375,7 @@ public:
 
     static bool HandleReloadAutobroadcastCommand(ChatHandler* handler, const char* /*args*/)
     {
-        sLog->outString("Re-Loading Autobroadcast...");
+        sLog->outString("Re-Loading Autobroadcasts...");
         sWorld->LoadAutobroadcasts();
         handler->SendGlobalGMSysMessage("DB table `autobroadcast` reloaded.");
         return true;
@@ -420,7 +420,7 @@ public:
 
         sLog->outString("Reloading creature template entry %u", entry);
 
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         const_cast<CreatureTemplate*>(cInfo)->DifficultyEntry[0] = fields[0].GetUInt32();
         const_cast<CreatureTemplate*>(cInfo)->DifficultyEntry[1] = fields[1].GetUInt32();
@@ -1104,9 +1104,9 @@ public:
     static bool HandleReloadDisablesCommand(ChatHandler* handler, const char* /*args*/)
     {
         sLog->outString("Re-Loading disables table...");
-        sDisableMgr->LoadDisables();
+        DisableMgr::LoadDisables();
         sLog->outString("Checking quest disables...");
-        sDisableMgr->CheckQuestDisables();
+        DisableMgr::CheckQuestDisables();
         handler->SendGlobalGMSysMessage("DB table `disables` reloaded.");
         return true;
     }

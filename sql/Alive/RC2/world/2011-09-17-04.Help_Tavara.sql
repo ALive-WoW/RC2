@@ -1,0 +1,1 @@
+UPDATE `creature` SET `curhealth`=51 WHERE `guid`=63161 LIMIT 1;

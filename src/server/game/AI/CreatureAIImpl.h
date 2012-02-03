@@ -329,7 +329,7 @@ class EventMap : private std::map<uint32, uint32>
         // Sets event phase, must be in range 1 - 8
         void SetPhase(uint32 phase)
         {
-            if (phase && phase < 9)
+            if (phase && phase < 8)
                 _phase = (1 << (phase + 24));
         }
 
@@ -340,7 +340,7 @@ class EventMap : private std::map<uint32, uint32>
             time += _time;
             if (groupId && groupId < 9)
                 eventId |= (1 << (groupId + 16));
-            if (phase && phase < 9)
+            if (phase && phase < 8)
                 eventId |= (1 << (phase + 24));
             const_iterator itr = find(time);
             while (itr != end())
@@ -524,11 +524,11 @@ struct AISpellInfoType
     float maxRange;
 };
 
- AISpellInfoType * GetAISpellInfo(uint32 i);
+AISpellInfoType* GetAISpellInfo(uint32 i);
 
 inline void CreatureAI::SetGazeOn(Unit* target)
 {
-    if (me->canAttack(target))
+    if (me->IsValidAttackTarget(target))
     {
         AttackStart(target);
         me->SetReactState(REACT_PASSIVE);
@@ -615,7 +615,7 @@ inline void UnitAI::DoCastAOE(uint32 spellId, bool triggered)
     me->CastSpell((Unit*)NULL, spellId, triggered);
 }
 
-inline Creature* CreatureAI::DoSummon(uint32 entry, const Position &pos, uint32 despawnTime, TempSummonType summonType)
+inline Creature* CreatureAI::DoSummon(uint32 entry, const Position& pos, uint32 despawnTime, TempSummonType summonType)
 {
     return me->SummonCreature(entry, pos, summonType, despawnTime);
 }

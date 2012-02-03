@@ -270,7 +270,10 @@ class boss_flame_leviathan : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                _EnterCombat();
+                me->setActive(true);
+                DoZoneInCombat();
+                if(instance)
+                    instance->SetBossState(TYPE_LEVIATHAN, IN_PROGRESS);
                 me->SetReactState(REACT_AGGRESSIVE);
                 events.ScheduleEvent(EVENT_PURSUE, 30*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_MISSILE, urand(1500, 4*IN_MILLISECONDS));
@@ -1487,7 +1490,7 @@ class spell_anti_air_rocket : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_anti_air_rocket_SpellScript::HandleTriggerMissile, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
+                OnEffectHitTarget += SpellEffectFn(spell_anti_air_rocket_SpellScript::HandleTriggerMissile, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
             }
         };
 
@@ -1576,8 +1579,8 @@ class spell_pursued : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_pursued_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_pursued_SpellScript::SetTarget, EFFECT_1, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_pursued_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_pursued_SpellScript::SetTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
 
             Unit* _target;
@@ -1612,8 +1615,8 @@ class spell_flame_leviathan_flames : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_flame_leviathan_flames_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-                OnEffect += SpellEffectFn(spell_flame_leviathan_flames_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(spell_flame_leviathan_flames_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_flame_leviathan_flames_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 

@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2011-2012 ALiveCore <http://www.wow-alive.de/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -870,13 +869,12 @@ struct FactionEntry
     char*       name[16];                                   // 23-38    m_name_lang
                                                             // 39 string flags
     //char*     description[16];                            // 40-55    m_description_lang
-         
-                                                   // 56 string flags
+                                                            // 56 string flags
 
-	// helpers
+    // helpers
     bool CanHaveReputation() const
     {
-        return reputationListID >=0;
+        return reputationListID >= 0;
     }
 };
 
@@ -897,8 +895,6 @@ struct FactionTemplateEntry
     // helpers
     bool IsFriendlyTo(FactionTemplateEntry const& entry) const
     {
-        if (ID == entry.ID)
-            return true;
         if (entry.faction)
         {
             for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
@@ -912,8 +908,6 @@ struct FactionTemplateEntry
     }
     bool IsHostileTo(FactionTemplateEntry const& entry) const
     {
-        if (ID == entry.ID)
-            return false;
         if (entry.faction)
         {
             for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
@@ -1062,7 +1056,7 @@ struct HolidaysEntry
     //uint32 holidayDescriptionId;                          // 50       m_holidayDescriptionID (HolidayDescriptions.dbc)
     //char *textureFilename;                                // 51       m_textureFilename
     //uint32 priority;                                      // 52       m_priority
-    //uint32 calendarFilterType;                            // 53       m_calendarFilterType (-1 = Fishing Contest, 0 = Unk,1 = Darkmoon Festival, 2 = Yearly holiday)
+    //uint32 calendarFilterType;                            // 53       m_calendarFilterType (-1 = Fishing Contest, 0 = Unk, 1 = Darkmoon Festival, 2 = Yearly holiday)
     //uint32 flags;                                         // 54       m_flags (0 = Darkmoon Faire, Fishing Contest and Wotlk Launch, rest is 1)
 };
 
@@ -1180,12 +1174,12 @@ struct LFGDungeonEntry
     uint32  reclevel;                                       // 20
     uint32  recminlevel;                                    // 21
     uint32  recmaxlevel;                                    // 22
-    int32  map;                                             // 23
+    int32   map;                                            // 23
     uint32  difficulty;                                     // 24
-    //uint32  unk;                                          // 25
+    //uint32  flags;                                        // 25
     uint32  type;                                           // 26
-    //uint32  unk2;                                         // 27
-    //char*   unk3;                                         // 28
+    //uint32  unk;                                          // 27
+    //char*   iconname;                                     // 28
     uint32  expansion;                                      // 29
     //uint32  unk4;                                         // 30
     uint32  grouptype;                                      // 31
@@ -1568,7 +1562,7 @@ struct SpellEntry
     uint32    Effect[MAX_SPELL_EFFECTS];                    // 71-73    m_effect
     int32     EffectDieSides[MAX_SPELL_EFFECTS];            // 74-76    m_effectDieSides
     float     EffectRealPointsPerLevel[MAX_SPELL_EFFECTS];  // 77-79    m_effectRealPointsPerLevel
-    int32     EffectBasePoints[MAX_SPELL_EFFECTS];          // 80-82    m_effectBasePoints (don't must be used in spell/auras explicitly, must be used cached Spell::m_currentBasePoints)
+    int32     EffectBasePoints[MAX_SPELL_EFFECTS];          // 80-82    m_effectBasePoints (must not be used in spell/auras explicitly, must be used cached Spell::m_currentBasePoints)
     uint32    EffectMechanic[MAX_SPELL_EFFECTS];            // 83-85    m_effectMechanic
     uint32    EffectImplicitTargetA[MAX_SPELL_EFFECTS];     // 86-88    m_implicitTargetA
     uint32    EffectImplicitTargetB[MAX_SPELL_EFFECTS];     // 89-91    m_implicitTargetB

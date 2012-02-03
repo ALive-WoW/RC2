@@ -184,11 +184,9 @@ class OutdoorPvPEP;
 
 class OPvPCapturePointEP_EWT : public OPvPCapturePoint
 {
-    friend class OutdoorPvPEP;
-
     public:
 
-        OPvPCapturePointEP_EWT(OutdoorPvP * pvp);
+        OPvPCapturePointEP_EWT(OutdoorPvP* pvp);
 
         void ChangeState();
 
@@ -215,11 +213,9 @@ class OPvPCapturePointEP_EWT : public OPvPCapturePoint
 
 class OPvPCapturePointEP_NPT : public OPvPCapturePoint
 {
-    friend class OutdoorPvPEP;
-
     public:
 
-        OPvPCapturePointEP_NPT(OutdoorPvP * pvp);
+        OPvPCapturePointEP_NPT(OutdoorPvP* pvp);
 
         void ChangeState();
 
@@ -246,11 +242,9 @@ class OPvPCapturePointEP_NPT : public OPvPCapturePoint
 
 class OPvPCapturePointEP_CGT : public OPvPCapturePoint
 {
-    friend class OutdoorPvPEP;
-
     public:
 
-        OPvPCapturePointEP_CGT(OutdoorPvP * pvp);
+        OPvPCapturePointEP_CGT(OutdoorPvP* pvp);
 
         void ChangeState();
 
@@ -277,11 +271,9 @@ class OPvPCapturePointEP_CGT : public OPvPCapturePoint
 
 class OPvPCapturePointEP_PWT : public OPvPCapturePoint
 {
-    friend class OutdoorPvPEP;
-
     public:
 
-        OPvPCapturePointEP_PWT(OutdoorPvP * pvp);
+        OPvPCapturePointEP_PWT(OutdoorPvP* pvp);
 
         void ChangeState();
 
@@ -308,11 +300,6 @@ class OPvPCapturePointEP_PWT : public OPvPCapturePoint
 
 class OutdoorPvPEP : public OutdoorPvP
 {
-    friend class OPvPCapturePointEP_EWT;
-    friend class OPvPCapturePointEP_NPT;
-    friend class OPvPCapturePointEP_PWT;
-    friend class OPvPCapturePointEP_CGT;
-
     public:
 
         OutdoorPvPEP();
@@ -329,6 +316,8 @@ class OutdoorPvPEP : public OutdoorPvP
         void SendRemoveWorldStates(Player* player);
 
         void BuffTeams();
+
+        void SetControlledState(uint32 index, uint32 state);
 
     private:
 

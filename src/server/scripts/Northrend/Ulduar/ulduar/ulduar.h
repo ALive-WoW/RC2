@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
 
@@ -58,6 +59,7 @@ enum UlduarTypes
     DATA_RIGHT_ARM,
 
     // XT-002
+	DATA_XT002_HEART,
     DATA_TOY_PILE_0,
     DATA_TOY_PILE_1,
     DATA_TOY_PILE_2,
@@ -106,7 +108,8 @@ enum UlduarNPCs
     NPC_STEELFORGED_DEFFENDER   = 33236,
     NPC_EXPEDITION_COMMANDER    = 33210,
     NPC_XT002                   = 33293,
-    NPC_XT_TOY_PILE                              = 33337,
+    NPC_XT_TOY_PILE             = 33337,
+	NPC_HEART_XT				= 33329,
     NPC_STEELBREAKER            = 32867,
     NPC_MOLGEIM                 = 32927,
     NPC_BRUNDIR                 = 32857,

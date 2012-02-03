@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- + Copyright (C) 2011-2012 ALiveCore <http://www.wow-alive.de/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -132,7 +131,7 @@ void UnitAI::DoCast(uint32 spellId)
 {
     Unit* target = NULL;
     //sLog->outError("aggre %u %u", spellId, (uint32)AISpellInfo[spellId].target);
-    switch(AISpellInfo[spellId].target)
+    switch (AISpellInfo[spellId].target)
     {
         default:
         case AITARGET_SELF:     target = me; break;
@@ -254,7 +253,7 @@ SpellTargetSelector::SpellTargetSelector(Unit* caster, uint32 spellId) :
     ASSERT(_spellInfo);
 }
 
-bool SpellTargetSelector::operator()(Unit* target) const
+bool SpellTargetSelector::operator()(Unit const* target) const
 {
     if (!target)
         return false;

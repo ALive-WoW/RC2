@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2011-2012 ALiveCore <http://www.wow-alive.de/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -87,7 +86,7 @@ class ReputationMgr
 
         FactionState const* GetState(FactionEntry const* factionEntry) const
         {
-            return factionEntry->reputationListID >= 0 ? GetState(factionEntry->reputationListID) : NULL;
+            return factionEntry->CanHaveReputation() ? GetState(factionEntry->reputationListID) : NULL;
         }
 
         FactionState const* GetState(RepListID id) const
@@ -96,7 +95,7 @@ class ReputationMgr
             return repItr != m_factions.end() ? &repItr->second : NULL;
         }
 
-		bool IsAtWar(uint32 faction_id) const;
+        bool IsAtWar(uint32 faction_id) const;
         bool IsAtWar(FactionEntry const* factionEntry) const;
 
         int32 GetReputation(uint32 faction_id) const;
@@ -105,7 +104,7 @@ class ReputationMgr
 
         ReputationRank GetRank(FactionEntry const* factionEntry) const;
         ReputationRank GetBaseRank(FactionEntry const* factionEntry) const;
-        uint32 GetReputationRankStrIndex(FactionEntry const* factionEntry)
+        uint32 GetReputationRankStrIndex(FactionEntry const* factionEntry) const
         {
             return ReputationRankStrIndex[GetRank(factionEntry)];
         };
