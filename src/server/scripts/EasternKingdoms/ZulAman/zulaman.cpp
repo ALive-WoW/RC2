@@ -188,9 +188,51 @@ class npc_zulaman_hostage : public CreatureScript
         }
 };
 
+/*######
+## npc_harrison_jones
+######*/
+
+#define GOSSIP_HARRISON_JONES "Please open the gate."
+
+class npc_harrison_jones : public CreatureScript
+{
+    public:
+
+        npc_harrison_jones()
+            : CreatureScript("npc_harrison_jones")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HARRISON_JONES, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+        {
+            player->PlayerTalkClass->ClearMenus();
+            if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
+                player->CLOSE_GOSSIP_MENU();
+
+            if (!creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+                return true;
+            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+            InstanceScript* instance = creature->GetInstanceScript();
+            if (instance)
+            {
+                instance->SetData(DATA_OPEN_DOOR, DONE);
+            }
+            return true;
+        }
+};
+
 void AddSC_zulaman()
 {
     new npc_forest_frog();
     new npc_zulaman_hostage();
+    new npc_harrison_jones();
 }
 

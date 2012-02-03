@@ -63,6 +63,8 @@ class instance_zulaman : public InstanceMapScript
         {
             instance_zulaman_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
+            uint64 MassiveDoorGUID;
+
             uint64 HarkorsSatchelGUID;
             uint64 TanzarsTrunkGUID;
             uint64 AshlisBagGUID;
@@ -85,6 +87,8 @@ class instance_zulaman : public InstanceMapScript
             void Initialize()
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
+                MassiveDoorGUID = 0;
 
                 HarkorsSatchelGUID = 0;
                 TanzarsTrunkGUID = 0;
@@ -131,6 +135,7 @@ class instance_zulaman : public InstanceMapScript
             {
                 switch (go->GetEntry())
                 {
+                case 186728: MassiveDoorGUID = go->GetGUID(); break;
                 case 186303: HalazziDoorGUID = go->GetGUID(); break;
                 case 186304: ZulJinGateGUID  = go->GetGUID(); break;
                 case 186305: HexLordGateGUID = go->GetGUID(); break;
@@ -207,6 +212,12 @@ class instance_zulaman : public InstanceMapScript
             {
                 switch (type)
                 {
+                case DATA_OPEN_DOOR:
+                    if (data == DONE)
+                    {
+                        HandleGameObject(MassiveDoorGUID, true);
+                    }
+                    break;
                 case DATA_NALORAKKEVENT:
                     m_auiEncounter[0] = data;
                     if (data == DONE)
