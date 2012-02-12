@@ -103,7 +103,7 @@ enum Spells
     SPELL_BLOOD_LINK_POWER              = 72195,
     SPELL_BLOOD_LINK_DUMMY              = 72202,
     SPELL_MARK_OF_THE_FALLEN_CHAMPION   = 72293,
-	SPELL_EFFECT_MARK_DMG				= 69189,
+	SPELL_EFFECT_MARK_DMG				= 72255,
     SPELL_BOILING_BLOOD                 = 72385,
     SPELL_RUNE_OF_BLOOD                 = 72410,
 	SPELL_DAMAGE_BUFF					= 64036, // Buff adds 5% more DMG
@@ -112,6 +112,7 @@ enum Spells
     SPELL_BLOOD_LINK_BEAST              = 72176,
     SPELL_RESISTANT_SKIN                = 72723,
     SPELL_SCENT_OF_BLOOD                = 72769, // Heroic only
+    SPELL_MAGMA_SHACKLES                = 19496,
 
     SPELL_RIDE_VEHICLE                  = 70640, // Outro
     SPELL_ACHIEVEMENT                   = 72928,
@@ -178,6 +179,7 @@ enum EventTypes
     EVENT_OUTRO_HORDE_6         = 49,
     EVENT_OUTRO_HORDE_7         = 50,
     EVENT_OUTRO_HORDE_8         = 51,
+    EVENT_MAGMA_SHACKLES        = 52,
 };
 
 enum Phases
@@ -340,7 +342,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 instance->SetBossState(DATA_DEATHBRINGER_SAURFANG, FAIL);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
             }
-
+            
             void KilledUnit(Unit* victim)
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
@@ -348,11 +350,17 @@ class boss_deathbringer_saurfang : public CreatureScript
 
 				if (victim->HasAura(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
 				{
-					if (me->GetMap()->GetDifficulty() == 0 || me->GetMap()->GetDifficulty() == 1)
-						victim->CastSpell(me, 72260, true);	// Heal the Boss 5%
-					if (me->GetMap()->GetDifficulty() == 2 || me->GetMap()->GetDifficulty() == 3)
-						victim->CastSpell(me, 72279, true);	// Heal the Boss 20%
-				}
+                    uint32 _heal;
+                    if(IsHeroic())
+                        _heal = me->GetMaxHealth() * 0.20;
+                    else
+                        _heal = me->GetMaxHealth() * 0.05;
+
+				    if((me->GetHealth() + _heal) > me->GetMaxHealth())
+                        _heal = me->GetMaxHealth() - me->GetHealth();
+                    SpellInfo const* markHeal = sSpellMgr->GetSpellInfo(RAID_MODE(72260,72260,72279,72279));
+                    me->HealBySpell(me, markHeal, _heal, false);
+                }
             }
 
             void JustSummoned(Creature* summon)
@@ -412,6 +420,8 @@ class boss_deathbringer_saurfang : public CreatureScript
 
                 events.Update(diff);
 
+                
+
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
@@ -466,7 +476,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 else if (power >= 0 && power < 5)
                     me->RemoveAurasDueToSpell(SPELL_DAMAGE_BUFF);
 
-				while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {					
                     switch (eventId)
                     {
@@ -1029,7 +1039,38 @@ class npc_bloodbeast : public CreatureScript
 
         struct npc_bloodbeastAI : public ScriptedAI
         {
-  		    npc_bloodbeastAI(Creature* creature) : ScriptedAI(creature) {}
+  		    npc_bloodbeastAI(Creature* creature) : ScriptedAI(creature) 
+            {
+                _instance = me->GetInstanceScript();
+            }
+            
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_MAGMA_SHACKLES, urand(1000, 1000));
+            }
+
+            void KilledUnit(Unit* victim)
+            {
+                if (Creature* pSaurfang = me->GetCreature(*me, _instance->GetData64(DATA_DEATHBRINGER_SAURFANG)))
+                {
+                    if (victim->HasAura(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
+				    {
+                        uint32 _heal;
+                        SpellInfo const* markHeal = sSpellMgr->GetSpellInfo(RAID_MODE(72260,72260,72279,72279));
+                    
+                        if(IsHeroic())
+                            _heal = pSaurfang->GetMaxHealth() * 0.20;
+                        else
+                            _heal = pSaurfang->GetMaxHealth() * 0.05;
+				        
+                        if((pSaurfang->GetHealth() + _heal) > pSaurfang->GetMaxHealth())
+                            _heal = pSaurfang->GetMaxHealth() - pSaurfang->GetHealth();
+                    
+                        pSaurfang->HealBySpell(pSaurfang, markHeal, _heal, false);
+                    }
+                }
+            }
 
    		    void UpdateAI(uint32 const diff)
    		    {
@@ -1039,8 +1080,29 @@ class npc_bloodbeast : public CreatureScript
         		if (!me->HasAura(SPELL_BLOOD_LINK_BEAST))
          		    DoCast(me, SPELL_BLOOD_LINK_BEAST, true);
 
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STAT_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_MAGMA_SHACKLES:
+                            DoCast(me, SPELL_MAGMA_SHACKLES);
+                            Events.ScheduleEvent(EVENT_MAGMA_SHACKLES, urand(5000, 6000));
+                            break;
+                    }
+                }
+
         		DoMeleeAttackIfReady();
    	    	}
+
+            private:
+                InstanceScript* _instance;
+            protected:
+                EventMap Events;
   	    };
 
       	CreatureAI* GetAI(Creature* creature) const

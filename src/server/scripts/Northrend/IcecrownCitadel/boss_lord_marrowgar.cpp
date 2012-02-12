@@ -116,6 +116,13 @@ class boss_lord_marrowgar : public CreatureScript
                 me->setActive(true);
                 DoZoneInCombat();
                 instance->SetBossState(DATA_LORD_MARROWGAR, IN_PROGRESS);
+
+                if (!instance->CheckRequiredBosses(DATA_LORD_MARROWGAR))
+                {
+                    EnterEvadeMode();
+                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
+                    return;
+                }
             }
 
             void JustDied(Unit* /*killer*/)
