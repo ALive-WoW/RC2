@@ -55,7 +55,6 @@ enum Spells
     // Lady Deathwhisper
     SPELL_MANA_BARRIER              = 70842,
     SPELL_SHADOW_BOLT               = 71254,
-    SPELL_DEATH_AND_DECAY           = 71001,
     SPELL_DOMINATE_MIND_H           = 71289,
     SPELL_FROSTBOLT                 = 71420,
     SPELL_FROSTBOLT_VOLLEY          = 72905,
@@ -180,6 +179,7 @@ enum DeprogrammingData
 #define NPC_DARNAVAN        RAID_MODE<uint32>(NPC_DARNAVAN_10, NPC_DARNAVAN_25, NPC_DARNAVAN_10, NPC_DARNAVAN_25)
 #define NPC_DARNAVAN_CREDIT RAID_MODE<uint32>(NPC_DARNAVAN_CREDIT_10, NPC_DARNAVAN_CREDIT_25, NPC_DARNAVAN_CREDIT_10, NPC_DARNAVAN_CREDIT_25)
 #define QUEST_DEPROGRAMMING RAID_MODE<uint32>(QUEST_DEPROGRAMMING_10, QUEST_DEPROGRAMMING_25, QUEST_DEPROGRAMMING_10, QUEST_DEPROGRAMMING_25)
+#define SPELL_DEATH_AND_DECAY RAID_MODE<uint32>(71001, 71001, 72110, 72110)
 
 uint32 const SummonEntries[2] = {NPC_CULT_FANATIC, NPC_CULT_ADHERENT};
 
@@ -370,7 +370,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     events.ScheduleEvent(EVENT_P2_FROSTBOLT, urand(10000, 12000), 0, PHASE_TWO);
                     events.ScheduleEvent(EVENT_P2_FROSTBOLT_VOLLEY, urand(19000, 21000), 0, PHASE_TWO);
                     events.ScheduleEvent(EVENT_P2_TOUCH_OF_INSIGNIFICANCE, urand(6000, 9000), 0, PHASE_TWO);
-                    events.ScheduleEvent(EVENT_P2_SUMMON_SHADE, urand(12000, 15000), 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_P2_SUMMON_SHADE, urand(8000, 12000), 0, PHASE_TWO);
                     // on heroic mode Lady Deathwhisper is immune to taunt effects in phase 2 and continues summoning adds
                     if (IsHeroic())
                     {
@@ -482,7 +482,16 @@ class boss_lady_deathwhisper : public CreatureScript
                                 _nextVengefulShadeTargetGUID = shadeTarget->GetGUID();
                                 DoCast(shadeTarget, SPELL_SUMMON_SHADE);
                             }
-                            events.ScheduleEvent(EVENT_P2_SUMMON_SHADE, urand(18000, 23000), 0, PHASE_TWO);
+                            
+                            uint32 shadeTimer;
+                            if(GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL || GetDifficulty() == RAID_DIFFICULTY_10MAN_HEROIC)
+                                shadeTimer = urand(18,23);
+                            else if(GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                                shadeTimer = urand(6,8);
+                            else if(GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
+                                shadeTimer = urand(4,6);
+                            shadeTimer = shadeTimer * 1000;
+                            events.ScheduleEvent(EVENT_P2_SUMMON_SHADE, shadeTimer, 0, PHASE_TWO);
                             break;
                         case EVENT_P2_SUMMON_WAVE:
                             SummonWaveP2();
