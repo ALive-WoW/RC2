@@ -130,6 +130,8 @@ enum EventTypes
     EVENT_P2_FROSTBOLT_VOLLEY           = 16,
     EVENT_P2_TOUCH_OF_INSIGNIFICANCE    = 17,
     EVENT_P2_SUMMON_SHADE               = 18,
+    EVENT_P2_SUMMON_SHADE2              = 33,
+    EVENT_P2_SUMMON_SHADE3              = 34,
 
     // Shared adds events
     EVENT_CULTIST_DARK_MARTYRDOM        = 19,
@@ -370,13 +372,13 @@ class boss_lady_deathwhisper : public CreatureScript
                     events.ScheduleEvent(EVENT_P2_FROSTBOLT, urand(10000, 12000), 0, PHASE_TWO);
                     events.ScheduleEvent(EVENT_P2_FROSTBOLT_VOLLEY, urand(19000, 21000), 0, PHASE_TWO);
                     events.ScheduleEvent(EVENT_P2_TOUCH_OF_INSIGNIFICANCE, urand(6000, 9000), 0, PHASE_TWO);
-                    events.ScheduleEvent(EVENT_P2_SUMMON_SHADE, urand(12000, 15000), 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_P2_SUMMON_SHADE, urand(8000, 12000), 0, PHASE_TWO);
                     // on heroic mode Lady Deathwhisper is immune to taunt effects in phase 2 and continues summoning adds
                     if (IsHeroic())
                     {
                         me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
-                        events.ScheduleEvent(EVENT_P2_SUMMON_WAVE, urand(30000, 60000), 0, PHASE_TWO);
+                        events.ScheduleEvent(EVENT_P2_SUMMON_WAVE, 45000, 0, PHASE_TWO);
                     }
                 }
             }
@@ -389,10 +391,32 @@ class boss_lady_deathwhisper : public CreatureScript
                     summons.Summon(summon);
 
                 Unit* target = NULL;
+
+                // Vengeful Shade
                 if (summon->GetEntry() == NPC_VENGEFUL_SHADE)
                 {
-                    target = ObjectAccessor::GetUnit(*me, _nextVengefulShadeTargetGUID);   // Vengeful Shade
-                    _nextVengefulShadeTargetGUID = 0;
+                    uint64 targetGUID = 0;
+
+                    if(_nextVengefulShadeTargetGUID > 0)
+                    {
+                        targetGUID = _nextVengefulShadeTargetGUID;
+                        _nextVengefulShadeTargetGUID = 0;
+                    }
+                    else if(_nextVengefulShade2TargetGUID > 0)
+                    {
+                        targetGUID = _nextVengefulShade2TargetGUID;
+                        _nextVengefulShade2TargetGUID = 0;
+                    }
+                    else if(_nextVengefulShade3TargetGUID > 0)
+                    {
+                        targetGUID = _nextVengefulShade3TargetGUID;
+                        _nextVengefulShade3TargetGUID = 0;
+                    }
+                    
+                    if(targetGUID > 0)
+                        target = ObjectAccessor::GetUnit(*me, targetGUID);
+                    else
+                        target = SelectTarget(SELECT_TARGET_RANDOM, 1);
                 }
                 else
                     target = SelectTarget(SELECT_TARGET_RANDOM);                        // Wave adds
@@ -439,7 +463,7 @@ class boss_lady_deathwhisper : public CreatureScript
                         case EVENT_DEATH_AND_DECAY:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 DoCast(target, SPELL_DEATH_AND_DECAY);
-                            events.ScheduleEvent(EVENT_DEATH_AND_DECAY, urand(10000, 12000));
+                            events.ScheduleEvent(EVENT_DEATH_AND_DECAY, urand(22000, 30000));
                             break;
                         case EVENT_DOMINATE_MIND_H:
                             Talk(SAY_DOMINATE_MIND);
@@ -450,7 +474,7 @@ class boss_lady_deathwhisper : public CreatureScript
                             break;
                         case EVENT_P1_SUMMON_WAVE:
                             SummonWaveP1();
-                            events.ScheduleEvent(EVENT_P1_SUMMON_WAVE, 60000, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_P1_SUMMON_WAVE, IsHeroic() ? 45000 : 60000, 0, PHASE_ONE);
                             break;
                         case EVENT_P1_SHADOW_BOLT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
@@ -482,11 +506,35 @@ class boss_lady_deathwhisper : public CreatureScript
                                 _nextVengefulShadeTargetGUID = shadeTarget->GetGUID();
                                 DoCast(shadeTarget, SPELL_SUMMON_SHADE);
                             }
-                            events.ScheduleEvent(EVENT_P2_SUMMON_SHADE, urand(18000, 23000), 0, PHASE_TWO);
+                            
+                            if(Is25ManRaid())
+                            {
+                                events.ScheduleEvent(EVENT_P2_SUMMON_SHADE2, 1000, 0, PHASE_TWO);
+                                events.ScheduleEvent(EVENT_P2_SUMMON_SHADE3, 2000, 0, PHASE_TWO);
+                            }
+                            
+                            if(IsHeroic())
+                                events.ScheduleEvent(EVENT_P2_SUMMON_SHADE, urand(6000,8000), 0, PHASE_TWO);
+                            else
+                                events.ScheduleEvent(EVENT_P2_SUMMON_SHADE, urand(8000,10000), 0, PHASE_TWO);
+                            break;
+                        case EVENT_P2_SUMMON_SHADE2:
+                            if (Unit* shadeTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                            {
+                                _nextVengefulShade2TargetGUID = shadeTarget->GetGUID();
+                                DoCast(shadeTarget, SPELL_SUMMON_SHADE);
+                            }
+                            break;
+                        case EVENT_P2_SUMMON_SHADE3:
+                            if (Unit* shadeTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                            {
+                                _nextVengefulShade3TargetGUID = shadeTarget->GetGUID();
+                                DoCast(shadeTarget, SPELL_SUMMON_SHADE);
+                            }
                             break;
                         case EVENT_P2_SUMMON_WAVE:
                             SummonWaveP2();
-                            events.ScheduleEvent(EVENT_P2_SUMMON_WAVE, 60000, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_P2_SUMMON_WAVE, 45000, 0, PHASE_TWO);
                             break;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK);
@@ -613,6 +661,8 @@ class boss_lady_deathwhisper : public CreatureScript
 
         private:
             uint64 _nextVengefulShadeTargetGUID;
+            uint64 _nextVengefulShade2TargetGUID;
+            uint64 _nextVengefulShade3TargetGUID;
             uint64 _darnavanGUID;
             std::deque<uint64> _reanimationQueue;
             uint32 _waveCounter;
