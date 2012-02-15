@@ -1,7 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- *
- * Copyright (C) 2011-2012 ALiveCore <http://www.wow-alive.de/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 #ifndef ICECROWN_CITADEL_H_
 #define ICECROWN_CITADEL_H_
@@ -74,11 +71,6 @@ enum DataTypes
     DATA_LORD_MARROWGAR             = 0,
     DATA_LADY_DEATHWHISPER          = 1,
     DATA_GUNSHIP_EVENT              = 2,
-    DATA_GUNSHIP_CANNON_1           = 44,
-    DATA_GUNSHIP_CANNON_2           = 45,
-    DATA_GUNSHIP_CANNON_3           = 46,
-    DATA_GUNSHIP_CANNON_4           = 47,
-    DATA_GUNSHIP_BOAT_COUNT         = 48,
     DATA_DEATHBRINGER_SAURFANG      = 3,
     DATA_FESTERGUT                  = 4,
     DATA_ROTFACE                    = 5,
@@ -118,8 +110,22 @@ enum DataTypes
     DATA_HIGHLORD_TIRION_FORDRING   = 37,
     DATA_ARTHAS_PLATFORM            = 38,
     DATA_TERENAS_MENETHIL           = 39,
-    DATA_PUTRICIDE_GREEN_STALKER    = 40,
-    DATA_PUTRICIDE_RED_STALKER      = 41,
+    // For Gunship
+    DATA_FIRST_SQUAD_STATE                  = 100,
+    DATA_SECOND_SQUAD_STATE                 = 101,
+    DATA_SPIRE_FROSTWYRM_STATE              = 102,
+    DATA_GB_HIGH_OVERLORD_SAURFANG          = 103,
+    DATA_GB_MURADIN_BRONZEBEARD             = 104,
+    DATA_HIGH_OVERLORD_SAURFANG_NOT_VISUAL  = 105,
+    DATA_GB_BATTLE_MAGE                     = 106,
+    DATA_SKYBREAKER_BOSS                    = 107,
+    DATA_ORGRIMMAR_HAMMER_BOSS              = 108,
+    DATA_MURADIN_BRONZEBEARD_NOT_VISUAL     = 109,
+
+    // misc
+    DATA_MURADIN_BRONZEBEARD        = 66,
+    DATA_GUNSHIP_BATTLE             = 67,
+    GUID_PLAYER_LOCATION            = 69,
 };
 
 enum CreaturesIds
@@ -178,27 +184,34 @@ enum CreaturesIds
     NPC_VENGEFUL_SHADE                          = 38222,
 
     // Gunship Battle
-    NPC_MURADIN_GS                              = 36948,
-    NPC_SAURFANG_GS                             = 36939,
-
-    NPC_SKYBREAKER_CANNON                       = 36838,
-    NPC_ORGRIMS_HAMMER_CANNON                   = 36839,
-
-    NPC_SKYBREAKER_SERGEANT                     = 36961,
-    NPC_SKYBREAKER_MORTAR_SOLDIER               = 36978,
-    NPC_SKYBREAKER_MARINE                       = 36950,
-    NPC_SKYBREAKER_SORCERER                     = 37026,
-    NPC_SKYBREAKER_RIFLEMAN                     = 36969,
-
-    NPC_KORKRON_SERGEANT                        = 36960,
-    NPC_KORKRON_ROCKETEER                       = 36982,
-    NPC_KORKRON_REAVER                          = 36957,
-    NPC_KORKRON_BATTLE_MAGE                     = 37117,
-    NPC_KORKRON_AXETHROWER                      = 36968,
-
-    NPC_GUNSHIP_LIFE_TRIGGER_ALLIANCE           = 0,
-    NPC_GUNSHIP_LIFE_TRIGGER_HORDE              = 0,
-    NPC_GUNSHIP_FIGHT_TRIGGER                   = 0,
+    NPC_GB_SKYBREAKER                           = 37540,
+    NPC_GB_ORGRIMS_HAMMER                       = 37215,
+    NPC_GB_HIGH_OVERLORD_SAURFANG               = 36939,
+    NPC_GB_MURADIN_BRONZEBEARD                  = 36948,
+    NPC_GB_HIHG_CAPTAIN_JUSTIN_BARTLETT         = 37182,
+    NPC_GB_HIGH_OVERLORD_SAURFANG_NOT_VISUAL    = 50004,
+    NPC_GB_MURADIN_BRONZEBEARD_NOT_VISUAL       = 50006,
+    NPC_GB_SKYBREAKER_SORCERER				    = 37026,
+    NPC_GB_SKYBREAKER_SORCERERS                 = 37116,
+    NPC_GB_KORKRON_REAVER                       = 37920,
+    NPC_GB_KORKRON_REAVERS                      = 36957,
+    NPC_GB_KORKRON_SERGANTE                     = 36960,
+    NPC_GB_SKYBREAKER_SERGANTE                  = 36961,
+    NPC_GB_KORKRON_BATTLE_MAGE                  = 37117,
+    NPC_GB_SKYBREAKER_MARINE                    = 36950,
+    NPC_GB_KORKRON_ROCKETEER                    = 36982,
+    NPC_GB_SKYBREAKER_MORTAR_SOLDIER            = 36978,
+    NPC_GB_KORKRON_AXETHROWER                   = 36968,
+    NPC_GB_SKYBREAKER_RIFLEMAN                  = 36969,
+    NPC_GB_SKYBREAKER_DECKHAND                  = 36970,
+    NPC_GB_ZAFOD_BOOMBOX                        = 37184,
+    NPC_GB_ALLIANCE_CANON                       = 36838,
+    NPC_GB_HORDE_CANON                          = 36839,
+    NPC_GB_INVISIBLE_STALKER                    = 32780,
+    NPC_GB_PORTAL                               = 37227,
+    NPC_GB_GUNSHIP_HULL                         = 37547,
+    NPC_KORKRON_INVOKER                         = 37033,
+    NPC_SPIRE_FROSTWYRM	                        = 37230,
 
     // Deathbringer Saurfang
     NPC_DEATHBRINGER_SAURFANG                   = 37813,
@@ -312,7 +325,7 @@ enum CreaturesIds
     NPC_WORLD_TRIGGER                           = 22515,
     NPC_WORLD_TRIGGER_INFINITE_AOI              = 36171,
     NPC_SPIRIT_BOMB                             = 39189,
-    NPC_FROSTMOURNE_TRIGGER                     = 38584,    
+    NPC_FROSTMOURNE_TRIGGER                     = 38584,
 };
 
 enum GameObjectsIds
@@ -331,18 +344,20 @@ enum GameObjectsIds
     // Lady Deathwhisper
     GO_ORATORY_OF_THE_DAMNED_ENTRANCE       = 201563,
     GO_LADY_DEATHWHISPER_ELEVATOR           = 202220,
-	
-    // GunShip Battle
-    GO_HORDE_GUNSHIP                        = 1915002,
-    GO_ALLI_GUNSHIP                         = 1914902,
-    GO_HORDE_GUNSHIP_2                      = 1915001,
-    GO_ALLI_GUNSHIP_2                       = 1914901,
-    GO_GUNSHIP_CACHE_10N                    = 202239,
-    GO_GUNSHIP_CACHE_25N                    = 202240,
-    GO_GUNSHIP_CACHE_10H                    = 202238,
-    GO_GUNSHIP_CACHE_25H                    = 202241,
-    GO_GUNSHIP_SKYBREAKER_PORTAL            = 195371,
-    GO_GUNSHIP_ORGRIMS_HAMMER_PORTAL        = 196413,
+
+    //Gunship Battle
+    GO_ORGRIM_S_HAMMER_HORDE_ICC            = 201812,
+    GO_ORGRIM_S_HAMMER_ALLIANCE_ICC         = 201581,
+    GO_THE_SKYBREAKER_HORDE_ICC             = 201811,
+    GO_THE_SKYBREAKER_ALLIANCE_ICC          = 201580,
+    GO_CAPITAN_CHEST_A_10N                  = 201872,
+    GO_CAPITAN_CHEST_A_25N                  = 201873,
+    GO_CAPITAN_CHEST_A_10H                  = 201874,
+    GO_CAPITAN_CHEST_A_25H                  = 201875,
+    GO_CAPITAN_CHEST_H_10N                  = 202177,
+    GO_CAPITAN_CHEST_H_25N                  = 202178,
+    GO_CAPITAN_CHEST_H_10H                  = 202179,
+    GO_CAPITAN_CHEST_H_25H                  = 202180,
 
     // Deathbringer Saurfang
     GO_SAURFANG_S_DOOR                      = 201825,
@@ -381,10 +396,10 @@ enum GameObjectsIds
     GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_02   = 201381,
     GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_03   = 201382,
     GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_04   = 201383,
-	GO_VALITHRIA_CACHE_10N					= 201959,
-	GO_VALITHRIA_CACHE_25N					= 202338,
-	GO_VALITHRIA_CACHE_10H					= 202339,
-	GO_VALITHRIA_CACHE_25H					= 202340,
+    GO_VALITHRIA_CACHE_10N                  = 201959,
+    GO_VALITHRIA_CACHE_25N                  = 202338,
+    GO_VALITHRIA_CACHE_10H                  = 202339,
+    GO_VALITHRIA_CACHE_25H                  = 202340,
 
     // Sindragosa
     GO_SINDRAGOSA_ENTRANCE_DOOR             = 201373,
@@ -407,6 +422,13 @@ enum GameObjectsIds
     GO_FROZEN_LAVAMAN                       = 202436,
     GO_LAVAMAN_PILLARS_CHAINED              = 202437,
     GO_LAVAMAN_PILLARS_UNCHAINED            = 202438,
+};
+
+enum Achievements
+{
+    // Sara
+    ACHIEVEMENT_THE_FROZEN_THRONE_10              = 4530,
+    ACHIEVEMENT_THE_FROZEN_THRONE_25              = 4597,
 };
 
 enum AchievementCriteriaIds
