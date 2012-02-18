@@ -141,6 +141,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 ValithriaDreamwalkerGUID = 0;
                 ValithriaLichKingGUID = 0;
                 ValithriaTriggerGUID = 0;
+                ValithriaCacheGUID =0;
                 SindragosaGUID = 0;
                 SpinestalkerGUID = 0;
                 RimefangGUID = 0;
@@ -372,12 +373,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                 return entry;
             }
 
-            void OnUnitDeath(Unit* unit)
+            void OnCreatureDeath(Creature* creature)
             {
-                Creature* creature = unit->ToCreature();
-                if (!creature)
-                    return;
-
                 switch (creature->GetEntry())
                 {
                     case NPC_YMIRJAR_BATTLE_MAIDEN:

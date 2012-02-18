@@ -35,6 +35,12 @@ at_warsong_farms                q11686
 at_stormwright_shelf            q12741
 at_last_rites                   q12019
 at_sholazar_waygate             q12548
+at_stormwind_counting_house
+at_stormwind_auction_house
+at_stormwind_barber_shop
+at_orgrimmar_bank
+at_orgrimmar_auction_house
+at_orgrimmar_barber_shop
 EndContentData */
 
 #include "ScriptPCH.h"
@@ -368,6 +374,138 @@ class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
         }
 };
 
+/*######
+## Quest 24849
+######*/
+
+enum
+{
+    QUEST_HOT_ON_THE_TRAIL_ALI           = 24849,
+    NPC_CREDIT_STORMWIND_COUNTING_HOUSE  = 45672,
+    NPC_CREDIT_STORMWIND_AUCTION_HOUSE   = 45669,
+    NPC_CREDIT_STORMWIND_BARBER_SHOP     = 45671
+};
+
+class AreaTrigger_at_stormwind_counting_house : public AreaTriggerScript
+{
+    public:
+
+        AreaTrigger_at_stormwind_counting_house()
+            : AreaTriggerScript("at_stormwind_counting_house")
+        {
+        }
+        
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            if (!player->isDead() && player->GetQuestStatus(QUEST_HOT_ON_THE_TRAIL_ALI) == QUEST_STATUS_INCOMPLETE)
+               player->KilledMonsterCredit(NPC_CREDIT_STORMWIND_COUNTING_HOUSE, 0);
+            
+            return true;
+        }
+};
+
+class AreaTrigger_at_stormwind_auction_house : public AreaTriggerScript
+{
+    public:
+
+        AreaTrigger_at_stormwind_auction_house()
+            : AreaTriggerScript("at_stormwind_auction_house")
+        {
+        }
+        
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            if (!player->isDead() && player->GetQuestStatus(QUEST_HOT_ON_THE_TRAIL_ALI) == QUEST_STATUS_INCOMPLETE)
+                player->KilledMonsterCredit(NPC_CREDIT_STORMWIND_AUCTION_HOUSE, 0);
+            
+            return true;
+        }
+};
+
+class AreaTrigger_at_stormwind_barber_shop : public AreaTriggerScript
+{
+    public:
+
+        AreaTrigger_at_stormwind_barber_shop()
+            : AreaTriggerScript("at_stormwind_barber_shop")
+        {
+        }
+        
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            if (!player->isDead() && player->GetQuestStatus(QUEST_HOT_ON_THE_TRAIL_ALI) == QUEST_STATUS_INCOMPLETE)
+                player->KilledMonsterCredit(NPC_CREDIT_STORMWIND_BARBER_SHOP, 0);
+            
+            return true;
+        }
+};
+
+/*######
+## Quest 24851
+######*/
+
+enum
+{
+    QUEST_HOT_ON_THE_TRAIL_HORDE        = 24851,
+    NPC_CREDIT_ORGRIMMAR_BANK           = 45673,
+    NPC_CREDIT_ORGRIMMAR_AUCTION_HOUSE  = 45674,
+    NPC_CREDIT_ORGRIMMAR_BARBER_SHOP    = 45675
+};
+
+class AreaTrigger_at_orgrimmar_bank : public AreaTriggerScript
+{
+    public:
+
+        AreaTrigger_at_orgrimmar_bank()
+            : AreaTriggerScript("at_orgrimmar_bank")
+        {
+        }
+        
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            if (!player->isDead() && player->GetQuestStatus(QUEST_HOT_ON_THE_TRAIL_HORDE) == QUEST_STATUS_INCOMPLETE)
+               player->KilledMonsterCredit(NPC_CREDIT_ORGRIMMAR_BANK, 0);
+            
+            return true;
+        }
+};
+
+class AreaTrigger_at_orgrimmar_auction_house : public AreaTriggerScript
+{
+    public:
+
+        AreaTrigger_at_orgrimmar_auction_house()
+            : AreaTriggerScript("at_orgrimmar_auction_house")
+        {
+        }
+        
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            if (!player->isDead() && player->GetQuestStatus(QUEST_HOT_ON_THE_TRAIL_HORDE) == QUEST_STATUS_INCOMPLETE)
+                player->KilledMonsterCredit(NPC_CREDIT_ORGRIMMAR_AUCTION_HOUSE, 0);
+            
+            return true;
+        }
+};
+
+class AreaTrigger_at_orgrimmar_barber_shop : public AreaTriggerScript
+{
+    public:
+
+        AreaTrigger_at_orgrimmar_barber_shop()
+            : AreaTriggerScript("at_orgrimmar_barber_shop")
+        {
+        }
+        
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            if (!player->isDead() && player->GetQuestStatus(QUEST_HOT_ON_THE_TRAIL_HORDE) == QUEST_STATUS_INCOMPLETE)
+                player->KilledMonsterCredit(NPC_CREDIT_ORGRIMMAR_BARBER_SHOP, 0);
+            
+            return true;
+        }
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_aldurthar_gate();
@@ -379,4 +517,10 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_scent_larkorwi();
     new AreaTrigger_at_last_rites();
     new AreaTrigger_at_sholazar_waygate();
+    new AreaTrigger_at_stormwind_counting_house();
+    new AreaTrigger_at_stormwind_auction_house();
+    new AreaTrigger_at_stormwind_barber_shop();
+    new AreaTrigger_at_orgrimmar_bank();
+    new AreaTrigger_at_orgrimmar_auction_house();
+    new AreaTrigger_at_orgrimmar_barber_shop();
 }
