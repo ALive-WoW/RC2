@@ -372,7 +372,12 @@ class boss_lady_deathwhisper : public CreatureScript
                     events.ScheduleEvent(EVENT_P2_FROSTBOLT, urand(10000, 12000), 0, PHASE_TWO);
                     events.ScheduleEvent(EVENT_P2_FROSTBOLT_VOLLEY, urand(19000, 21000), 0, PHASE_TWO);
                     events.ScheduleEvent(EVENT_P2_TOUCH_OF_INSIGNIFICANCE, urand(6000, 9000), 0, PHASE_TWO);
-                    events.ScheduleEvent(EVENT_P2_SUMMON_SHADE, urand(8000, 12000), 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_P2_SUMMON_SHADE, 10000, 0, PHASE_TWO);
+                    if(Is25ManRaid())
+                    {
+                        events.ScheduleEvent(EVENT_P2_SUMMON_SHADE2, 10000, 0, PHASE_TWO);
+                        events.ScheduleEvent(EVENT_P2_SUMMON_SHADE3, 10000, 0, PHASE_TWO);
+                    }
                     // on heroic mode Lady Deathwhisper is immune to taunt effects in phase 2 and continues summoning adds
                     if (IsHeroic())
                     {
@@ -494,7 +499,7 @@ class boss_lady_deathwhisper : public CreatureScript
                             break;
                         case EVENT_P2_FROSTBOLT_VOLLEY:
                             DoCastAOE(SPELL_FROSTBOLT_VOLLEY);
-                            events.ScheduleEvent(EVENT_P2_FROSTBOLT_VOLLEY, urand(13000, 15000), 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_P2_FROSTBOLT_VOLLEY, urand(14000, 16000), 0, PHASE_TWO);
                             break;
                         case EVENT_P2_TOUCH_OF_INSIGNIFICANCE:
                             DoCastVictim(SPELL_TOUCH_OF_INSIGNIFICANCE);
@@ -507,14 +512,8 @@ class boss_lady_deathwhisper : public CreatureScript
                                 DoCast(shadeTarget, SPELL_SUMMON_SHADE);
                             }
                             
-                            if(Is25ManRaid())
-                            {
-                                events.ScheduleEvent(EVENT_P2_SUMMON_SHADE2, 1000, 0, PHASE_TWO);
-                                events.ScheduleEvent(EVENT_P2_SUMMON_SHADE3, 2000, 0, PHASE_TWO);
-                            }
-                            
                             if(IsHeroic())
-                                events.ScheduleEvent(EVENT_P2_SUMMON_SHADE, urand(6000,8000), 0, PHASE_TWO);
+                                events.ScheduleEvent(EVENT_P2_SUMMON_SHADE, urand(7500,8500), 0, PHASE_TWO);
                             else
                                 events.ScheduleEvent(EVENT_P2_SUMMON_SHADE, urand(8000,10000), 0, PHASE_TWO);
                             break;
@@ -524,6 +523,10 @@ class boss_lady_deathwhisper : public CreatureScript
                                 _nextVengefulShade2TargetGUID = shadeTarget->GetGUID();
                                 DoCast(shadeTarget, SPELL_SUMMON_SHADE);
                             }
+                            if(IsHeroic())
+                                events.ScheduleEvent(EVENT_P2_SUMMON_SHADE2, urand(7500,8500), 0, PHASE_TWO);
+                            else
+                                events.ScheduleEvent(EVENT_P2_SUMMON_SHADE2, urand(8000,10000), 0, PHASE_TWO);
                             break;
                         case EVENT_P2_SUMMON_SHADE3:
                             if (Unit* shadeTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
@@ -531,6 +534,10 @@ class boss_lady_deathwhisper : public CreatureScript
                                 _nextVengefulShade3TargetGUID = shadeTarget->GetGUID();
                                 DoCast(shadeTarget, SPELL_SUMMON_SHADE);
                             }
+                            if(IsHeroic())
+                                events.ScheduleEvent(EVENT_P2_SUMMON_SHADE3, urand(7500,8500), 0, PHASE_TWO);
+                            else
+                                events.ScheduleEvent(EVENT_P2_SUMMON_SHADE3, urand(8000,10000), 0, PHASE_TWO);
                             break;
                         case EVENT_P2_SUMMON_WAVE:
                             SummonWaveP2();
