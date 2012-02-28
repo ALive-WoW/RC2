@@ -69,7 +69,7 @@ enum Creatures
     NPC_SYLVANAS_PART1                            = 37223,
     NPC_SYLVANA_OUTRO                             = 37554,
     NPC_KORELN                                    = 37582,
-    NPC_LORALEN                                     = 37779,
+    NPC_LORALEN                                   = 37779,
     NPC_BARTLETT                                  = 37182,
     NPC_KORM                                      = 37833,
 
@@ -156,7 +156,7 @@ struct boss_horAI : ScriptedAI
     {
         events.Reset();
         me->SetVisible(false);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_OOC_NOT_ATTACKABLE);
         me->SetReactState(REACT_PASSIVE);
     }
 
@@ -175,7 +175,7 @@ struct boss_horAI : ScriptedAI
                 me->SetVisible(true);
 
                 // Reset flags
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_OOC_NOT_ATTACKABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
 
                 if (Unit* pUnit = me->SelectNearestTarget())

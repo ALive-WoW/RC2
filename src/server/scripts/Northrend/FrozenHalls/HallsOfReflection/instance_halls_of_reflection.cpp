@@ -220,7 +220,16 @@ public:
                     uiLoralen = creature->GetGUID();
                     break;
                 case NPC_SYLVANAS_PART1:
+                    if (uiTeamInInstance == ALLIANCE)
+                        creature->UpdateEntry(NPC_JAINA_PART1, ALLIANCE);
+                    uiJainaPart1 = creature->GetGUID();
                     uiSylvanasPart1 = creature->GetGUID();
+                    break;
+                case NPC_LORALEN:
+                    if (uiTeamInInstance == ALLIANCE)
+                        creature->UpdateEntry(NPC_KORELN, ALLIANCE);
+                    uiKoreln = creature->GetGUID();
+                    uiLoralen = creature->GetGUID();
                     break;
                 case NPC_FROSTWORN_GENERAL:
                     creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -228,6 +237,11 @@ public:
                 case NPC_JAINA_OUTRO:
                     if (uiTeamInInstance == HORDE)
                         creature->UpdateEntry(NPC_SYLVANA_OUTRO, HORDE);
+                    creature->SetHealth(252000);
+                    uiLider = creature->GetGUID();
+                case NPC_SYLVANA_OUTRO:
+                    if (uiTeamInInstance == ALLIANCE)
+                        creature->UpdateEntry(NPC_JAINA_OUTRO, ALLIANCE);
                     creature->SetHealth(252000);
                     uiLider = creature->GetGUID();
                     break;
