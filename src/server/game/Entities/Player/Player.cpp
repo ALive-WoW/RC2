@@ -5652,7 +5652,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
             if (joinChannel)
                 joinChannel->Join(GetGUID(), "");            // Changed Channel: ... or Joined Channel: ...
 
-            if (removeChannel && !removeChannel->IsLFG())
+            if (removeChannel)
             {
                 removeChannel->Leave(GetGUID(), sendRemove); // Leave old channel
                 std::string name = removeChannel->GetName(); // Store name, (*i)erase in LeftChannel

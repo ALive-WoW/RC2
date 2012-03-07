@@ -77,6 +77,16 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             // Gnaw
             else if (spellproto->Id == 47481)
                 return DIMINISHING_CONTROLLED_STUN;
+            
+            switch (spellproto->Id)
+            {
+                // Noblegarden Bunny transforms
+                case 61716:
+                case 61734:
+                    return DIMINISHING_NONE;
+                default:
+                    break;
+            }
             break;
         }
         // Event spells
