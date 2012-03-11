@@ -79,11 +79,11 @@ public:
     {
         boss_lich_king_horAI(Creature *pCreature) : npc_escortAI(pCreature)
         {
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            instance = (InstanceScript*)pCreature->GetInstanceScript();
             Reset();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 Step;
         uint32 StepTimer;
         uint32 uiWall;
@@ -93,7 +93,7 @@ public:
 
         void Reset()
         {
-            if(!pInstance)
+            if(!instance)
                 return;
             NonFight = false;
             StartEscort = false;
@@ -105,25 +105,25 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            if(pInstance->GetData(DATA_ICE_WALL_1) == IN_PROGRESS)
+            if(instance->GetData(DATA_ICE_WALL_1) == IN_PROGRESS)
             {
                 uiWall = 1;
                 SetEscortPaused(true);
             }
 
-            if(pInstance->GetData(DATA_ICE_WALL_2) == IN_PROGRESS)
+            if(instance->GetData(DATA_ICE_WALL_2) == IN_PROGRESS)
             {
                 uiWall = 2;
                 SetEscortPaused(true);
             }
 
-            if(pInstance->GetData(DATA_ICE_WALL_3) == IN_PROGRESS)
+            if(instance->GetData(DATA_ICE_WALL_3) == IN_PROGRESS)
             {
                 uiWall = 3;
                 SetEscortPaused(true);
             }
 
-            if(pInstance->GetData(DATA_ICE_WALL_4) == IN_PROGRESS)
+            if(instance->GetData(DATA_ICE_WALL_4) == IN_PROGRESS)
             {
                 uiWall = 4;
                 SetEscortPaused(true);
@@ -133,9 +133,9 @@ public:
             {
                 case 66:
                     SetEscortPaused(true);
-                    pInstance->SetData(DATA_LICHKING_EVENT, SPECIAL);
+                    instance->SetData(DATA_LICHKING_EVENT, SPECIAL);
                     DoScriptText(SAY_LICH_KING_END_DUN, me);
-                    if(Creature* pLider = ((Creature*)Unit::GetUnit((*me), pInstance->GetData64(DATA_ESCAPE_LIDER))))
+                    if(Creature* pLider = ((Creature*)Unit::GetUnit((*me), instance->GetData64(DATA_ESCAPE_LIDER))))
                         me->CastSpell(pLider, SPELL_HARVEST_SOUL, false);
                     me->setActive(false);
                     break;
@@ -144,13 +144,13 @@ public:
 
         void AttackStart(Unit* who)
         {
-            if (!pInstance || !who)
+            if (!instance || !who)
                 return;
 
             if (NonFight)
                 return;
 
-            if(pInstance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS || who->GetTypeId() == TYPEID_PLAYER)
+            if(instance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS || who->GetTypeId() == TYPEID_PLAYER)
                 return;
 
             npc_escortAI::AttackStart(who);
@@ -158,14 +158,14 @@ public:
 
         void JustSummoned(Creature* summoned)
         {
-            if(!pInstance || !summoned)
+            if(!instance || !summoned)
                 return;
 
             summoned->SetInCombatWithZone();
             summoned->setActive(true);
 
-            pInstance->SetData(DATA_SUMMONS, 1);
-            if (Unit* pLider = Unit::GetUnit((*me), pInstance->GetData64(DATA_ESCAPE_LIDER)))
+            instance->SetData(DATA_SUMMONS, 1);
+            if (Unit* pLider = Unit::GetUnit((*me), instance->GetData64(DATA_ESCAPE_LIDER)))
             {
                 summoned->GetMotionMaster()->MoveChase(pLider);
                 summoned->AddThreat(pLider, 100.0f);
@@ -182,7 +182,7 @@ public:
             switch(Step)
             {
                 case 0:
-                    pInstance->SetData(DATA_SUMMONS, 3);
+                    instance->SetData(DATA_SUMMONS, 3);
                     DoScriptText(SAY_LICH_KING_WALL_01, me);
                     StepTimer = 2000;
                     ++Step;
@@ -206,7 +206,7 @@ public:
                     break;
                 case 4:
                     CallGuard(NPC_RISEN_WITCH_DOCTOR);
-                    pInstance->SetData(DATA_ICE_WALL_1, DONE);
+                    instance->SetData(DATA_ICE_WALL_1, DONE);
                     StepTimer = 100;
                     Step = 0;
                     uiWall = 0;
@@ -220,7 +220,7 @@ public:
             switch(Step)
             {
                 case 0:
-                    pInstance->SetData(DATA_SUMMONS, 3);
+                    instance->SetData(DATA_SUMMONS, 3);
                     DoScriptText(SAY_LICH_KING_GNOUL, me);
                     DoCast(me, SPELL_RAISE_DEAD);
                     StepTimer = 6000;
@@ -230,7 +230,7 @@ public:
                     CallGuard(NPC_RISEN_WITCH_DOCTOR);
                     CallGuard(NPC_RISEN_WITCH_DOCTOR);
                     CallGuard(NPC_ABON);
-                    pInstance->SetData(DATA_ICE_WALL_2, DONE);
+                    instance->SetData(DATA_ICE_WALL_2, DONE);
                     StepTimer = 5000;
                     Step = 0;
                     uiWall = 0;
@@ -244,7 +244,7 @@ public:
             switch(Step)
             {
                 case 0:
-                    pInstance->SetData(DATA_SUMMONS, 3);
+                    instance->SetData(DATA_SUMMONS, 3);
                     DoCast(me, SPELL_RAISE_DEAD);
                     DoScriptText(SAY_LICH_KING_GNOUL, me);
                     StepTimer = 6000;
@@ -257,7 +257,7 @@ public:
                     CallGuard(NPC_RISEN_WITCH_DOCTOR);
                     CallGuard(NPC_ABON);
                     CallGuard(NPC_ABON);
-                    pInstance->SetData(DATA_ICE_WALL_3, DONE);
+                    instance->SetData(DATA_ICE_WALL_3, DONE);
                     StepTimer = 5000;
                     Step = 0;
                     uiWall = 0;
@@ -271,7 +271,7 @@ public:
             switch(Step)
             {
                 case 0:
-                    pInstance->SetData(DATA_SUMMONS, 3);
+                    instance->SetData(DATA_SUMMONS, 3);
                     DoCast(me, SPELL_RAISE_DEAD);
                     DoScriptText(SAY_LICH_KING_GNOUL, me);
                     StepTimer = 6000;
@@ -290,7 +290,7 @@ public:
                     DoScriptText(SAY_LICH_KING_ABON, me);
                     CallGuard(NPC_RISEN_WITCH_DOCTOR);
                     CallGuard(NPC_RISEN_WITCH_DOCTOR);
-                    pInstance->SetData(DATA_ICE_WALL_4, DONE);
+                    instance->SetData(DATA_ICE_WALL_4, DONE);
                     uiWall = 0;
                     SetEscortPaused(false);
                     ++Step;
@@ -300,10 +300,10 @@ public:
 
         void UpdateEscortAI(const uint32 diff)
         {
-            if(!pInstance)
+            if(!instance)
                 return;
 
-            if(pInstance->GetData(DATA_LICHKING_EVENT) == NOT_STARTED || pInstance->GetData(DATA_LICHKING_EVENT) == FAIL)
+            if(instance->GetData(DATA_LICHKING_EVENT) == NOT_STARTED || instance->GetData(DATA_LICHKING_EVENT) == FAIL)
             {
                 if (!UpdateVictim())
                     return;
@@ -311,13 +311,13 @@ public:
                 DoMeleeAttackIfReady();
             }
 
-            if(me->isInCombat() && pInstance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS)
+            if(me->isInCombat() && instance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS)
             {
                 npc_escortAI::EnterEvadeMode();
             }
 
             // Start chase for leader
-            if(pInstance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS && StartEscort != true)
+            if(instance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS && StartEscort != true)
             {
                 StartEscort = true;
                 me->RemoveAurasDueToSpell(SPELL_ICE_PRISON);
@@ -332,9 +332,9 @@ public:
             }
 
             // Leader caught, wipe
-            if (Creature* pLider = ((Creature*)Unit::GetUnit((*me), pInstance->GetData64(DATA_ESCAPE_LIDER))))
+            if (Creature* pLider = ((Creature*)Unit::GetUnit((*me), instance->GetData64(DATA_ESCAPE_LIDER))))
             {
-                if (pLider->IsWithinDistInMap(me, 2.0f) && pInstance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS)
+                if (pLider->IsWithinDistInMap(me, 2.0f) && instance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS)
                 {
                     me->setActive(false);
                     SetEscortPaused(false);
@@ -390,12 +390,12 @@ public:
     {
         npc_raging_gnoulAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            instance = (instanceScript*)pCreature->GetinstanceScript();
             me->setActive(true);
             Reset();
         }
 
-        InstanceScript* pInstance;
+        instanceScript* instance;
         uint32 EmergeTimer;
         bool Emerge;
         bool Jumped;
@@ -411,10 +411,10 @@ public:
 
         void JustDied(Unit* pKiller)
         {
-            if(!pInstance)
+            if(!instance)
                 return;
 
-            pInstance->SetData(DATA_SUMMONS, 0);
+            instance->SetData(DATA_SUMMONS, 0);
         }
 
         void AttackStart(Unit* who)
@@ -430,12 +430,12 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if(!pInstance)
+            if(!instance)
                 return;
 
-            if(pInstance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS)
+            if(instance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS)
             {
-                uiLiderGUID = pInstance->GetData64(DATA_ESCAPE_LIDER);
+                uiLiderGUID = instance->GetData64(DATA_ESCAPE_LIDER);
                 Creature* pLider = ((Creature*)Unit::GetUnit((*me), uiLiderGUID));
 
                 if(Emerge != true)
@@ -444,7 +444,7 @@ public:
                     {
                         //me->RemoveFlag(SPLINEFLAG_WALKING | MOVEMENTFLAG_WALKING, true);
                         Emerge = true;
-                        uiLiderGUID = pInstance->GetData64(DATA_ESCAPE_LIDER);
+                        uiLiderGUID = instance->GetData64(DATA_ESCAPE_LIDER);
                         if(pLider)
                         {
                             DoResetThreat();
@@ -466,7 +466,7 @@ public:
                     }
                 }
             } 
-            else if (pInstance->GetData(DATA_LICHKING_EVENT) == FAIL || pInstance->GetData(DATA_LICHKING_EVENT) == NOT_STARTED)
+            else if (instance->GetData(DATA_LICHKING_EVENT) == FAIL || instance->GetData(DATA_LICHKING_EVENT) == NOT_STARTED)
                 me->DespawnOrUnsummon();
 
             DoMeleeAttackIfReady();
@@ -489,12 +489,12 @@ public:
     {
         npc_risen_witch_doctorAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            instance = (InstanceScript*)pCreature->GetInstanceScript();
             me->setActive(true);
             Reset();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 EmergeTimer;
         bool Emerge;
         uint64 uiLiderGUID;
@@ -514,10 +514,10 @@ public:
 
         void JustDied(Unit* pKiller)
         {
-            if(!pInstance)
+            if(!instance)
                 return;
 
-            pInstance->SetData(DATA_SUMMONS, 0);
+            instance->SetData(DATA_SUMMONS, 0);
 
         }
 
@@ -534,17 +534,17 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if(!pInstance)
+            if(!instance)
                 return;
 
-            if(pInstance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS)
+            if(instance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS)
             {
                 if(Emerge != true)
                 {
                     if(EmergeTimer < diff)
                     {
                         Emerge = true;
-                        uiLiderGUID = pInstance->GetData64(DATA_ESCAPE_LIDER);
+                        uiLiderGUID = instance->GetData64(DATA_ESCAPE_LIDER);
                         if(Creature* pLider = ((Creature*)Unit::GetUnit((*me), uiLiderGUID)))
                         {
                             DoResetThreat();
@@ -579,7 +579,7 @@ public:
                 } else uiBoltVolleyTimer -= diff;
 
             }
-            else if (pInstance->GetData(DATA_LICHKING_EVENT) == FAIL || pInstance->GetData(DATA_LICHKING_EVENT) == NOT_STARTED)
+            else if (instance->GetData(DATA_LICHKING_EVENT) == FAIL || instance->GetData(DATA_LICHKING_EVENT) == NOT_STARTED)
                 me->DespawnOrUnsummon();
 
             DoMeleeAttackIfReady();
@@ -602,12 +602,12 @@ public:
     {
         npc_abonAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            instance = (InstanceScript*)pCreature->GetInstanceScript();
             me->setActive(true);
             Reset();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint64 uiLiderGUID;
         bool Walk;
         uint32 uiStrikeTimer;
@@ -622,14 +622,14 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if(!pInstance) return;
+            if(!instance) return;
 
-            if(pInstance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS)
+            if(instance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS)
             {
                 if(Walk != true)
                 {
                     Walk = true;
-                    uiLiderGUID = pInstance->GetData64(DATA_ESCAPE_LIDER);
+                    uiLiderGUID = instance->GetData64(DATA_ESCAPE_LIDER);
                     if(Creature* pLider = ((Creature*)Unit::GetUnit((*me), uiLiderGUID)))
                     {
                         DoResetThreat();
@@ -653,17 +653,17 @@ public:
                     uiVomitTimer = urand(15000, 20000);
                 } else uiVomitTimer -= diff;
             }
-            else if (pInstance->GetData(DATA_LICHKING_EVENT) == FAIL || pInstance->GetData(DATA_LICHKING_EVENT) == NOT_STARTED)
+            else if (instance->GetData(DATA_LICHKING_EVENT) == FAIL || instance->GetData(DATA_LICHKING_EVENT) == NOT_STARTED)
                 me->DespawnOrUnsummon();
             DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* pKiller)
         {
-            if(!pInstance)
+            if(!instance)
                 return;
 
-            pInstance->SetData(DATA_SUMMONS, 0);
+            instance->SetData(DATA_SUMMONS, 0);
         }
     };
 

@@ -5533,17 +5533,26 @@ void Player::RepopAtGraveyard()
 bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone)
 {
     // Player can join LFG anywhere
-    if (channel->flags & CHANNEL_DBC_FLAG_LFG)
-        return true;
+    /*if (channel->flags & CHANNEL_DBC_FLAG_LFG)
+        return true;*/
 
-    if (channel->flags & CHANNEL_DBC_FLAG_ZONE_DEP && zone->flags & AREA_FLAG_ARENA_INSTANCE)
+    if (channel->flags & CHANNEL_DBC_FLAG_ZONE_DEP)
+    {
+        if (zone->flags & AREA_FLAG_ARENA_INSTANCE)
+            return false;
+
+        if ((channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY) && !(zone->flags & AREA_FLAG_CAPITAL))
+            return false;
+    }
+
+    /*if (channel->flags & CHANNEL_DBC_FLAG_ZONE_DEP && zone->flags & AREA_FLAG_ARENA_INSTANCE)
         return false;
 
     if ((channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY) && (!(zone->flags & AREA_FLAG_SLAVE_CAPITAL)))
         return false;
 
     if ((channel->flags & CHANNEL_DBC_FLAG_GUILD_REQ) && GetGuildId())
-        return false;
+        return false;*/
 
     return true;
 }
@@ -5643,7 +5652,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
             if (joinChannel)
                 joinChannel->Join(GetGUID(), "");            // Changed Channel: ... or Joined Channel: ...
 
-            if (removeChannel && !removeChannel->IsLFG())
+            if (removeChannel)
             {
                 removeChannel->Leave(GetGUID(), sendRemove); // Leave old channel
                 std::string name = removeChannel->GetName(); // Store name, (*i)erase in LeftChannel

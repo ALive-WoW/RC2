@@ -77,6 +77,16 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             // Gnaw
             else if (spellproto->Id == 47481)
                 return DIMINISHING_CONTROLLED_STUN;
+            
+            switch (spellproto->Id)
+            {
+                // Noblegarden Bunny transforms
+                case 61716:
+                case 61734:
+                    return DIMINISHING_NONE;
+                default:
+                    break;
+            }
             break;
         }
         // Event spells
@@ -3198,6 +3208,7 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             case 2895:  // Wrath of Air Totem rank 1 (Aura)
             case 68933: // Wrath of Air Totem rank 2 (Aura)
+            case 29200: // Purify Helboar Meat
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
                 spellInfo->EffectImplicitTargetB[0] = 0;
                 break;
