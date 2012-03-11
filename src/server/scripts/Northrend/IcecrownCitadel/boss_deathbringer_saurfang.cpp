@@ -1047,7 +1047,10 @@ class npc_bloodbeast : public CreatureScript
             void Reset()
             {
                 Events.Reset();
-                Events.ScheduleEvent(EVENT_MAGMA_SHACKLES, urand(1000, 1000));
+                if(IsHeroic())
+                {
+                    Events.ScheduleEvent(EVENT_MAGMA_SHACKLES, urand(1000, 1000));
+                }
             }
 
             void KilledUnit(Unit* victim)
