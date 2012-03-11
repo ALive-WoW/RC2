@@ -47,10 +47,10 @@ set(scripts_STAT_SRCS
   Northrend/ChamberOfAspects/ObsidianSanctum/boss_sartharion.cpp
   Northrend/ChamberOfAspects/RubySanctum/instance_ruby_sanctum.cpp
   Northrend/ChamberOfAspects/RubySanctum/ruby_sanctum.h
-  Northrend/ChamberOfAspects/RubySanctum/ruby_sanctum.cpp
   Northrend/ChamberOfAspects/RubySanctum/boss_baltharus_the_warborn.cpp
   Northrend/ChamberOfAspects/RubySanctum/boss_saviana_ragefire.cpp
   Northrend/ChamberOfAspects/RubySanctum/boss_general_zarithrian.cpp
+  Northrend/ChamberOfAspects/RubySanctum/boss_halion.cpp
   Northrend/FrozenHalls/HallsOfReflection/halls_of_reflection.h
   Northrend/FrozenHalls/HallsOfReflection/boss_falric.cpp
   Northrend/FrozenHalls/HallsOfReflection/instance_halls_of_reflection.cpp
@@ -166,6 +166,7 @@ set(scripts_STAT_SRCS
   Northrend/IcecrownCitadel/icecrown_citadel_teleport.cpp
   Northrend/IcecrownCitadel/boss_lord_marrowgar.cpp
   Northrend/IcecrownCitadel/boss_lady_deathwhisper.cpp
+  Northrend/IcecrownCitadel/boss_gunship_battle.cpp
   Northrend/IcecrownCitadel/boss_deathbringer_saurfang.cpp
   Northrend/IcecrownCitadel/boss_festergut.cpp
   Northrend/IcecrownCitadel/boss_rotface.cpp
