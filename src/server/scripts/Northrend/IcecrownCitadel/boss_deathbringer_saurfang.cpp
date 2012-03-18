@@ -112,7 +112,6 @@ enum Spells
     SPELL_BLOOD_LINK_BEAST              = 72176,
     SPELL_RESISTANT_SKIN                = 72723,
     SPELL_SCENT_OF_BLOOD                = 72769, // Heroic only
-    SPELL_MAGMA_SHACKLES                = 19496,
 
     SPELL_RIDE_VEHICLE                  = 70640, // Outro
     SPELL_ACHIEVEMENT                   = 72928,
@@ -372,9 +371,9 @@ class boss_deathbringer_saurfang : public CreatureScript
 						summon->Attack(target, true);
 					}
 
-                if (IsHeroic())
-					summon->AI()->DoCast(summon, SPELL_SCENT_OF_BLOOD, true);
-
+                if (IsHeroic()){
+				    summon->AI()->DoCast(summon, SPELL_SCENT_OF_BLOOD, true);
+                }
                 summon->AI()->DoCast(summon, SPELL_BLOOD_LINK, true);
                 summon->AI()->DoCast(summon, SPELL_RESISTANT_SKIN, true);
                 summons.Summon(summon);
@@ -512,6 +511,9 @@ class boss_deathbringer_saurfang : public CreatureScript
                             if (Is25ManRaid())
                                 for (uint32 i25 = 0; i25 < 3; ++i25)
                                     DoCast(me, SPELL_SUMMON_BLOOD_BEAST_25_MAN+i25);
+                            if(IsHeroic()){
+                                instance->DoCastSpellOnPlayers(50304);  // (Workaround for Scent of Blood slow effect)
+                            }
                             Talk(SAY_BLOOD_BEASTS);
                             events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 40000, 0, PHASE_COMBAT);
                             break;
@@ -1047,10 +1049,6 @@ class npc_bloodbeast : public CreatureScript
             void Reset()
             {
                 Events.Reset();
-                if(IsHeroic())
-                {
-                    Events.ScheduleEvent(EVENT_MAGMA_SHACKLES, urand(1000, 1000));
-                }
             }
 
             void KilledUnit(Unit* victim)
@@ -1088,17 +1086,7 @@ class npc_bloodbeast : public CreatureScript
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
-                while (uint32 eventId = Events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_MAGMA_SHACKLES:
-                            DoCast(me, SPELL_MAGMA_SHACKLES);
-                            Events.ScheduleEvent(EVENT_MAGMA_SHACKLES, urand(5000, 6000));
-                            break;
-                    }
-                }
-
+            
         		DoMeleeAttackIfReady();
    	    	}
 
