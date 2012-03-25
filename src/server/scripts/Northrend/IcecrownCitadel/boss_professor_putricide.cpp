@@ -738,14 +738,25 @@ class spell_putricide_gaseous_bloat : public SpellScriptLoader
         {
             PrepareAuraScript(spell_putricide_gaseous_bloat_AuraScript);
 
-            void HandleExtraEffect(AuraEffect const* /*aurEff*/)
+            void HandleExtraEffect(AuraEffect const* aurEff)
             {
                 Unit* target = GetTarget();
                 if (Unit* caster = GetCaster())
                 {
-                    target->RemoveAuraFromStack(GetSpellInfo()->Id, GetCasterGUID());
-                    if (!target->HasAura(GetId())&& caster->GetTypeId() == TYPEID_UNIT)
-                        caster->ToCreature()->DespawnOrUnsummon();
+                    if (Aura* aura = target->GetAura(GetSpellInfo()->Id))
+                    {
+                        if (aura->GetStackAmount() > 1)
+                        {
+                            target->RemoveAuraFromStack(GetSpellInfo()->Id, GetCasterGUID());
+                        }
+                        else{
+                        }
+                    }
+                    if (!target->HasAura(GetId()) && caster->GetTypeId() == TYPEID_UNIT){
+                        // Eigentlich neues Ziel suchen..aber wir setzen den stack erstmal wieder auf 10.
+                        caster->CastCustomSpell(SPELL_GASEOUS_BLOAT, SPELLVALUE_AURA_STACK, 10, caster, false);
+                        //caster->ToCreature()->DespawnOrUnsummon();
+                    }
                 }
             }
 

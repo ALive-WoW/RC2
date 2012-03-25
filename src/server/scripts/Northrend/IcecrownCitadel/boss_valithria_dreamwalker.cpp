@@ -575,7 +575,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                 // check if there is any player on threatlist, if not - evade
                 for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
                     if (Unit* target = (*itr)->getTarget())
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
                             return; // found any player, return
 
                 EnterEvadeMode();
@@ -686,8 +686,12 @@ class npc_the_lich_king_controller : public CreatureScript
 									break;
 							}
                             _events.ScheduleEvent(EVENT_GLUTTONOUS_ABOMINATION_SUMMONER, _timerGluttonousAbomination);
+                            
                             if(_timerGluttonousAbomination > 5000)
                                 _timerGluttonousAbomination -= 5000;
+                            else if(IsHeroic() && _timerGluttonousAbomination >= 1000)
+                                _timerGluttonousAbomination -= 500;
+                            
 							break;
 						}
                         case EVENT_SUPPRESSER_SUMMONER:
@@ -709,8 +713,11 @@ class npc_the_lich_king_controller : public CreatureScript
 									break;
 							}
 							_events.ScheduleEvent(EVENT_SUPPRESSER_SUMMONER, _timerSuppressor);
-                            if(_timerSuppressor > 5000)
+                            if(!IsHeroic() && _timerSuppressor > 5000)
                                 _timerSuppressor -= 5000;
+							else if(IsHeroic() && _timerSuppressor >= 1000)
+                                _timerSuppressor -= 500;
+                            
 							break;
 						}
                         case EVENT_BLISTERING_ZOMBIE_SUMMONER:
@@ -734,6 +741,9 @@ class npc_the_lich_king_controller : public CreatureScript
                             _events.ScheduleEvent(EVENT_BLISTERING_ZOMBIE_SUMMONER, _timerBlisteringZombie);
                             if(_timerBlisteringZombie > 5000)
                                 _timerBlisteringZombie -= 1000;
+							else if(IsHeroic() && _timerBlisteringZombie >= 1000)
+                                _timerBlisteringZombie -= 500;
+                            
 							break;
 						}
                         case EVENT_RISEN_ARCHMAGE_SUMMONER:
@@ -757,6 +767,9 @@ class npc_the_lich_king_controller : public CreatureScript
                             _events.ScheduleEvent(EVENT_RISEN_ARCHMAGE_SUMMONER, _timerRisenArchmage);
                             if(_timerRisenArchmage > 5000)
                                 _timerRisenArchmage -= 2000;
+							else if(IsHeroic() && _timerRisenArchmage >= 1000)
+                                _timerRisenArchmage -= 500;
+							
 							break;
 						}
                         case EVENT_BLAZING_SKELETON_SUMMONER:
@@ -780,6 +793,9 @@ class npc_the_lich_king_controller : public CreatureScript
                             _events.ScheduleEvent(EVENT_BLAZING_SKELETON_SUMMONER, _timerBlazingSkeleton);
                             if(_timerBlazingSkeleton > 5000)
                                 _timerBlazingSkeleton -= RAID_MODE(1000, 5000, 1000, 5000);
+							else if(IsHeroic() && _timerBlazingSkeleton >= 1000)
+                                _timerBlazingSkeleton -= 500;
+							
 							break;
                         }
                         case EVENT_CHECK_WIPE:
